@@ -17,10 +17,12 @@ set(RELEASE_SOURCE_FILES ./week2_code/Fighterplane.cpp ./week2_code/Largest.cpp 
 # Set source files for DEBUG target
 # Only add cpp files, no h files!
 # Make sure the "main" function is in "main_debug"!
-set(DEBUG_SOURCE_FILES ./week2_code/Fighterplane.cpp ./week2_code/Largest.cpp ./week2_code/tests.cpp)
+set(DEBUG_SOURCE_FILES ./week2_code/Fighterplane.cpp ./week2_code/Largest.cpp ./week2_code/tests.cpp
+)
 # Create RELEASE target
 add_executable(release_target ${RELEASE_SOURCE_FILES})
 # Create DEBUG target
 add_executable(debug_target ${DEBUG_SOURCE_FILES})
 # Link library
 target_link_libraries(debug_target gtest)
+target_include_directories(release_target PRIVATE ${CMAKE_SOURCE_DIR})
