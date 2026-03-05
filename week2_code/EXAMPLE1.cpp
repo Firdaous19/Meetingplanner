@@ -1,7 +1,6 @@
 #include <iostream>
 #include "Room.h"
-
-int main{
+void runEXAMPLE1() {
     Room meetingRoom("Vergaderzaal A", 10);
     std::cout << "Kamer aangemaakt: " << meetingRoom.getName() << std::endl;
 
