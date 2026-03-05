@@ -37,6 +37,7 @@ set(RELEASE_SOURCE_FILES
         tinyxml/tinystr.cpp
         week2_code/Room.cpp
         week2_code/Room.h
+        week2_code/EXAMPLE_TEST1.cpp
 
 )
 
@@ -52,10 +53,16 @@ set(DEBUG_SOURCE_FILES
         tinyxml/tinystr.cpp
         week2_code/Room.cpp
         week2_code/Room.h
-
+        week2_code/main_debug.cpp
+        week2_code/EXAMPLE_TEST1.cpp
 
 
 )
 
 add_executable(release_target ${RELEASE_SOURCE_FILES})
 add_executable(debug_target ${DEBUG_SOURCE_FILES})
+
+include_directories(${PROJECT_SOURCE_DIR}/gtest/include)
+link_directories(${PROJECT_SOURCE_DIR}/gtest/lib)
+
+target_link_libraries(debug_target gtest gtest_main)
