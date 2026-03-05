@@ -31,6 +31,8 @@ int main() {
 
         if (name == "TITLE" || name == "Title")
             std::cout << "Title: " << value << std::endl;
+
+        std::cout << "small change " << value << std::endl;
     }
 
     doc.Clear();
