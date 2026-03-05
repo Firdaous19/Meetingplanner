@@ -26,19 +26,36 @@ FetchContent_MakeAvailable(googletest)
 
 # --- Sources ---
 set(RELEASE_SOURCE_FILES
-        ./week2_code/Fighterplane.cpp
-        ./week2_code/Largest.cpp
-        ./week2_code/main.cpp
+        week2_code/main.cpp
+        week2_code/Room.cpp
+        week2_code/EXAMPLE1.cpp
+        week2_code/Fighterplane.cpp
+        week2_code/Largest.cpp
+        tinyxml/tinyxml.cpp
+        tinyxml/tinyxmlerror.cpp
+        tinyxml/tinyxmlparser.cpp
+        tinyxml/tinystr.cpp
+        week2_code/Room.cpp
+        week2_code/Room.h
+
 )
 
 set(DEBUG_SOURCE_FILES
-        ./week2_code/Fighterplane.cpp
-        ./week2_code/Largest.cpp
-        ./week2_code/tests.cpp
+        week2_code/main.cpp
+        week2_code/Room.cpp
+        week2_code/EXAMPLE1.cpp
+        week2_code/Fighterplane.cpp
+        week2_code/Largest.cpp
+        tinyxml/tinyxml.cpp
+        tinyxml/tinyxmlerror.cpp
+        tinyxml/tinyxmlparser.cpp
+        tinyxml/tinystr.cpp
+        week2_code/Room.cpp
+        week2_code/Room.h
+
+
+
 )
 
 add_executable(release_target ${RELEASE_SOURCE_FILES})
 add_executable(debug_target ${DEBUG_SOURCE_FILES})
-
-# Link gtest to debug target
-target_link_libraries(debug_target PRIVATE gtest gtest_main)
