@@ -1,15 +1,17 @@
-//
-// Created by ali_s on 5/03/2026.
-//
 #include <gtest/gtest.h>
 #include "Room.h"
 
-// Eerste test voor Room
+//Deze test dient om te controleren of de Room correct is aangemaakt
 TEST(RoomTest, CreateRoomValid) {
+    Room meetingRoom("Vergaderzaal A", 10);
 
-    Room room("Vergaderzaal A", 10);
+    EXPECT_EQ(meetingRoom.getName(), "Vergaderzaal A");
+    EXPECT_EQ(meetingRoom.getCapacity(), 10);
+}
 
-    EXPECT_EQ(room.getName(), "Vergaderzaal A");
-    EXPECT_EQ(room.getCapacity(), 10);
+//De test controleert of de capaciteit positief is
+TEST(RoomTest, CapacityPositive) {
+    Room B("B202", 10);
 
+    EXPECT_GT(B.getCapacity(), 0);
 }
