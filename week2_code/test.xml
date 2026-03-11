@@ -1,4 +1,32 @@
-<?xml version="1.0"?>
-<root>
-    <name>Test</name>
-</root>
+<SYSTEM>
+
+    <ROOM>
+        <NAME>Vergaderzaal A</NAME>
+        <IDENTIFIER>A101</IDENTIFIER>
+        <CAPACITY>5</CAPACITY>
+    </ROOM>
+
+    <ROOM>
+        <NAME>Vergaderzaal B</NAME>
+        <IDENTIFIER>B202</IDENTIFIER>
+        <CAPACITY>3</CAPACITY>
+    </ROOM>
+
+    <MEETING>
+        <LABEL>Team Meeting</LABEL>
+        <IDENTIFIER>M1</IDENTIFIER>
+        <ROOM>A101</ROOM>
+        <DATE>2026-03-20</DATE>
+    </MEETING>
+
+    <PARTICIPATION>
+        <MEETING>M1</MEETING>
+        <USER>Alice</USER>
+    </PARTICIPATION>
+
+    <PARTICIPATION>
+        <MEETING>M1</MEETING>
+        <USER>Bob</USER>
+    </PARTICIPATION>
+
+</SYSTEM>

@@ -26,6 +26,7 @@ set(RELEASE_SOURCE_FILES
         tinyxml/tinyxmlerror.cpp
         tinyxml/tinyxmlparser.cpp
         tinyxml/tinystr.cpp
+        week2_code/Meeting.cpp
 
 )
 
@@ -39,6 +40,7 @@ set(DEBUG_SOURCE_FILES
         tinyxml/tinyxmlerror.cpp
         tinyxml/tinyxmlparser.cpp
         tinyxml/tinystr.cpp
+        week2_code/Meeting.cpp
 )
 
 add_executable(release_target ${RELEASE_SOURCE_FILES})

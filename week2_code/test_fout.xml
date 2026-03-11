@@ -1,0 +1,26 @@
+<SYSTEM>
+
+    <ROOM>
+        <NAME>Kleine kamer</NAME>
+        <IDENTIFIER>K1</IDENTIFIER>
+        <CAPACITY>1</CAPACITY>
+    </ROOM>
+
+    <MEETING>
+        <LABEL>Drukke meeting</LABEL>
+        <IDENTIFIER>M2</IDENTIFIER>
+        <ROOM>K1</ROOM>
+        <DATE>2026-03-21</DATE>
+    </MEETING>
+
+    <PARTICIPATION>
+        <MEETING>M2</MEETING>
+        <USER>Alice</USER>
+    </PARTICIPATION>
+
+    <PARTICIPATION>
+        <MEETING>M2</MEETING>
+        <USER>Bob</USER>
+    </PARTICIPATION>
+
+</SYSTEM>
