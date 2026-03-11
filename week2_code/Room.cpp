@@ -1,16 +1,14 @@
 #include "Room.h"
 #include <stdexcept>
+#include "DesignByContract.h"
 
 Room::Room(const std::string& name, int capacity) : name(name), capacity(capacity) {
-    if (capacity <= 0) {
-        throw std::runtime_error("Capaciteit moet groter zijn dan 0");
-    }
+    REQUIRE(capacity > 0, "Capaciteit moet groter zijn dan 0");
 }
 
 void Room::addPerson(std::string name) {
-    if (persons.size() >= (size_t)capacity) {
-        throw std::runtime_error("Kamer is al vol!");
-    }
-
+    REQUIRE(persons.size() < (size_t)capacity, "Kamer is al vol!");
     persons.push_back(name);
 }
+
+

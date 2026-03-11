@@ -20,19 +20,17 @@ FetchContent_MakeAvailable(googletest)
 set(RELEASE_SOURCE_FILES
         week2_code/main.cpp
         week2_code/Room.cpp
-        week2_code/EXAMPLE1.cpp
         week2_code/Fighterplane.cpp
         week2_code/Largest.cpp
         tinyxml/tinyxml.cpp
         tinyxml/tinyxmlerror.cpp
         tinyxml/tinyxmlparser.cpp
         tinyxml/tinystr.cpp
-        week2_code/Room.h
+
 )
 
 set(DEBUG_SOURCE_FILES
         week2_code/Room.cpp
-        week2_code/EXAMPLE1.cpp
         week2_code/Fighterplane.cpp
         week2_code/Largest.cpp
         week2_code/tests.cpp
@@ -41,7 +39,6 @@ set(DEBUG_SOURCE_FILES
         tinyxml/tinyxmlerror.cpp
         tinyxml/tinyxmlparser.cpp
         tinyxml/tinystr.cpp
-        week2_code/Room.h
 )
 
 add_executable(release_target ${RELEASE_SOURCE_FILES})
