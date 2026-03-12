@@ -1,0 +1,33 @@
+<SYSTEM>
+
+    <ROOM>
+        <NAME>Vergaderzaal A</NAME>
+        <IDENTIFIER>A101</IDENTIFIER>
+        <CAPACITY>5</CAPACITY>
+    </ROOM>
+
+    <MEETING>
+        <LABEL>Eerste meeting</LABEL>
+        <IDENTIFIER>M1</IDENTIFIER>
+        <ROOM>A101</ROOM>
+        <DATE>2026-03-20</DATE>
+    </MEETING>
+
+    <MEETING>
+        <LABEL>Tweede meeting</LABEL>
+        <IDENTIFIER>M2</IDENTIFIER>
+        <ROOM>A101</ROOM>
+        <DATE>2026-03-20</DATE>
+    </MEETING>
+
+    <PARTICIPATION>
+        <MEETING>M1</MEETING>
+        <USER>Alice</USER>
+    </PARTICIPATION>
+
+    <PARTICIPATION>
+        <MEETING>M2</MEETING>
+        <USER>Bob</USER>
+    </PARTICIPATION>
+
+</SYSTEM>

@@ -14,12 +14,15 @@ public:
 
     void addPerson(const std::string& personName);
     int getNumberOfPersons() const { return persons.size(); }
+    bool isOccupied() const { return occupied; }
+    void occupy() { occupied = true; }
 
 private:
     std::string name;
     std::string identifier;
     int capacity;
     std::vector<std::string> persons;
+    bool occupied = false;
 };
 
 #endif

@@ -20,9 +20,35 @@ std::string formatDate(const std::string& isoDate) {
 
     return day + "/" + month + "/" + year;
 }
+bool processSingleMeeting(const Meeting& meeting, std::vector<Room>& rooms, std::vector<std::string>& conflicts) {
+    for (auto& room : rooms) {
+        if (room.getIdentifier() == meeting.getRoomIdentifier()) {
+            if (room.isOccupied()) {
+                std::string msg = "Meeting " + meeting.getIdentifier() +
+                                  " geannuleerd: room " + room.getIdentifier() +
+                                  " is al bezet.";
+                std::cerr << msg << std::endl;
+                conflicts.push_back(msg);
+                return false;
+            }
 
+            room.occupy();
+            std::cout << "Meeting " << meeting.getIdentifier()
+                      << " vindt plaats in room "
+                      << room.getIdentifier() << std::endl;
+            return true;
+        }
+    }
+
+    std::string msg = "Meeting " + meeting.getIdentifier() +
+                      " geannuleerd: onbekende room " +
+                      meeting.getRoomIdentifier();
+    std::cerr << msg << std::endl;
+    conflicts.push_back(msg);
+    return false;
+}
 int main() {
-    TiXmlDocument doc("../week2_code/test.xml");
+    TiXmlDocument doc("../week2_code/test_laatste.xml");
 
     if (!doc.LoadFile()) {
         std::cerr << "Fout bij openen van XML-bestand: " << doc.ErrorDesc() << std::endl;
@@ -212,14 +238,7 @@ int main() {
         }
     }
 
-    // -----------------------------
-    // Simpele meeting processing
-    // -----------------------------
-    for (const auto& meeting : meetings) {
-        std::cout << "Meeting " << meeting.getIdentifier()
-                  << " vindt plaats in room "
-                  << meeting.getRoomIdentifier() << std::endl;
-    }
+
 
     // -----------------------------
     // Outputbestand maken
@@ -229,7 +248,9 @@ int main() {
         std::cerr << "Fout: outputbestand kon niet gemaakt worden." << std::endl;
         return 1;
     }
-
+    for (const auto& meeting : meetings) {
+        processSingleMeeting(meeting, rooms, conflicts);
+    }
     out << "Past meetings:\n";
     // voorlopig leeg, tenzij je later datums vergelijkt
 
