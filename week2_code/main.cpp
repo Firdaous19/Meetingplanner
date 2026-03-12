@@ -9,7 +9,6 @@
 #include "DesignByContract.h"
 
 std::string formatDate(const std::string& isoDate) {
-    // Verwacht formaat YYYY-MM-DD
     if (isoDate.size() != 10) {
         return isoDate;
     }
@@ -20,7 +19,10 @@ std::string formatDate(const std::string& isoDate) {
 
     return day + "/" + month + "/" + year;
 }
-bool processSingleMeeting(const Meeting& meeting, std::vector<Room>& rooms, std::vector<std::string>& conflicts) {
+
+bool processSingleMeeting(const Meeting& meeting,
+                          std::vector<Room>& rooms,
+                          std::vector<std::string>& conflicts) {
     for (auto& room : rooms) {
         if (room.getIdentifier() == meeting.getRoomIdentifier()) {
             if (room.isOccupied()) {
@@ -47,6 +49,7 @@ bool processSingleMeeting(const Meeting& meeting, std::vector<Room>& rooms, std:
     conflicts.push_back(msg);
     return false;
 }
+
 int main() {
     TiXmlDocument doc("../week2_code/test_laatste.xml");
 
@@ -63,11 +66,10 @@ int main() {
 
     std::vector<Room> rooms;
     std::vector<Meeting> meetings;
+    std::vector<Meeting> successfulMeetings;
     std::vector<std::string> conflicts;
 
-    // -----------------------------
     // XML inlezen
-    // -----------------------------
     for (TiXmlElement* elem = root->FirstChildElement();
          elem != nullptr;
          elem = elem->NextSiblingElement()) {
@@ -179,12 +181,9 @@ int main() {
         }
     }
 
-    // -----------------------------
     // Consistentiechecks
-    // -----------------------------
     bool consistent = true;
 
-    // Dubbele room identifiers
     for (size_t i = 0; i < rooms.size(); i++) {
         for (size_t j = i + 1; j < rooms.size(); j++) {
             if (rooms[i].getIdentifier() == rooms[j].getIdentifier()) {
@@ -196,7 +195,6 @@ int main() {
         }
     }
 
-    // Dubbele meeting identifiers
     for (size_t i = 0; i < meetings.size(); i++) {
         for (size_t j = i + 1; j < meetings.size(); j++) {
             if (meetings[i].getIdentifier() == meetings[j].getIdentifier()) {
@@ -208,7 +206,6 @@ int main() {
         }
     }
 
-    // Check of room van meeting bestaat + capaciteit genoeg is
     for (const auto& meeting : meetings) {
         bool roomFound = false;
         int roomCapacity = 0;
@@ -238,24 +235,30 @@ int main() {
         }
     }
 
+    if (!consistent) {
+        std::cerr << "Systeem is inconsistent." << std::endl;
+        return 1;
+    }
 
+    // Meetings verwerken
+    for (const auto& meeting : meetings) {
+        bool success = processSingleMeeting(meeting, rooms, conflicts);
+        if (success) {
+            successfulMeetings.push_back(meeting);
+        }
+    }
 
-    // -----------------------------
     // Outputbestand maken
-    // -----------------------------
     std::ofstream out("output.txt");
     if (!out.is_open()) {
         std::cerr << "Fout: outputbestand kon niet gemaakt worden." << std::endl;
         return 1;
     }
-    for (const auto& meeting : meetings) {
-        processSingleMeeting(meeting, rooms, conflicts);
-    }
+
     out << "Past meetings:\n";
-    // voorlopig leeg, tenzij je later datums vergelijkt
 
     out << "\nFuture meetings:\n";
-    for (const auto& meeting : meetings) {
+    for (const auto& meeting : successfulMeetings) {
         out << "- " << meeting.getRoomIdentifier()
             << ", " << formatDate(meeting.getDate()) << "\n";
         out << meeting.getLabel() << "\n";
@@ -284,24 +287,17 @@ int main() {
 
     out.close();
 
-    // -----------------------------
     // Samenvatting op scherm
-    // -----------------------------
     std::cout << "Aantal rooms geladen: " << rooms.size() << std::endl;
     std::cout << "Aantal meetings geladen: " << meetings.size() << std::endl;
 
-    for (const auto& meeting : meetings) {
+    for (const auto& meeting : successfulMeetings) {
         std::cout << "Meeting " << meeting.getIdentifier()
                   << " heeft " << meeting.getParticipants().size()
                   << " deelnemers." << std::endl;
     }
 
     std::cout << "Outputbestand gemaakt: output.txt" << std::endl;
-
-    if (!consistent) {
-        std::cerr << "Systeem is inconsistent." << std::endl;
-        return 1;
-    }
 
     return 0;
 }
