@@ -1,0 +1,15 @@
+<SYSTEM>
+
+    <ROOM>
+        <NAME>Kamer A</NAME>
+        <IDENTIFIER>A101</IDENTIFIER>
+        <CAPACITY>5</CAPACITY>
+    </ROOM>
+
+    <ROOM>
+        <NAME>Kamer B</NAME>
+        <IDENTIFIER>A101</IDENTIFIER>
+        <CAPACITY>3</CAPACITY>
+    </ROOM>
+
+</SYSTEM>

@@ -1,0 +1,16 @@
+<SYSTEM>
+
+    <ROOM>
+        <NAME>Vergaderzaal A</NAME>
+        <IDENTIFIER>A101</IDENTIFIER>
+        <CAPACITY>5</CAPACITY>
+    </ROOM>
+
+    <MEETING>
+        <LABEL>Foute meeting</LABEL>
+        <IDENTIFIER>M3</IDENTIFIER>
+        <ROOM>Z999</ROOM>
+        <DATE>2026-03-22</DATE>
+    </MEETING>
+
+</SYSTEM>
