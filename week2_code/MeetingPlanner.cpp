@@ -1,21 +1,28 @@
-//
-// Created by firdi on 21/04/2026.
-//
 #include "MeetingPlanner.h"
 #include <iostream>
+#include "DesignByContract.h"
 
 void MeetingPlanner::addRoom(const Room& room) {
+    size_t oldSize = rooms.size();
     rooms.push_back(room);
+    ENSURE(rooms.size() == oldSize + 1, "Room moet toegevoegd zijn");
 }
 
 void MeetingPlanner::addMeeting(const Meeting& meeting) {
+    size_t oldSize = meetings.size();
     meetings.push_back(meeting);
+    ENSURE(meetings.size() == oldSize + 1, "Meeting moet toegevoegd zijn");
 }
 
 bool MeetingPlanner::addParticipation(const std::string& meetingId, const std::string& user) {
+    REQUIRE(!meetingId.empty(), "Meeting ID mag niet leeg zijn");
+    REQUIRE(!user.empty(), "User mag niet leeg zijn");
+
     for (auto& meeting : meetings) {
         if (meeting.getIdentifier() == meetingId) {
+            size_t oldSize = meeting.getParticipants().size();
             meeting.addParticipant(user);
+            ENSURE(meeting.getParticipants().size() == oldSize + 1, "Participant moet toegevoegd zijn aan meeting");
             return true;
         }
     }
@@ -80,12 +87,55 @@ bool MeetingPlanner::checkConsistency() {
     return consistent;
 }
 
+bool MeetingPlanner::processSingleMeeting(const Meeting& meeting) {
+    for (auto& room : rooms) {
+        if (room.getIdentifier() == meeting.getRoomIdentifier()) {
+            if (room.isOccupied()) {
+                std::string msg = "Meeting " + meeting.getIdentifier() +
+                                  " geannuleerd: room " + room.getIdentifier() +
+                                  " is al bezet.";
+                std::cerr << msg << std::endl;
+                conflicts.push_back(msg);
+                return false;
+            }
+
+            room.occupy();
+            std::cout << "Meeting " << meeting.getIdentifier()
+                      << " vindt plaats in room "
+                      << room.getIdentifier() << std::endl;
+            return true;
+        }
+    }
+
+    std::string msg = "Meeting " + meeting.getIdentifier() +
+                      " geannuleerd: onbekende room " +
+                      meeting.getRoomIdentifier();
+    std::cerr << msg << std::endl;
+    conflicts.push_back(msg);
+    return false;
+}
+
+void MeetingPlanner::processMeetings() {
+    successfulMeetings.clear();
+
+    for (const auto& meeting : meetings) {
+        bool success = processSingleMeeting(meeting);
+        if (success) {
+            successfulMeetings.push_back(meeting);
+        }
+    }
+}
+
 const std::vector<Room>& MeetingPlanner::getRooms() const {
     return rooms;
 }
 
 const std::vector<Meeting>& MeetingPlanner::getMeetings() const {
     return meetings;
+}
+
+const std::vector<Meeting>& MeetingPlanner::getSuccessfulMeetings() const {
+    return successfulMeetings;
 }
 
 const std::vector<std::string>& MeetingPlanner::getConflicts() const {

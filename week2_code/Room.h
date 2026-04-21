@@ -15,7 +15,7 @@ public:
     void addPerson(const std::string& personName);
     int getNumberOfPersons() const { return persons.size(); }
     bool isOccupied() const { return occupied; }
-    void occupy() { occupied = true; }
+    void occupy();
 
 private:
     std::string name;

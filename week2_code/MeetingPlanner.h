@@ -16,14 +16,19 @@ public:
     bool addParticipation(const std::string& meetingId, const std::string& user);
 
     bool checkConsistency();
+    void processMeetings();
 
     const std::vector<Room>& getRooms() const;
     const std::vector<Meeting>& getMeetings() const;
+    const std::vector<Meeting>& getSuccessfulMeetings() const;
     const std::vector<std::string>& getConflicts() const;
 
 private:
+    bool processSingleMeeting(const Meeting& meeting);
+
     std::vector<Room> rooms;
     std::vector<Meeting> meetings;
+    std::vector<Meeting> successfulMeetings;
     std::vector<std::string> conflicts;
 };
 #endif //PROJECTTITLE_MEETINGPLANNER_H
