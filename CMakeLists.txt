@@ -20,22 +20,24 @@ FetchContent_MakeAvailable(googletest)
 set(RELEASE_SOURCE_FILES
         week2_code/main.cpp
         week2_code/Room.cpp
+        week2_code/Meeting.cpp
+        week2_code/MeetingPlanner.cpp
+        week2_code/XMLParser.cpp
         tinyxml/tinyxml.cpp
         tinyxml/tinyxmlerror.cpp
         tinyxml/tinyxmlparser.cpp
         tinyxml/tinystr.cpp
-        week2_code/Meeting.cpp
-
 )
 
 set(DEBUG_SOURCE_FILES
         week2_code/Room.cpp
-        week2_code/tests.cpp
+        week2_code/Meeting.cpp
+        week2_code/MeetingPlanner.cpp
+        week2_code/XMLParser.cpp
         tinyxml/tinyxml.cpp
         tinyxml/tinyxmlerror.cpp
         tinyxml/tinyxmlparser.cpp
         tinyxml/tinystr.cpp
-        week2_code/Meeting.cpp
 )
 
 add_executable(release_target ${RELEASE_SOURCE_FILES})
