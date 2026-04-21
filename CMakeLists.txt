@@ -42,6 +42,11 @@ set(DEBUG_SOURCE_FILES
         tinyxml/tinystr.cpp
         week2_code/OutputWriter.cpp
         week2_code/OutputWriter.h
+        tests/RoomTests.cpp
+        tests/MeetingTests.cpp
+        tests/MeetingPlannerTests.cpp
+        tests/XMLParserTests.cpp
+        tests/OutputWriterTests.cpp
 )
 
 add_executable(release_target ${RELEASE_SOURCE_FILES})

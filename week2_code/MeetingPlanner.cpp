@@ -28,7 +28,6 @@ bool MeetingPlanner::addParticipation(const std::string& meetingId, const std::s
     }
     return false;
 }
-
 bool MeetingPlanner::checkConsistency() {
     bool consistent = true;
     conflicts.clear();
@@ -84,6 +83,10 @@ bool MeetingPlanner::checkConsistency() {
         }
     }
 
+    if (consistent) {
+        ENSURE(conflicts.empty(), "Bij consistent systeem mogen er geen conflicts zijn");
+    }
+
     return consistent;
 }
 
@@ -103,6 +106,8 @@ bool MeetingPlanner::processSingleMeeting(const Meeting& meeting) {
             std::cout << "Meeting " << meeting.getIdentifier()
                       << " vindt plaats in room "
                       << room.getIdentifier() << std::endl;
+
+            ENSURE(room.isOccupied(), "Room moet bezet zijn na processing");
             return true;
         }
     }
@@ -124,6 +129,9 @@ void MeetingPlanner::processMeetings() {
             successfulMeetings.push_back(meeting);
         }
     }
+
+    ENSURE(successfulMeetings.size() <= meetings.size(),
+           "Aantal succesvolle meetings mag niet groter zijn dan totaal aantal meetings");
 }
 
 const std::vector<Room>& MeetingPlanner::getRooms() const {
