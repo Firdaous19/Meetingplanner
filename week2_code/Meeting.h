@@ -23,36 +23,23 @@ public:
             const std::string& roomIdentifier,
             const std::string& date);
 
-    /**
-     * Geef het label van de meeting terug.
-     */
     std::string getLabel() const { return label; }
-
-    /**
-     * Geef de identifier van de meeting terug.
-     */
     std::string getIdentifier() const { return identifier; }
-
-    /**
-     * Geef de room identifier van de meeting terug.
-     */
     std::string getRoomIdentifier() const { return roomIdentifier; }
-
-    /**
-     * Geef de datum van de meeting terug.
-     */
     std::string getDate() const { return date; }
 
-    /**
-     * Voeg een participant toe aan de meeting.
-     * @param user De naam van de participant.
-     */
     void addParticipant(const std::string& user);
-
-    /**
-     * Geef alle deelnemers van de meeting terug.
-     */
     const std::vector<std::string>& getParticipants() const { return participants; }
+
+    bool areExternalsAllowed() const { return externalsAllowed; }
+    bool hasCatering() const { return catering; }
+    bool isOnline() const { return online; }
+    int getCO2Emission() const { return co2Emission; }
+
+    void setExternalsAllowed(bool value) { externalsAllowed = value; }
+    void setCatering(bool value) { catering = value; }
+    void setOnline(bool value) { online = value; }
+    void setCO2Emission(int value) { co2Emission = value; }
 
 private:
     std::string label;
@@ -60,6 +47,11 @@ private:
     std::string roomIdentifier;
     std::string date;
     std::vector<std::string> participants;
+
+    bool externalsAllowed = false;
+    bool catering = false;
+    bool online = false;
+    int co2Emission = 0;
 };
 
 #endif

@@ -1,6 +1,3 @@
-//
-// Created by firdi on 21/04/2026.
-//
 #include "gtest/gtest.h"
 #include "week2_code/OutputWriter.h"
 #include "week2_code/MeetingPlanner.h"
@@ -15,6 +12,10 @@ TEST(OutputWriterTest, WriteOutputCreatesFileWithExpectedSections) {
 
     Room room("M.G.023", "Room123", 10);
     Meeting meeting("Weekly meeting", "Meeting123", "Room123", "2026-05-22");
+
+    meeting.setExternalsAllowed(true);
+    meeting.setCatering(true);
+    meeting.setCO2Emission(560);
 
     planner.addRoom(room);
     planner.addMeeting(meeting);
@@ -32,7 +33,11 @@ TEST(OutputWriterTest, WriteOutputCreatesFileWithExpectedSections) {
     buffer << input.rdbuf();
     std::string content = buffer.str();
 
-    EXPECT_NE(content.find("Future meetings:"), std::string::npos);
-    EXPECT_NE(content.find("Conflicts:"), std::string::npos);
-    EXPECT_NE(content.find("Rooms:"), std::string::npos);
+    EXPECT_NE(content.find("## ==== [SYSTEM STATUS] ==== ##"), std::string::npos);
+    EXPECT_NE(content.find("--== Meetings ==--"), std::string::npos);
+    EXPECT_NE(content.find("--== Rooms ==--"), std::string::npos);
+    EXPECT_NE(content.find("--== CO2 summary ==--"), std::string::npos);
+    EXPECT_NE(content.find("CO2 emitted: 560g"), std::string::npos);
+    EXPECT_NE(content.find("Externals allowed"), std::string::npos);
+    EXPECT_NE(content.find("Catering"), std::string::npos);
 }

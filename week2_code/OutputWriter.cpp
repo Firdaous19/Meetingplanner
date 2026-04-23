@@ -1,6 +1,3 @@
-//
-// Created by firdi on 21/04/2026.
-//
 #include "OutputWriter.h"
 #include <fstream>
 #include <iostream>
@@ -25,14 +22,21 @@ void OutputWriter::writeOutput(const std::string& filename, const MeetingPlanner
         return;
     }
 
-    out << "Past meetings:\n";
+    out << "## ==== [SYSTEM STATUS] ==== ##\n\n";
 
-    out << "\nFuture meetings:\n";
-    for (const auto& meeting : planner.getSuccessfulMeetings()) {
-        out << "- " << meeting.getRoomIdentifier()
-            << ", " << formatDate(meeting.getDate()) << "\n";
-        out << meeting.getLabel() << "\n";
+    out << "--== Meetings ==--\n";
+    for (const auto& meeting : planner.getMeetings()) {
+        out << "[" << meeting.getIdentifier() << "]\n";
+        out << "- Label: " << meeting.getLabel() << "\n";
+        out << "- Time: " << formatDate(meeting.getDate()) << "\n";
 
+        if (meeting.isOnline()) {
+            out << "- Location: online\n";
+        } else {
+            out << "- Location: " << meeting.getRoomIdentifier() << "\n";
+        }
+
+        out << "- Participants: ";
         const auto& participants = meeting.getParticipants();
         for (size_t i = 0; i < participants.size(); i++) {
             out << participants[i];
@@ -41,19 +45,47 @@ void OutputWriter::writeOutput(const std::string& filename, const MeetingPlanner
             }
         }
         out << "\n";
-        out << "Meeting ID: " << meeting.getIdentifier() << "\n";
+
+        if (meeting.areExternalsAllowed()) {
+            out << "- Externals allowed\n";
+        } else {
+            out << "- Externals not allowed\n";
+        }
+
+        if (meeting.hasCatering()) {
+            out << "- Catering\n";
+        } else {
+            out << "- No catering\n";
+        }
+
+        out << "- CO2 emitted: " << meeting.getCO2Emission() << "g\n\n";
     }
 
-    out << "\nConflicts:\n";
-    for (const auto& conflict : planner.getConflicts()) {
-        out << "- " << conflict << "\n";
-    }
-
-    out << "\nRooms:\n";
+    out << "--== Rooms ==--\n";
     for (const auto& room : planner.getRooms()) {
-        out << "- " << room.getIdentifier() << "\n";
-        out << "Capacity: " << room.getCapacity() << " people\n";
+        out << "[" << room.getIdentifier() << "]\n";
+        out << "- Name: " << room.getName() << "\n";
+        out << "- Capacity: " << room.getCapacity() << "\n";
+        out << "- Occupied: " << (room.isOccupied() ? "yes" : "no") << "\n\n";
     }
+
+    out << "--== Conflicts ==--\n";
+    if (planner.getConflicts().empty()) {
+        out << "No conflicts\n\n";
+    } else {
+        for (const auto& conflict : planner.getConflicts()) {
+            out << "- " << conflict << "\n";
+        }
+        out << "\n";
+    }
+
+    int totalCO2 = 0;
+    for (const auto& meeting : planner.getMeetings()) {
+        totalCO2 += meeting.getCO2Emission();
+    }
+
+    out << "--== CO2 summary ==--\n";
+    out << "- Total CO2 emitted: " << totalCO2 << "g\n";
 
     out.close();
 }
