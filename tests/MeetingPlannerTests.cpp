@@ -139,3 +139,41 @@ TEST(MeetingPlannerTest, ProcessMeetingsWithSameRoomCreatesConflict) {
     EXPECT_EQ(planner.getSuccessfulMeetings().size(), 1);
     EXPECT_FALSE(planner.getConflicts().empty());
 }
+TEST(MeetingPlannerTest, ProcessingSingleMeetingSucceedsWhenRoomIsFree) {
+    MeetingPlanner planner;
+    Room room("Vergaderzaal A", "A101", 5);
+    Meeting meeting("Eerste meeting", "M1", "A101", "2026-03-20");
+
+    planner.addRoom(room);
+    planner.addMeeting(meeting);
+    planner.addParticipation("M1", "Alice");
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    EXPECT_EQ(planner.getSuccessfulMeetings().size(), 1);
+    EXPECT_TRUE(planner.getRooms()[0].isOccupied());
+    EXPECT_TRUE(planner.getConflicts().empty());
+}
+
+TEST(MeetingPlannerTest, ProcessingSingleMeetingFailsWhenRoomAlreadyOccupied) {
+    MeetingPlanner planner;
+    Room room("Vergaderzaal A", "A101", 5);
+    Meeting meeting1("Eerste meeting", "M1", "A101", "2026-03-20");
+    Meeting meeting2("Tweede meeting", "M2", "A101", "2026-03-20");
+
+    planner.addRoom(room);
+    planner.addMeeting(meeting1);
+    planner.addMeeting(meeting2);
+    planner.addParticipation("M1", "Alice");
+    planner.addParticipation("M2", "Bob");
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    EXPECT_EQ(planner.getSuccessfulMeetings().size(), 1);
+    EXPECT_TRUE(planner.getRooms()[0].isOccupied());
+    EXPECT_FALSE(planner.getConflicts().empty());
+}
