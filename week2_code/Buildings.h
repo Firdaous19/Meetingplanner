@@ -1,0 +1,10 @@
+//
+// Created by ali_s on 26/04/2026.
+//
+
+#ifndef PROJECTTITLE_BUILDINGS_H
+#define PROJECTTITLE_BUILDINGS_H
+
+
+
+#endif //PROJECTTITLE_BUILDINGS_H
