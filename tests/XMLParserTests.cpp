@@ -7,7 +7,9 @@
 
 TEST(XMLParserTest, ParseValidFileLoadsRoomsAndMeetings) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
     XMLParser parser;
+    parser.setLoggingEnabled(false);
 
     bool success = parser.parse("../week2_code/test.xml", planner);
 
@@ -18,7 +20,9 @@ TEST(XMLParserTest, ParseValidFileLoadsRoomsAndMeetings) {
 
 TEST(XMLParserTest, ParseFileWithUnknownMeetingParticipationStillSucceeds) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
     XMLParser parser;
+    parser.setLoggingEnabled(false);
 
     bool success = parser.parse("../week2_code/test_fout.xml", planner);
 
@@ -27,7 +31,9 @@ TEST(XMLParserTest, ParseFileWithUnknownMeetingParticipationStillSucceeds) {
 
 TEST(XMLParserTest, ParseDuplicateFileStillLoadsData) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
     XMLParser parser;
+    parser.setLoggingEnabled(false);
 
     bool success = parser.parse("../week2_code/test_duplicate.xml", planner);
 
@@ -36,7 +42,9 @@ TEST(XMLParserTest, ParseDuplicateFileStillLoadsData) {
 }
 TEST(XMLParserTest, ParseRoomWithMissingFieldDoesNotAddRoom) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
     XMLParser parser;
+    parser.setLoggingEnabled(false);
 
     bool success = parser.parse("../week2_code/test_room_missing_field.xml", planner);
 
@@ -46,7 +54,9 @@ TEST(XMLParserTest, ParseRoomWithMissingFieldDoesNotAddRoom) {
 
 TEST(XMLParserTest, ParseRoomWithInvalidCapacityDoesNotAddRoom) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
     XMLParser parser;
+    parser.setLoggingEnabled(false);
 
     bool success = parser.parse("../week2_code/test_room_invalid_capacity.xml", planner);
 
@@ -56,7 +66,9 @@ TEST(XMLParserTest, ParseRoomWithInvalidCapacityDoesNotAddRoom) {
 
 TEST(XMLParserTest, ParseMeetingWithMissingFieldDoesNotAddMeeting) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
     XMLParser parser;
+    parser.setLoggingEnabled(false);
 
     bool success = parser.parse("../week2_code/test_meeting_missing_field.xml", planner);
 
@@ -65,7 +77,9 @@ TEST(XMLParserTest, ParseMeetingWithMissingFieldDoesNotAddMeeting) {
 }
 TEST(XMLParserTest, ParseBuildingsFileLoadsCampusesAndBuildings) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
     XMLParser parser;
+    parser.setLoggingEnabled(false);
 
     bool success = parser.parse("../week2_code/test_buildings.xml", planner);
 
@@ -75,4 +89,19 @@ TEST(XMLParserTest, ParseBuildingsFileLoadsCampusesAndBuildings) {
     EXPECT_EQ(planner.getCampuses()[0].getIdentifier(), "CDE");
     EXPECT_EQ(planner.getBuildings()[0].getIdentifier(), "CDE_R");
     EXPECT_EQ(planner.getBuildings()[0].getCampusIdentifier(), "CDE");
+}
+TEST(XMLParserTest, ParseRenovationFileLoadsRenovations) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    XMLParser parser;
+    parser.setLoggingEnabled(false);
+
+    bool success = parser.parse("../week2_code/test_renovation.xml", planner);
+
+    EXPECT_TRUE(success);
+    EXPECT_EQ(planner.getRenovations().size(), 1);
+    EXPECT_EQ(planner.getRenovations()[0].getRoomIdentifier(), "A101");
+    EXPECT_EQ(planner.getRenovations()[0].getStartDate(), "2026-04-01");
+    EXPECT_EQ(planner.getRenovations()[0].getEndDate(), "2026-06-01");
 }

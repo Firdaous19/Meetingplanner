@@ -2,6 +2,10 @@
 #include <iostream>
 #include "DesignByContract.h"
 
+void MeetingPlanner::setLoggingEnabled(bool enabled) {
+    loggingEnabled = enabled;
+}
+
 void MeetingPlanner::addRoom(const Room& room) {
     size_t oldSize = rooms.size();
     rooms.push_back(room);
@@ -22,12 +26,15 @@ bool MeetingPlanner::addParticipation(const std::string& meetingId, const std::s
         if (meeting.getIdentifier() == meetingId) {
             size_t oldSize = meeting.getParticipants().size();
             meeting.addParticipant(user);
-            ENSURE(meeting.getParticipants().size() == oldSize + 1, "Participant moet toegevoegd zijn aan meeting");
+            ENSURE(meeting.getParticipants().size() == oldSize + 1,
+                   "Participant moet toegevoegd zijn aan meeting");
             return true;
         }
     }
+
     return false;
 }
+
 bool MeetingPlanner::checkConsistency() {
     bool consistent = true;
     conflicts.clear();
@@ -36,7 +43,11 @@ bool MeetingPlanner::checkConsistency() {
         for (size_t j = i + 1; j < rooms.size(); j++) {
             if (rooms[i].getIdentifier() == rooms[j].getIdentifier()) {
                 std::string msg = "Dubbele room identifier: " + rooms[i].getIdentifier();
-                std::cerr << "Fout: " << msg << std::endl;
+
+                if (loggingEnabled) {
+                    std::cerr << "Fout: " << msg << std::endl;
+                }
+
                 conflicts.push_back(msg);
                 consistent = false;
             }
@@ -47,7 +58,11 @@ bool MeetingPlanner::checkConsistency() {
         for (size_t j = i + 1; j < meetings.size(); j++) {
             if (meetings[i].getIdentifier() == meetings[j].getIdentifier()) {
                 std::string msg = "Dubbele meeting identifier: " + meetings[i].getIdentifier();
-                std::cerr << "Fout: " << msg << std::endl;
+
+                if (loggingEnabled) {
+                    std::cerr << "Fout: " << msg << std::endl;
+                }
+
                 conflicts.push_back(msg);
                 consistent = false;
             }
@@ -70,14 +85,22 @@ bool MeetingPlanner::checkConsistency() {
             std::string msg = "Meeting " + meeting.getIdentifier() +
                               " verwijst naar onbekende room " +
                               meeting.getRoomIdentifier();
-            std::cerr << "Fout: " << msg << std::endl;
+
+            if (loggingEnabled) {
+                std::cerr << "Fout: " << msg << std::endl;
+            }
+
             conflicts.push_back(msg);
             consistent = false;
         } else if ((int)meeting.getParticipants().size() > roomCapacity) {
             std::string msg = "Room " + meeting.getRoomIdentifier() +
                               " heeft onvoldoende capaciteit voor meeting " +
                               meeting.getIdentifier();
-            std::cerr << "Fout: " << msg << std::endl;
+
+            if (loggingEnabled) {
+                std::cerr << "Fout: " << msg << std::endl;
+            }
+
             conflicts.push_back(msg);
             consistent = false;
         }
@@ -97,15 +120,22 @@ bool MeetingPlanner::processSingleMeeting(const Meeting& meeting) {
                 std::string msg = "Meeting " + meeting.getIdentifier() +
                                   " geannuleerd: room " + room.getIdentifier() +
                                   " is al bezet.";
-                std::cerr << msg << std::endl;
+
+                if (loggingEnabled) {
+                    std::cerr << msg << std::endl;
+                }
+
                 conflicts.push_back(msg);
                 return false;
             }
 
             room.occupy();
-            std::cout << "Meeting " << meeting.getIdentifier()
-                      << " vindt plaats in room "
-                      << room.getIdentifier() << std::endl;
+
+            if (loggingEnabled) {
+                std::cout << "Meeting " << meeting.getIdentifier()
+                          << " vindt plaats in room "
+                          << room.getIdentifier() << std::endl;
+            }
 
             ENSURE(room.isOccupied(), "Room moet bezet zijn na processing");
             return true;
@@ -115,7 +145,11 @@ bool MeetingPlanner::processSingleMeeting(const Meeting& meeting) {
     std::string msg = "Meeting " + meeting.getIdentifier() +
                       " geannuleerd: onbekende room " +
                       meeting.getRoomIdentifier();
-    std::cerr << msg << std::endl;
+
+    if (loggingEnabled) {
+        std::cerr << msg << std::endl;
+    }
+
     conflicts.push_back(msg);
     return false;
 }
@@ -133,6 +167,7 @@ void MeetingPlanner::processMeetings() {
     ENSURE(successfulMeetings.size() <= meetings.size(),
            "Aantal succesvolle meetings mag niet groter zijn dan totaal aantal meetings");
 }
+
 void MeetingPlanner::addCampus(const Campus& campus) {
     size_t oldSize = campuses.size();
     campuses.push_back(campus);
@@ -144,6 +179,7 @@ void MeetingPlanner::addBuilding(const Building& building) {
     buildings.push_back(building);
     ENSURE(buildings.size() == oldSize + 1, "Building moet toegevoegd zijn");
 }
+
 void MeetingPlanner::addRenovation(const Renovation& renovation) {
     size_t oldSize = renovations.size();
     renovations.push_back(renovation);
@@ -153,6 +189,7 @@ void MeetingPlanner::addRenovation(const Renovation& renovation) {
 const std::vector<Renovation>& MeetingPlanner::getRenovations() const {
     return renovations;
 }
+
 const std::vector<Campus>& MeetingPlanner::getCampuses() const {
     return campuses;
 }
@@ -160,6 +197,7 @@ const std::vector<Campus>& MeetingPlanner::getCampuses() const {
 const std::vector<Building>& MeetingPlanner::getBuildings() const {
     return buildings;
 }
+
 const std::vector<Room>& MeetingPlanner::getRooms() const {
     return rooms;
 }

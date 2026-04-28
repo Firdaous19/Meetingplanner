@@ -1,0 +1,13 @@
+<SYSTEM>
+    <ROOM>
+        <NAME>Vergaderzaal A</NAME>
+        <IDENTIFIER>A101</IDENTIFIER>
+        <CAPACITY>10</CAPACITY>
+    </ROOM>
+
+    <RENOVATION>
+        <ROOM>A101</ROOM>
+        <START_DATE>2026-04-01</START_DATE>
+        <END_DATE>2026-06-01</END_DATE>
+    </RENOVATION>
+</SYSTEM>

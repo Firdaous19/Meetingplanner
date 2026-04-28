@@ -23,6 +23,7 @@ public:
     void addCampus(const Campus& campus);
     void addBuilding(const Building& building);
     void addRenovation(const Renovation& renovation);
+    void setLoggingEnabled(bool enabled);
 
     const std::vector<Renovation>& getRenovations() const;
     const std::vector<Campus>& getCampuses() const;
@@ -33,6 +34,7 @@ public:
     const std::vector<std::string>& getConflicts() const;
 
 private:
+    bool loggingEnabled = true;
     bool processSingleMeeting(const Meeting& meeting);
 
     std::vector<Room> rooms;

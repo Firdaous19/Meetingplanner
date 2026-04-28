@@ -11,6 +11,7 @@
 
 TEST(MeetingPlannerTest, AddRoomIncreasesRoomCount) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
     Room room("M.G.023", "Room123", 10);
 
     planner.addRoom(room);
@@ -21,6 +22,7 @@ TEST(MeetingPlannerTest, AddRoomIncreasesRoomCount) {
 
 TEST(MeetingPlannerTest, AddMeetingIncreasesMeetingCount) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
     Meeting meeting("Weekly meeting", "Meeting123", "Room123", "2026-05-22");
 
     planner.addMeeting(meeting);
@@ -31,6 +33,7 @@ TEST(MeetingPlannerTest, AddMeetingIncreasesMeetingCount) {
 
 TEST(MeetingPlannerTest, AddParticipationToExistingMeetingWorks) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
     Meeting meeting("Weekly meeting", "Meeting123", "Room123", "2026-05-22");
     planner.addMeeting(meeting);
 
@@ -43,6 +46,7 @@ TEST(MeetingPlannerTest, AddParticipationToExistingMeetingWorks) {
 
 TEST(MeetingPlannerTest, AddParticipationToUnknownMeetingFails) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
 
     bool result = planner.addParticipation("BestaatNiet", "Alice");
 
@@ -51,6 +55,7 @@ TEST(MeetingPlannerTest, AddParticipationToUnknownMeetingFails) {
 
 TEST(MeetingPlannerTest, CheckConsistencyReturnsTrueForValidSystem) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
     Room room("M.G.023", "Room123", 10);
     Meeting meeting("Weekly meeting", "Meeting123", "Room123", "2026-05-22");
 
@@ -63,6 +68,7 @@ TEST(MeetingPlannerTest, CheckConsistencyReturnsTrueForValidSystem) {
 
 TEST(MeetingPlannerTest, CheckConsistencyReturnsFalseForDuplicateRoomIdentifiers) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
     Room room1("M.G.023", "Room123", 10);
     Room room2("M.G.024", "Room123", 15);
 
@@ -74,6 +80,7 @@ TEST(MeetingPlannerTest, CheckConsistencyReturnsFalseForDuplicateRoomIdentifiers
 
 TEST(MeetingPlannerTest, CheckConsistencyReturnsFalseForUnknownRoomReference) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
     Meeting meeting("Weekly meeting", "Meeting123", "BestaatNiet", "2026-05-22");
 
     planner.addMeeting(meeting);
@@ -82,6 +89,7 @@ TEST(MeetingPlannerTest, CheckConsistencyReturnsFalseForUnknownRoomReference) {
 }
 TEST(MeetingPlannerTest, CheckConsistencyReturnsFalseForDuplicateMeetingIdentifiers) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
     Room room("M.G.023", "Room123", 10);
     Meeting meeting1("Weekly meeting", "Meeting123", "Room123", "2026-05-22");
     Meeting meeting2("Another meeting", "Meeting123", "Room123", "2026-05-23");
@@ -95,6 +103,7 @@ TEST(MeetingPlannerTest, CheckConsistencyReturnsFalseForDuplicateMeetingIdentifi
 
 TEST(MeetingPlannerTest, CheckConsistencyReturnsFalseWhenRoomCapacityTooSmall) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
     Room room("M.G.023", "Room123", 1);
     Meeting meeting("Weekly meeting", "Meeting123", "Room123", "2026-05-22");
 
@@ -108,6 +117,7 @@ TEST(MeetingPlannerTest, CheckConsistencyReturnsFalseWhenRoomCapacityTooSmall) {
 
 TEST(MeetingPlannerTest, ProcessMeetingsAddsSuccessfulMeeting) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
     Room room("M.G.023", "Room123", 10);
     Meeting meeting("Weekly meeting", "Meeting123", "Room123", "2026-05-22");
 
@@ -125,6 +135,7 @@ TEST(MeetingPlannerTest, ProcessMeetingsAddsSuccessfulMeeting) {
 
 TEST(MeetingPlannerTest, ProcessMeetingsWithSameRoomCreatesConflict) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
     Room room("M.G.023", "Room123", 10);
     Meeting meeting1("Weekly meeting", "Meeting123", "Room123", "2026-05-22");
     Meeting meeting2("Another meeting", "Meeting456", "Room123", "2026-05-22");
@@ -144,6 +155,7 @@ TEST(MeetingPlannerTest, ProcessMeetingsWithSameRoomCreatesConflict) {
 }
 TEST(MeetingPlannerTest, ProcessingSingleMeetingSucceedsWhenRoomIsFree) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
     Room room("Vergaderzaal A", "A101", 5);
     Meeting meeting("Eerste meeting", "M1", "A101", "2026-03-20");
 
@@ -162,6 +174,7 @@ TEST(MeetingPlannerTest, ProcessingSingleMeetingSucceedsWhenRoomIsFree) {
 
 TEST(MeetingPlannerTest, ProcessingSingleMeetingFailsWhenRoomAlreadyOccupied) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
     Room room("Vergaderzaal A", "A101", 5);
     Meeting meeting1("Eerste meeting", "M1", "A101", "2026-03-20");
     Meeting meeting2("Tweede meeting", "M2", "A101", "2026-03-20");
@@ -182,6 +195,7 @@ TEST(MeetingPlannerTest, ProcessingSingleMeetingFailsWhenRoomAlreadyOccupied) {
 }
 TEST(MeetingPlannerTest, AutomaticallyProcessesMultipleMeetings) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
 
     Room room1("A", "A101", 5);
     Room room2("B", "B202", 5);
@@ -209,6 +223,7 @@ TEST(MeetingPlannerTest, AutomaticallyProcessesMultipleMeetings) {
 
 TEST(MeetingPlannerTest, AutomaticallyContinuesAfterFailedMeeting) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
 
     Room room("A", "A101", 5);
     Room room2("B", "B202", 5);
@@ -238,6 +253,7 @@ TEST(MeetingPlannerTest, AutomaticallyContinuesAfterFailedMeeting) {
 }
 TEST(MeetingPlannerTest, AddCampusIncreasesCampusCount) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
     Campus campus("Campus Drie Eiken", "CDE");
 
     planner.addCampus(campus);
@@ -248,6 +264,7 @@ TEST(MeetingPlannerTest, AddCampusIncreasesCampusCount) {
 
 TEST(MeetingPlannerTest, AddBuildingIncreasesBuildingCount) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
     Campus campus("Campus Drie Eiken", "CDE");
     Building building("Gebouw R", "CDE_R", "CDE");
 
@@ -259,6 +276,7 @@ TEST(MeetingPlannerTest, AddBuildingIncreasesBuildingCount) {
 }
 TEST(MeetingPlannerTest, AddRenovationIncreasesRenovationCount) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
     Renovation renovation("A101", "2026-04-01", "2026-06-01");
 
     planner.addRenovation(renovation);

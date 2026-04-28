@@ -8,6 +8,7 @@
 
 TEST(OutputWriterTest, WriteOutputCreatesFileWithExpectedSections) {
     MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
     OutputWriter writer;
 
     Room room("M.G.023", "Room123", 10);
