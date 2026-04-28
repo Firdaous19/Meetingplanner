@@ -144,7 +144,15 @@ void MeetingPlanner::addBuilding(const Building& building) {
     buildings.push_back(building);
     ENSURE(buildings.size() == oldSize + 1, "Building moet toegevoegd zijn");
 }
+void MeetingPlanner::addRenovation(const Renovation& renovation) {
+    size_t oldSize = renovations.size();
+    renovations.push_back(renovation);
+    ENSURE(renovations.size() == oldSize + 1, "Renovation moet toegevoegd zijn");
+}
 
+const std::vector<Renovation>& MeetingPlanner::getRenovations() const {
+    return renovations;
+}
 const std::vector<Campus>& MeetingPlanner::getCampuses() const {
     return campuses;
 }

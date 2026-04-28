@@ -10,6 +10,7 @@
 #include "Meeting.h"
 #include "Campus.h"
 #include "Building.h"
+#include "Renovation.h"
 
 class MeetingPlanner {
 public:
@@ -21,7 +22,9 @@ public:
     void processMeetings();
     void addCampus(const Campus& campus);
     void addBuilding(const Building& building);
+    void addRenovation(const Renovation& renovation);
 
+    const std::vector<Renovation>& getRenovations() const;
     const std::vector<Campus>& getCampuses() const;
     const std::vector<Building>& getBuildings() const;
     const std::vector<Room>& getRooms() const;
@@ -38,5 +41,6 @@ private:
     std::vector<std::string> conflicts;
     std::vector<Campus> campuses;
     std::vector<Building> buildings;
+    std::vector<Renovation> renovations;
 };
 #endif //PROJECTTITLE_MEETINGPLANNER_H

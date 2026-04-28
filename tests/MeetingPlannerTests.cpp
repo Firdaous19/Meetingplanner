@@ -7,6 +7,7 @@
 #include "week2_code/Meeting.h"
 #include "week2_code/Campus.h"
 #include "week2_code/Building.h"
+#include "week2_code/Renovation.h"
 
 TEST(MeetingPlannerTest, AddRoomIncreasesRoomCount) {
     MeetingPlanner planner;
@@ -255,4 +256,13 @@ TEST(MeetingPlannerTest, AddBuildingIncreasesBuildingCount) {
 
     EXPECT_EQ(planner.getBuildings().size(), 1);
     EXPECT_EQ(planner.getBuildings()[0].getIdentifier(), "CDE_R");
+}
+TEST(MeetingPlannerTest, AddRenovationIncreasesRenovationCount) {
+    MeetingPlanner planner;
+    Renovation renovation("A101", "2026-04-01", "2026-06-01");
+
+    planner.addRenovation(renovation);
+
+    EXPECT_EQ(planner.getRenovations().size(), 1);
+    EXPECT_EQ(planner.getRenovations()[0].getRoomIdentifier(), "A101");
 }

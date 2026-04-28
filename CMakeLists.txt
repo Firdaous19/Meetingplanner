@@ -26,6 +26,7 @@ set(RELEASE_SOURCE_FILES
         week2_code/XMLParser.cpp
         week2_code/Campus.cpp
         week2_code/OutputWriter.cpp
+        week2_code/Renovation.cpp
         tinyxml/tinyxml.cpp
         tinyxml/tinyxmlerror.cpp
         tinyxml/tinyxmlparser.cpp
@@ -45,6 +46,8 @@ set(DEBUG_SOURCE_FILES
         tinyxml/tinystr.cpp
         week2_code/OutputWriter.cpp
         week2_code/Campus.cpp
+        week2_code/Renovation.cpp
+        tests/RenovationTests.cpp
         tests/CampusTests.cpp
         tests/RoomTests.cpp
         tests/MeetingTests.cpp
