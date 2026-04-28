@@ -8,6 +8,7 @@
 #include "week2_code/Campus.h"
 #include "week2_code/Building.h"
 #include "week2_code/Renovation.h"
+#include "week2_code/CateringProvider.h"
 
 TEST(MeetingPlannerTest, AddRoomIncreasesRoomCount) {
     MeetingPlanner planner;
@@ -283,4 +284,16 @@ TEST(MeetingPlannerTest, AddRenovationIncreasesRenovationCount) {
 
     EXPECT_EQ(planner.getRenovations().size(), 1);
     EXPECT_EQ(planner.getRenovations()[0].getRoomIdentifier(), "A101");
+}
+TEST(MeetingPlannerTest, AddCateringProviderIncreasesCateringProviderCount) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    CateringProvider provider("Campus_CDE", 20);
+
+    planner.addCateringProvider(provider);
+
+    EXPECT_EQ(planner.getCateringProviders().size(), 1);
+    EXPECT_EQ(planner.getCateringProviders()[0].getCampusIdentifier(), "Campus_CDE");
+    EXPECT_EQ(planner.getCateringProviders()[0].getCO2(), 20);
 }

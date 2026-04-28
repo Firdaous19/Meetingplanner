@@ -7,6 +7,7 @@
 #include "Campus.h"
 #include "Building.h"
 #include "Renovation.h"
+#include "CateringProvider.h"
 
 XMLParser::XMLParser()
         : loggingEnabled(true) {
@@ -103,6 +104,47 @@ bool XMLParser::parse(const std::string& filename, MeetingPlanner& planner) cons
                 }
             }
         }
+        else if (elementName == "CATERING") {
+            TiXmlElement* campusElem = elem->FirstChildElement("CAMPUS");
+            TiXmlElement* co2Elem = elem->FirstChildElement("CO2");
+
+            if (campusElem == nullptr || co2Elem == nullptr) {
+                if (loggingEnabled) {
+                    std::cerr << "Fout in CATERING: ontbrekende velden." << std::endl;
+                }
+                continue;
+            }
+
+            std::string campusIdentifier = campusElem->GetText() ? campusElem->GetText() : "";
+            std::string co2Text = co2Elem->GetText() ? co2Elem->GetText() : "";
+
+            if (campusIdentifier.empty() || co2Text.empty()) {
+                if (loggingEnabled) {
+                    std::cerr << "Fout in CATERING: lege velden." << std::endl;
+                }
+                continue;
+            }
+
+            int co2 = 0;
+            try {
+                co2 = std::stoi(co2Text);
+            } catch (...) {
+                if (loggingEnabled) {
+                    std::cerr << "Fout in CATERING: CO2 is geen geldig getal." << std::endl;
+                }
+                continue;
+            }
+
+            try {
+                CateringProvider provider(campusIdentifier, co2);
+                planner.addCateringProvider(provider);
+            } catch (...) {
+                if (loggingEnabled) {
+                    std::cerr << "Fout bij maken van catering provider voor campus: "
+                              << campusIdentifier << std::endl;
+                }
+            }
+        }
         else if (elementName == "RENOVATION") {
             TiXmlElement* roomElem = elem->FirstChildElement("ROOM");
             TiXmlElement* startElem = elem->FirstChildElement("START_DATE");
@@ -184,6 +226,7 @@ bool XMLParser::parse(const std::string& filename, MeetingPlanner& planner) cons
             TiXmlElement* idElem = elem->FirstChildElement("IDENTIFIER");
             TiXmlElement* roomElem = elem->FirstChildElement("ROOM");
             TiXmlElement* dateElem = elem->FirstChildElement("DATE");
+            TiXmlElement* cateringElem = elem->FirstChildElement("CATERING");
 
             if (labelElem == nullptr || idElem == nullptr || roomElem == nullptr || dateElem == nullptr) {
                 if (loggingEnabled) {
@@ -197,6 +240,22 @@ bool XMLParser::parse(const std::string& filename, MeetingPlanner& planner) cons
             std::string roomIdentifier = roomElem->GetText() ? roomElem->GetText() : "";
             std::string date = dateElem->GetText() ? dateElem->GetText() : "";
 
+            bool catering = false;
+
+            if (cateringElem != nullptr) {
+                std::string cateringText = cateringElem->GetText() ? cateringElem->GetText() : "";
+
+                if (cateringText == "TRUE" || cateringText == "true" || cateringText == "1") {
+                    catering = true;
+                } else if (cateringText == "FALSE" || cateringText == "false" || cateringText == "0") {
+                    catering = false;
+                } else {
+                    if (loggingEnabled) {
+                        std::cerr << "Fout in MEETING: catering moet TRUE of FALSE zijn." << std::endl;
+                    }
+                    continue;
+                }
+            }
             if (label.empty() || identifier.empty() || roomIdentifier.empty() || date.empty()) {
                 if (loggingEnabled) {
                     std::cerr << "Fout in MEETING: lege velden." << std::endl;
@@ -206,6 +265,7 @@ bool XMLParser::parse(const std::string& filename, MeetingPlanner& planner) cons
 
             try {
                 Meeting meeting(label, identifier, roomIdentifier, date);
+                meeting.setCatering(catering);
                 planner.addMeeting(meeting);
             } catch (...) {
                 if (loggingEnabled) {

@@ -105,3 +105,20 @@ TEST(XMLParserTest, ParseRenovationFileLoadsRenovations) {
     EXPECT_EQ(planner.getRenovations()[0].getStartDate(), "2026-04-01");
     EXPECT_EQ(planner.getRenovations()[0].getEndDate(), "2026-06-01");
 }
+TEST(XMLParserTest, ParseCateringFileLoadsCateringProviderAndMeetingFlag) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    XMLParser parser;
+    parser.setLoggingEnabled(false);
+
+    bool success = parser.parse("../week2_code/test_catering.xml", planner);
+
+    EXPECT_TRUE(success);
+    EXPECT_EQ(planner.getCateringProviders().size(), 1);
+    EXPECT_EQ(planner.getCateringProviders()[0].getCampusIdentifier(), "Campus_CDE");
+    EXPECT_EQ(planner.getCateringProviders()[0].getCO2(), 20);
+
+    ASSERT_EQ(planner.getMeetings().size(), 1);
+    EXPECT_TRUE(planner.getMeetings()[0].hasCatering());
+}

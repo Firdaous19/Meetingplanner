@@ -11,6 +11,7 @@
 #include "Campus.h"
 #include "Building.h"
 #include "Renovation.h"
+#include "CateringProvider.h"
 
 class MeetingPlanner {
 public:
@@ -24,6 +25,8 @@ public:
     void addBuilding(const Building& building);
     void addRenovation(const Renovation& renovation);
     void setLoggingEnabled(bool enabled);
+    void addCateringProvider(const CateringProvider& provider);
+    const std::vector<CateringProvider>& getCateringProviders() const;
 
     const std::vector<Renovation>& getRenovations() const;
     const std::vector<Campus>& getCampuses() const;
@@ -44,5 +47,6 @@ private:
     std::vector<Campus> campuses;
     std::vector<Building> buildings;
     std::vector<Renovation> renovations;
+    std::vector<CateringProvider> cateringProviders;
 };
 #endif //PROJECTTITLE_MEETINGPLANNER_H
