@@ -63,3 +63,16 @@ TEST(XMLParserTest, ParseMeetingWithMissingFieldDoesNotAddMeeting) {
     EXPECT_TRUE(success);
     EXPECT_EQ(planner.getMeetings().size(), 0);
 }
+TEST(XMLParserTest, ParseBuildingsFileLoadsCampusesAndBuildings) {
+    MeetingPlanner planner;
+    XMLParser parser;
+
+    bool success = parser.parse("../week2_code/test_buildings.xml", planner);
+
+    EXPECT_TRUE(success);
+    EXPECT_EQ(planner.getCampuses().size(), 1);
+    EXPECT_EQ(planner.getBuildings().size(), 1);
+    EXPECT_EQ(planner.getCampuses()[0].getIdentifier(), "CDE");
+    EXPECT_EQ(planner.getBuildings()[0].getIdentifier(), "CDE_R");
+    EXPECT_EQ(planner.getBuildings()[0].getCampusIdentifier(), "CDE");
+}

@@ -5,6 +5,8 @@
 #include "week2_code/MeetingPlanner.h"
 #include "week2_code/Room.h"
 #include "week2_code/Meeting.h"
+#include "week2_code/Campus.h"
+#include "week2_code/Building.h"
 
 TEST(MeetingPlannerTest, AddRoomIncreasesRoomCount) {
     MeetingPlanner planner;
@@ -176,4 +178,81 @@ TEST(MeetingPlannerTest, ProcessingSingleMeetingFailsWhenRoomAlreadyOccupied) {
     EXPECT_EQ(planner.getSuccessfulMeetings().size(), 1);
     EXPECT_TRUE(planner.getRooms()[0].isOccupied());
     EXPECT_FALSE(planner.getConflicts().empty());
+}
+TEST(MeetingPlannerTest, AutomaticallyProcessesMultipleMeetings) {
+    MeetingPlanner planner;
+
+    Room room1("A", "A101", 5);
+    Room room2("B", "B202", 5);
+
+    Meeting meeting1("Meeting1", "M1", "A101", "2026-03-20");
+    Meeting meeting2("Meeting2", "M2", "B202", "2026-03-20");
+
+    planner.addRoom(room1);
+    planner.addRoom(room2);
+
+    planner.addMeeting(meeting1);
+    planner.addMeeting(meeting2);
+
+    planner.addParticipation("M1", "Alice");
+    planner.addParticipation("M2", "Bob");
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    EXPECT_EQ(planner.getSuccessfulMeetings().size(), 2);
+    EXPECT_TRUE(planner.getRooms()[0].isOccupied());
+    EXPECT_TRUE(planner.getRooms()[1].isOccupied());
+}
+
+TEST(MeetingPlannerTest, AutomaticallyContinuesAfterFailedMeeting) {
+    MeetingPlanner planner;
+
+    Room room("A", "A101", 5);
+    Room room2("B", "B202", 5);
+
+    Meeting meeting1("Meeting1", "M1", "A101", "2026-03-20");
+    Meeting meeting2("Meeting2", "M2", "A101", "2026-03-20");
+    Meeting meeting3("Meeting3", "M3", "B202", "2026-03-20");
+
+    planner.addRoom(room);
+    planner.addRoom(room2);
+
+    planner.addMeeting(meeting1);
+    planner.addMeeting(meeting2);
+    planner.addMeeting(meeting3);
+
+    planner.addParticipation("M1", "Alice");
+    planner.addParticipation("M2", "Bob");
+    planner.addParticipation("M3", "Charlie");
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    EXPECT_EQ(planner.getSuccessfulMeetings().size(), 2);
+    EXPECT_FALSE(planner.getConflicts().empty());
+    EXPECT_TRUE(planner.getRooms()[1].isOccupied());
+}
+TEST(MeetingPlannerTest, AddCampusIncreasesCampusCount) {
+    MeetingPlanner planner;
+    Campus campus("Campus Drie Eiken", "CDE");
+
+    planner.addCampus(campus);
+
+    EXPECT_EQ(planner.getCampuses().size(), 1);
+    EXPECT_EQ(planner.getCampuses()[0].getIdentifier(), "CDE");
+}
+
+TEST(MeetingPlannerTest, AddBuildingIncreasesBuildingCount) {
+    MeetingPlanner planner;
+    Campus campus("Campus Drie Eiken", "CDE");
+    Building building("Gebouw R", "CDE_R", "CDE");
+
+    planner.addCampus(campus);
+    planner.addBuilding(building);
+
+    EXPECT_EQ(planner.getBuildings().size(), 1);
+    EXPECT_EQ(planner.getBuildings()[0].getIdentifier(), "CDE_R");
 }

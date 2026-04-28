@@ -4,6 +4,8 @@
 #include "XMLParser.h"
 #include <iostream>
 #include "tinyxml/tinyxml.h"
+#include "Campus.h"
+#include "Building.h"
 
 bool XMLParser::parse(const std::string& filename, MeetingPlanner& planner) const {
     TiXmlDocument doc(filename.c_str());
@@ -24,8 +26,57 @@ bool XMLParser::parse(const std::string& filename, MeetingPlanner& planner) cons
          elem = elem->NextSiblingElement()) {
 
         std::string elementName = elem->Value();
+        if (elementName == "CAMPUS") {
+            TiXmlElement* nameElem = elem->FirstChildElement("NAME");
+            TiXmlElement* idElem = elem->FirstChildElement("IDENTIFIER");
 
-        if (elementName == "ROOM") {
+            if (nameElem == nullptr || idElem == nullptr) {
+                std::cerr << "Fout in CAMPUS: ontbrekende velden." << std::endl;
+                continue;
+            }
+
+            std::string name = nameElem->GetText() ? nameElem->GetText() : "";
+            std::string identifier = idElem->GetText() ? idElem->GetText() : "";
+
+            if (name.empty() || identifier.empty()) {
+                std::cerr << "Fout in CAMPUS: lege velden." << std::endl;
+                continue;
+            }
+
+            try {
+                Campus campus(name, identifier);
+                planner.addCampus(campus);
+            } catch (...) {
+                std::cerr << "Fout bij maken van campus: " << name << std::endl;
+            }
+        }
+        else if (elementName == "BUILDING") {
+            TiXmlElement* nameElem = elem->FirstChildElement("NAME");
+            TiXmlElement* idElem = elem->FirstChildElement("IDENTIFIER");
+            TiXmlElement* campusElem = elem->FirstChildElement("CAMPUS");
+
+            if (nameElem == nullptr || idElem == nullptr || campusElem == nullptr) {
+                std::cerr << "Fout in BUILDING: ontbrekende velden." << std::endl;
+                continue;
+            }
+
+            std::string name = nameElem->GetText() ? nameElem->GetText() : "";
+            std::string identifier = idElem->GetText() ? idElem->GetText() : "";
+            std::string campusIdentifier = campusElem->GetText() ? campusElem->GetText() : "";
+
+            if (name.empty() || identifier.empty() || campusIdentifier.empty()) {
+                std::cerr << "Fout in BUILDING: lege velden." << std::endl;
+                continue;
+            }
+
+            try {
+                Building building(name, identifier, campusIdentifier);
+                planner.addBuilding(building);
+            } catch (...) {
+                std::cerr << "Fout bij maken van building: " << name << std::endl;
+            }
+        }
+        else if (elementName == "ROOM") {
             TiXmlElement* nameElem = elem->FirstChildElement("NAME");
             TiXmlElement* idElem = elem->FirstChildElement("IDENTIFIER");
             TiXmlElement* capElem = elem->FirstChildElement("CAPACITY");

@@ -8,6 +8,8 @@
 #include <string>
 #include "Room.h"
 #include "Meeting.h"
+#include "Campus.h"
+#include "Building.h"
 
 class MeetingPlanner {
 public:
@@ -17,7 +19,11 @@ public:
 
     bool checkConsistency();
     void processMeetings();
+    void addCampus(const Campus& campus);
+    void addBuilding(const Building& building);
 
+    const std::vector<Campus>& getCampuses() const;
+    const std::vector<Building>& getBuildings() const;
     const std::vector<Room>& getRooms() const;
     const std::vector<Meeting>& getMeetings() const;
     const std::vector<Meeting>& getSuccessfulMeetings() const;
@@ -30,5 +36,7 @@ private:
     std::vector<Meeting> meetings;
     std::vector<Meeting> successfulMeetings;
     std::vector<std::string> conflicts;
+    std::vector<Campus> campuses;
+    std::vector<Building> buildings;
 };
 #endif //PROJECTTITLE_MEETINGPLANNER_H

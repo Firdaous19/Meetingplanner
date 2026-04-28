@@ -21,8 +21,10 @@ set(RELEASE_SOURCE_FILES
         week2_code/main.cpp
         week2_code/Room.cpp
         week2_code/Meeting.cpp
+        week2_code/Building.cpp
         week2_code/MeetingPlanner.cpp
         week2_code/XMLParser.cpp
+        week2_code/Campus.cpp
         week2_code/OutputWriter.cpp
         tinyxml/tinyxml.cpp
         tinyxml/tinyxmlerror.cpp
@@ -36,17 +38,22 @@ set(DEBUG_SOURCE_FILES
         week2_code/MeetingPlanner.cpp
         week2_code/XMLParser.cpp
         week2_code/OutputWriter.cpp
+        week2_code/Building.cpp
         tinyxml/tinyxml.cpp
         tinyxml/tinyxmlerror.cpp
         tinyxml/tinyxmlparser.cpp
         tinyxml/tinystr.cpp
         week2_code/OutputWriter.cpp
-        week2_code/OutputWriter.h
+        week2_code/Campus.cpp
+        tests/CampusTests.cpp
         tests/RoomTests.cpp
         tests/MeetingTests.cpp
         tests/MeetingPlannerTests.cpp
         tests/XMLParserTests.cpp
         tests/OutputWriterTests.cpp
+        tests/BuildingsTest.cpp
+        tests/CampusTests.cpp
+
 )
 
 add_executable(release_target ${RELEASE_SOURCE_FILES})

@@ -133,7 +133,25 @@ void MeetingPlanner::processMeetings() {
     ENSURE(successfulMeetings.size() <= meetings.size(),
            "Aantal succesvolle meetings mag niet groter zijn dan totaal aantal meetings");
 }
+void MeetingPlanner::addCampus(const Campus& campus) {
+    size_t oldSize = campuses.size();
+    campuses.push_back(campus);
+    ENSURE(campuses.size() == oldSize + 1, "Campus moet toegevoegd zijn");
+}
 
+void MeetingPlanner::addBuilding(const Building& building) {
+    size_t oldSize = buildings.size();
+    buildings.push_back(building);
+    ENSURE(buildings.size() == oldSize + 1, "Building moet toegevoegd zijn");
+}
+
+const std::vector<Campus>& MeetingPlanner::getCampuses() const {
+    return campuses;
+}
+
+const std::vector<Building>& MeetingPlanner::getBuildings() const {
+    return buildings;
+}
 const std::vector<Room>& MeetingPlanner::getRooms() const {
     return rooms;
 }
