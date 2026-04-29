@@ -4,6 +4,7 @@
 
 #ifndef PROJECTTITLE_RENOVATION_H
 #define PROJECTTITLE_RENOVATION_H
+
 #include <string>
 
 class Renovation {
@@ -16,9 +17,12 @@ public:
     std::string getStartDate() const { return startDate; }
     std::string getEndDate() const { return endDate; }
 
+    bool isActiveOnDate(const std::string& date) const;  // de functie 'isActiveOnDate' checkt of renovatie actief is op een aangegeven datum;'date'?
+
 private:
     std::string roomIdentifier;
     std::string startDate;
     std::string endDate;
 };
-#endif //PROJECTTITLE_RENOVATION_H
+
+#endif // PROJECTTITLE_RENOVATION_H

@@ -4,6 +4,7 @@
 
 #ifndef PROJECTTITLE_MEETINGPLANNER_H
 #define PROJECTTITLE_MEETINGPLANNER_H
+
 #include <vector>
 #include <string>
 #include "Room.h"
@@ -38,7 +39,10 @@ public:
 
 private:
     bool loggingEnabled = true;
+
     bool processSingleMeeting(const Meeting& meeting);
+    bool isRoomUnderRenovation(const std::string& roomIdentifier, const std::string& date) const;
+    bool roomExists(const std::string& roomIdentifier) const;
 
     std::vector<Room> rooms;
     std::vector<Meeting> meetings;
@@ -49,4 +53,5 @@ private:
     std::vector<Renovation> renovations;
     std::vector<CateringProvider> cateringProviders;
 };
-#endif //PROJECTTITLE_MEETINGPLANNER_H
+
+#endif // PROJECTTITLE_MEETINGPLANNER_H

@@ -35,6 +35,31 @@ bool MeetingPlanner::addParticipation(const std::string& meetingId, const std::s
     return false;
 }
 
+bool MeetingPlanner::roomExists(const std::string& roomIdentifier) const {
+    REQUIRE(!roomIdentifier.empty(), "Room identifier mag niet leeg zijn");
+
+    for (const auto& room : rooms) {
+        if (room.getIdentifier() == roomIdentifier) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool MeetingPlanner::isRoomUnderRenovation(const std::string& roomIdentifier, const std::string& date) const {
+    REQUIRE(!roomIdentifier.empty(), "Room identifier mag niet leeg zijn");
+    REQUIRE(!date.empty(), "Date mag niet leeg zijn");
+
+    for (const auto& renovation : renovations) {
+        if (renovation.getRoomIdentifier() == roomIdentifier &&
+            renovation.isActiveOnDate(date)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool MeetingPlanner::checkConsistency() {
     bool consistent = true;
     conflicts.clear();
@@ -114,6 +139,28 @@ bool MeetingPlanner::checkConsistency() {
 }
 
 bool MeetingPlanner::processSingleMeeting(const Meeting& meeting) {
+    REQUIRE(!meeting.getIdentifier().empty(), "Meeting identifier mag niet leeg zijn");
+    REQUIRE(!meeting.getRoomIdentifier().empty(), "Meeting room identifier mag niet leeg zijn");
+    REQUIRE(!meeting.getDate().empty(), "Meeting date mag niet leeg zijn");
+
+    if (isRoomUnderRenovation(meeting.getRoomIdentifier(), meeting.getDate())) {
+        std::string msg = "Meeting " + meeting.getIdentifier() +
+                          " geannuleerd: room " + meeting.getRoomIdentifier() +
+                          " is in renovatie op " + meeting.getDate() + ".";
+
+        if (loggingEnabled) {
+            std::cerr << msg << std::endl;
+        }
+
+        size_t oldConflictsSize = conflicts.size();
+        conflicts.push_back(msg);
+
+        ENSURE(conflicts.size() == oldConflictsSize + 1,
+               "Bij renovatieconflict moet conflict toegevoegd zijn");
+
+        return false;
+    }
+
     for (auto& room : rooms) {
         if (room.getIdentifier() == meeting.getRoomIdentifier()) {
             if (room.isOccupied()) {
@@ -125,7 +172,12 @@ bool MeetingPlanner::processSingleMeeting(const Meeting& meeting) {
                     std::cerr << msg << std::endl;
                 }
 
+                size_t oldConflictsSize = conflicts.size();
                 conflicts.push_back(msg);
+
+                ENSURE(conflicts.size() == oldConflictsSize + 1,
+                       "Bij bezettingsconflict moet conflict toegevoegd zijn");
+
                 return false;
             }
 
@@ -150,7 +202,12 @@ bool MeetingPlanner::processSingleMeeting(const Meeting& meeting) {
         std::cerr << msg << std::endl;
     }
 
+    size_t oldConflictsSize = conflicts.size();
     conflicts.push_back(msg);
+
+    ENSURE(conflicts.size() == oldConflictsSize + 1,
+           "Bij onbekende room moet conflict toegevoegd zijn");
+
     return false;
 }
 
@@ -160,7 +217,10 @@ void MeetingPlanner::processMeetings() {
     for (const auto& meeting : meetings) {
         bool success = processSingleMeeting(meeting);
         if (success) {
+            size_t oldSize = successfulMeetings.size();
             successfulMeetings.push_back(meeting);
+            ENSURE(successfulMeetings.size() == oldSize + 1,
+                   "Succesvolle meeting moet toegevoegd zijn");
         }
     }
 
@@ -181,10 +241,20 @@ void MeetingPlanner::addBuilding(const Building& building) {
 }
 
 void MeetingPlanner::addRenovation(const Renovation& renovation) {
+    REQUIRE(!renovation.getRoomIdentifier().empty(), "Renovation room identifier mag niet leeg zijn");
+    REQUIRE(!renovation.getStartDate().empty(), "Renovation start date mag niet leeg zijn");
+    REQUIRE(!renovation.getEndDate().empty(), "Renovation end date mag niet leeg zijn");
+    REQUIRE(roomExists(renovation.getRoomIdentifier()),
+            "Renovation moet verwijzen naar een bestaande room");
+    REQUIRE(renovation.getStartDate() <= renovation.getEndDate(),
+            "Renovation start date moet voor of gelijk aan end date liggen");
+
     size_t oldSize = renovations.size();
     renovations.push_back(renovation);
+
     ENSURE(renovations.size() == oldSize + 1, "Renovation moet toegevoegd zijn");
 }
+
 void MeetingPlanner::addCateringProvider(const CateringProvider& provider) {
     size_t oldSize = cateringProviders.size();
     cateringProviders.push_back(provider);
@@ -194,6 +264,7 @@ void MeetingPlanner::addCateringProvider(const CateringProvider& provider) {
 const std::vector<CateringProvider>& MeetingPlanner::getCateringProviders() const {
     return cateringProviders;
 }
+
 const std::vector<Renovation>& MeetingPlanner::getRenovations() const {
     return renovations;
 }
