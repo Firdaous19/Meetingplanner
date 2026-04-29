@@ -44,3 +44,10 @@ TEST(RenovationTest, IsActiveOnDateReturnsFalseOutsideRenovationPeriod) {
     EXPECT_FALSE(renovation.isActiveOnDate("2026-03-31"));
     EXPECT_FALSE(renovation.isActiveOnDate("2026-06-02"));
 }
+
+TEST(RenovationTest, StartDateAfterEndDateIsRejected) {
+    EXPECT_DEATH(
+            Renovation("A101", "2026-06-02", "2026-06-01"),
+            "Renovation end date moet na start date of gelijk aan start date liggen"
+    );
+}
