@@ -278,8 +278,11 @@ TEST(MeetingPlannerTest, AddBuildingIncreasesBuildingCount) {
 TEST(MeetingPlannerTest, AddRenovationIncreasesRenovationCount) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
+
+    Room room("Vergaderzaal A", "A101", 5);
     Renovation renovation("A101", "2026-04-01", "2026-06-01");
 
+    planner.addRoom(room);
     planner.addRenovation(renovation);
 
     EXPECT_EQ(planner.getRenovations().size(), 1);
@@ -296,4 +299,155 @@ TEST(MeetingPlannerTest, AddCateringProviderIncreasesCateringProviderCount) {
     EXPECT_EQ(planner.getCateringProviders().size(), 1);
     EXPECT_EQ(planner.getCateringProviders()[0].getCampusIdentifier(), "Campus_CDE");
     EXPECT_EQ(planner.getCateringProviders()[0].getCO2(), 20);
+}
+
+  //USE CASE 3.3 - RENOVATIONS
+
+TEST(MeetingPlannerTest, ProcessMeetingsCancelsMeetingWhenRoomIsUnderRenovation) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Room room("Vergaderzaal A", "A101", 5);
+    Meeting meeting("Team Meeting", "M1", "A101", "2026-04-15");
+    Renovation renovation("A101", "2026-04-01", "2026-06-01");
+
+    planner.addRoom(room);
+    planner.addMeeting(meeting);
+    planner.addParticipation("M1", "Alice");
+    planner.addRenovation(renovation);
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    EXPECT_EQ(planner.getSuccessfulMeetings().size(), 0);
+    EXPECT_FALSE(planner.getRooms()[0].isOccupied());
+    EXPECT_FALSE(planner.getConflicts().empty());
+}
+
+TEST(MeetingPlannerTest, ProcessMeetingsCancelsMeetingOnRenovationStartDate) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Room room("Vergaderzaal A", "A101", 5);
+    Meeting meeting("Startdag Meeting", "M1", "A101", "2026-04-01");
+    Renovation renovation("A101", "2026-04-01", "2026-06-01");
+
+    planner.addRoom(room);
+    planner.addMeeting(meeting);
+    planner.addParticipation("M1", "Alice");
+    planner.addRenovation(renovation);
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    EXPECT_EQ(planner.getSuccessfulMeetings().size(), 0);
+    EXPECT_FALSE(planner.getRooms()[0].isOccupied());
+    EXPECT_FALSE(planner.getConflicts().empty());
+}
+
+TEST(MeetingPlannerTest, ProcessMeetingsCancelsMeetingOnRenovationEndDate) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Room room("Vergaderzaal A", "A101", 5);
+    Meeting meeting("Einddag Meeting", "M1", "A101", "2026-06-01");
+    Renovation renovation("A101", "2026-04-01", "2026-06-01");
+
+    planner.addRoom(room);
+    planner.addMeeting(meeting);
+    planner.addParticipation("M1", "Alice");
+    planner.addRenovation(renovation);
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    EXPECT_EQ(planner.getSuccessfulMeetings().size(), 0);
+    EXPECT_FALSE(planner.getRooms()[0].isOccupied());
+    EXPECT_FALSE(planner.getConflicts().empty());
+}
+
+TEST(MeetingPlannerTest, ProcessMeetingsAllowsMeetingOutsideRenovationPeriod) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Room room("Vergaderzaal A", "A101", 5);
+    Meeting meeting("Team Meeting", "M1", "A101", "2026-06-10");
+    Renovation renovation("A101", "2026-04-01", "2026-06-01");
+
+    planner.addRoom(room);
+    planner.addMeeting(meeting);
+    planner.addParticipation("M1", "Alice");
+    planner.addRenovation(renovation);
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    EXPECT_EQ(planner.getSuccessfulMeetings().size(), 1);
+    EXPECT_EQ(planner.getSuccessfulMeetings()[0].getIdentifier(), "M1");
+    EXPECT_TRUE(planner.getRooms()[0].isOccupied());
+    EXPECT_TRUE(planner.getConflicts().empty());
+}
+
+TEST(MeetingPlannerTest, ProcessMeetingsAllowsMeetingWhenAnotherRoomIsUnderRenovation) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Room room1("Vergaderzaal A", "A101", 5);
+    Room room2("Vergaderzaal B", "B202", 5);
+    Meeting meeting("Team Meeting", "M1", "A101", "2026-04-15");
+    Renovation renovation("B202", "2026-04-01", "2026-06-01");
+
+    planner.addRoom(room1);
+    planner.addRoom(room2);
+    planner.addMeeting(meeting);
+    planner.addParticipation("M1", "Alice");
+    planner.addRenovation(renovation);
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    EXPECT_EQ(planner.getSuccessfulMeetings().size(), 1);
+    EXPECT_EQ(planner.getSuccessfulMeetings()[0].getIdentifier(), "M1");
+    EXPECT_TRUE(planner.getRooms()[0].isOccupied());
+    EXPECT_FALSE(planner.getRooms()[1].isOccupied());
+    EXPECT_TRUE(planner.getConflicts().empty());
+}
+
+TEST(MeetingPlannerTest, AutomaticallyContinuesAfterMeetingBlockedByRenovation) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Room room1("Vergaderzaal A", "A101", 5);
+    Room room2("Vergaderzaal B", "B202", 5);
+
+    Meeting meeting1("Meeting In Renovatie", "M1", "A101", "2026-04-15");
+    Meeting meeting2("Normale Meeting", "M2", "B202", "2026-04-15");
+
+    Renovation renovation("A101", "2026-04-01", "2026-06-01");
+
+    planner.addRoom(room1);
+    planner.addRoom(room2);
+
+    planner.addMeeting(meeting1);
+    planner.addMeeting(meeting2);
+
+    planner.addParticipation("M1", "Alice");
+    planner.addParticipation("M2", "Bob");
+
+    planner.addRenovation(renovation);
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    EXPECT_EQ(planner.getSuccessfulMeetings().size(), 1);
+    EXPECT_EQ(planner.getSuccessfulMeetings()[0].getIdentifier(), "M2");
+    EXPECT_FALSE(planner.getRooms()[0].isOccupied());
+    EXPECT_TRUE(planner.getRooms()[1].isOccupied());
+    EXPECT_FALSE(planner.getConflicts().empty());
 }

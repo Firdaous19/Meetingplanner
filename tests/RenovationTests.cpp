@@ -29,3 +29,18 @@ TEST(RenovationTest, EmptyEndDateIsRejected) {
             "Renovation end date mag niet leeg zijn"
     );
 }
+
+TEST(RenovationTest, IsActiveOnDateReturnsTrueWithinAndOnBoundsOfRenovationPeriod) {
+    Renovation renovation("A101", "2026-04-01", "2026-06-01");
+
+    EXPECT_TRUE(renovation.isActiveOnDate("2026-04-01"));
+    EXPECT_TRUE(renovation.isActiveOnDate("2026-05-15"));
+    EXPECT_TRUE(renovation.isActiveOnDate("2026-06-01"));
+}
+
+TEST(RenovationTest, IsActiveOnDateReturnsFalseOutsideRenovationPeriod) {
+    Renovation renovation("A101", "2026-04-01", "2026-06-01");
+
+    EXPECT_FALSE(renovation.isActiveOnDate("2026-03-31"));
+    EXPECT_FALSE(renovation.isActiveOnDate("2026-06-02"));
+}
