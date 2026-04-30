@@ -1,0 +1,36 @@
+<SYSTEM>
+    <ROOM>
+        <NAME>Room zonder capacity</NAME>
+        <IDENTIFIER>BadRoom1</IDENTIFIER>
+    </ROOM>
+
+    <ROOM>
+        <NAME>Room met foute capacity</NAME>
+        <IDENTIFIER>BadRoom2</IDENTIFIER>
+        <CAPACITY>abc</CAPACITY>
+    </ROOM>
+
+    <ROOM>
+        <NAME>Goede room</NAME>
+        <IDENTIFIER>GoodRoom</IDENTIFIER>
+        <CAPACITY>10</CAPACITY>
+    </ROOM>
+
+    <MEETING>
+        <LABEL>Meeting zonder datum</LABEL>
+        <IDENTIFIER>BadMeeting</IDENTIFIER>
+        <ROOM>GoodRoom</ROOM>
+    </MEETING>
+
+    <MEETING>
+        <LABEL>Goede meeting</LABEL>
+        <IDENTIFIER>GoodMeeting</IDENTIFIER>
+        <ROOM>GoodRoom</ROOM>
+        <DATE>2026-05-22</DATE>
+    </MEETING>
+
+    <PARTICIPATION>
+        <MEETING>GoodMeeting</MEETING>
+        <USER>Alice</USER>
+    </PARTICIPATION>
+</SYSTEM>

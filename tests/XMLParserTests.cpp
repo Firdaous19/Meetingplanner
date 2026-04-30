@@ -122,3 +122,23 @@ TEST(XMLParserTest, ParseCateringFileLoadsCateringProviderAndMeetingFlag) {
     ASSERT_EQ(planner.getMeetings().size(), 1);
     EXPECT_TRUE(planner.getMeetings()[0].hasCatering());
 }
+TEST(XMLParserTest, ParseFileWithMultipleInputErrorsContinuesReadingValidElements) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    XMLParser parser;
+    parser.setLoggingEnabled(false);
+
+    bool success = parser.parse("../week2_code/test_multiple_input_errors.xml", planner);
+
+    EXPECT_TRUE(success);
+
+    EXPECT_EQ(planner.getRooms().size(), 1);
+    EXPECT_EQ(planner.getRooms()[0].getIdentifier(), "GoodRoom");
+
+    EXPECT_EQ(planner.getMeetings().size(), 1);
+    EXPECT_EQ(planner.getMeetings()[0].getIdentifier(), "GoodMeeting");
+
+    ASSERT_EQ(planner.getMeetings()[0].getParticipants().size(), 1);
+    EXPECT_EQ(planner.getMeetings()[0].getParticipants()[0], "Alice");
+}
