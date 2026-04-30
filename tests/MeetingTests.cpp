@@ -47,3 +47,34 @@ TEST(MeetingTest, InvalidDayIsRejected) {
             "Meeting date moet formaat YYYY-MM-DD hebben"
     );
 }
+TEST(MeetingTest, NegativeCO2EmissionIsRejected) {
+    Meeting meeting("Weekly meeting", "Meeting123", "Room123", "2026-05-22");
+
+    EXPECT_DEATH(
+            meeting.setCO2Emission(-1),
+            "CO2 emission mag niet negatief zijn"
+    );
+}
+TEST(MeetingTest, InvalidOccupancyPercentageIsRejected) {
+    Meeting meeting("Weekly meeting", "Meeting123", "Room123", "2026-05-22");
+
+    EXPECT_DEATH(
+            meeting.setOccupancyPercentage(150),
+            "Occupancy percentage moet tussen 0 en 100 liggen"
+    );
+}
+TEST(MeetingTest, ValidCO2AndOccupancyValuesAreStoredCorrectly) {
+    Meeting meeting("Weekly meeting", "Meeting123", "Room123", "2026-05-22");
+
+    meeting.setCO2Emission(250);
+    meeting.setOccupancyPercentage(80);
+    meeting.setCatering(true);
+    meeting.setOnline(true);
+    meeting.setExternalsAllowed(true);
+
+    EXPECT_EQ(meeting.getCO2Emission(), 250);
+    EXPECT_EQ(meeting.getOccupancyPercentage(), 80);
+    EXPECT_TRUE(meeting.hasCatering());
+    EXPECT_TRUE(meeting.isOnline());
+    EXPECT_TRUE(meeting.areExternalsAllowed());
+}

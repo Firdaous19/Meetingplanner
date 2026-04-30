@@ -477,3 +477,78 @@ TEST(MeetingPlannerTest, TracksRoomOccupancyPercentageCorrectly) {
             40
     );
 }
+TEST(MeetingPlannerTest, TracksFullRoomOccupancyAs100Percent) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Room room("Volle zaal", "FULL101", 2);
+    Meeting meeting("Volle meeting", "M_FULL", "FULL101", "2026-05-22");
+
+    planner.addRoom(room);
+    planner.addMeeting(meeting);
+
+    planner.addParticipation("M_FULL", "Alice");
+    planner.addParticipation("M_FULL", "Bob");
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    ASSERT_EQ(planner.getSuccessfulMeetings().size(), 1);
+    EXPECT_EQ(planner.getSuccessfulMeetings()[0].getOccupancyPercentage(), 100);
+}
+TEST(MeetingPlannerTest, TracksLowRoomOccupancyCorrectly) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Room room("Grote zaal", "BIG101", 10);
+    Meeting meeting("Kleine meeting", "M_SMALL", "BIG101", "2026-05-22");
+
+    planner.addRoom(room);
+    planner.addMeeting(meeting);
+
+    planner.addParticipation("M_SMALL", "Alice");
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    ASSERT_EQ(planner.getSuccessfulMeetings().size(), 1);
+
+    EXPECT_EQ(
+            planner.getSuccessfulMeetings()[0].getOccupancyPercentage(),
+            10
+    );
+}
+TEST(MeetingPlannerTest, MeetingBeforeRenovationPeriodIsAllowed) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Room room("Vergaderzaal A", "A101", 5);
+    Meeting meeting("Meeting Voor Renovatie", "M_BEFORE", "A101", "2026-03-20");
+    Renovation renovation("A101", "2026-04-01", "2026-06-01");
+
+    planner.addRoom(room);
+    planner.addMeeting(meeting);
+    planner.addParticipation("M_BEFORE", "Alice");
+    planner.addRenovation(renovation);
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    ASSERT_EQ(planner.getSuccessfulMeetings().size(), 1);
+    EXPECT_EQ(planner.getSuccessfulMeetings()[0].getIdentifier(), "M_BEFORE");
+    EXPECT_TRUE(planner.getConflicts().empty());
+}
+TEST(MeetingPlannerTest, AddRenovationForUnknownRoomIsRejected) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Renovation renovation("UNKNOWN_ROOM", "2026-04-01", "2026-06-01");
+
+    EXPECT_DEATH(
+            planner.addRenovation(renovation),
+            "Renovation moet verwijzen naar een bestaande room"
+    );
+}

@@ -53,3 +53,30 @@ TEST(RoomTest, NegativeCapacityIsRejected) {
             "Capaciteit moet groter zijn dan 0"
     );
 }
+TEST(RoomTest, AddingMultiplePersonsTracksCountCorrectly) {
+    Room room("Vergaderzaal A", "A101", 5);
+
+    room.addPerson("Alice");
+    room.addPerson("Bob");
+    room.addPerson("Charlie");
+
+    EXPECT_EQ(room.getNumberOfPersons(), 3);
+}
+TEST(RoomTest, EmptyPersonNameIsRejected) {
+    Room room("Vergaderzaal A", "A101", 5);
+
+    EXPECT_DEATH(
+            room.addPerson(""),
+            "Persoonsnaam mag niet leeg zijn"
+    );
+}
+TEST(RoomTest, AddingPersonWhenRoomIsFullIsRejected) {
+    Room room("Vergaderzaal A", "A101", 1);
+
+    room.addPerson("Alice");
+
+    EXPECT_DEATH(
+            room.addPerson("Bob"),
+            "Kamer is al vol"
+    );
+}

@@ -153,3 +153,15 @@ TEST(XMLParserTest, ParseNonExistingFileReturnsFalse) {
 
     EXPECT_FALSE(success);
 }
+TEST(XMLParserTest, ParseFileWithoutSystemRootReturnsFalse) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    XMLParser parser;
+    parser.setLoggingEnabled(false);
+
+    bool success = parser.parse("../week2_code/test_no_system_root.xml", planner);
+
+    EXPECT_FALSE(success);
+    EXPECT_EQ(planner.getRooms().size(), 0);
+}
