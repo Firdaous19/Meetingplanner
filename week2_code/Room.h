@@ -6,7 +6,7 @@
 
 /**
  * Stelt een vergaderzaal voor in het systeem.
- * Een room heeft een naam, een identifier, een capaciteit
+ * Een room heeft een naam, een unieke identifier, een capaciteit
  * en kan bezet worden tijdens het verwerken van meetings.
  */
 class Room {
@@ -21,16 +21,19 @@ public:
 
     /**
      * Geef de naam van de room terug.
+     * @return De naam van de room.
      */
     std::string getName() const { return name; }
 
     /**
-     * Geef de identifier van de room terug.
+     * Geef de unieke identifier van de room terug.
+     * @return De identifier van de room.
      */
     std::string getIdentifier() const { return identifier; }
 
     /**
      * Geef de capaciteit van de room terug.
+     * @return Het maximum aantal personen dat in de room past.
      */
     int getCapacity() const { return capacity; }
 
@@ -42,11 +45,13 @@ public:
 
     /**
      * Geef het aantal personen in de room terug.
+     * @return Het aantal toegevoegde personen.
      */
     int getNumberOfPersons() const { return persons.size(); }
 
     /**
      * Controleer of de room bezet is.
+     * @return true als de room bezet is, anders false.
      */
     bool isOccupied() const { return occupied; }
 
