@@ -1,6 +1,6 @@
 #include "MeetingPlanner.h"
 #include <iostream>
-#include "DesignByContract.h"
+
 
 void MeetingPlanner::setLoggingEnabled(bool enabled) {
     loggingEnabled = enabled;

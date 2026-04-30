@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include "DesignByContract.h"
 
 /**
  * Stelt een meeting voor in het systeem.
@@ -23,42 +24,103 @@ public:
             const std::string& roomIdentifier,
             const std::string& date);
 
+    /** @return Het label van de meeting. */
     std::string getLabel() const { return label; }
+
+    /** @return De unieke identifier van de meeting. */
     std::string getIdentifier() const { return identifier; }
+
+    /** @return De identifier van de room waarin de meeting plaatsvindt. */
     std::string getRoomIdentifier() const { return roomIdentifier; }
+
+    /** @return De datum van de meeting in formaat YYYY-MM-DD. */
     std::string getDate() const { return date; }
 
+    /**
+     * Voeg een deelnemer toe aan deze meeting.
+     * @param user Naam van de deelnemer.
+     */
     void addParticipant(const std::string& user);
+
+    /** @return Alle deelnemers van deze meeting. */
     const std::vector<std::string>& getParticipants() const { return participants; }
 
+    /** @return true als externen toegelaten zijn. */
     bool areExternalsAllowed() const { return externalsAllowed; }
+
+    /** @return true als catering nodig is. */
     bool hasCatering() const { return catering; }
+
+    /** @return true als de meeting online plaatsvindt. */
     bool isOnline() const { return online; }
+
+    /** @return CO2-uitstoot van deze meeting in gram. */
     int getCO2Emission() const { return co2Emission; }
 
-    void setExternalsAllowed(bool value) { externalsAllowed = value; }
-    void setCatering(bool value) { catering = value; }
-    void setOnline(bool value) { online = value; }
-    void setCO2Emission(int value) { co2Emission = value; }
-    int getOccupancyPercentage() const {
-        return occupancyPercentage;
+    /** @return Bezettingspercentage van de room voor deze meeting. */
+    int getOccupancyPercentage() const { return occupancyPercentage; }
+
+    /**
+     * Stel in of externen toegelaten zijn.
+     * @param value true als externen toegelaten zijn.
+     */
+    void setExternalsAllowed(bool value) {
+        externalsAllowed = value;
+        ENSURE(externalsAllowed == value, "Externals allowed flag correct opgeslagen");
     }
 
-    void setOccupancyPercentage(int percentage) {
-        occupancyPercentage = percentage;
+    /**
+     * Stel in of de meeting catering nodig heeft.
+     * @param value true als catering nodig is.
+     */
+    void setCatering(bool value) {
+        catering = value;
+        ENSURE(catering == value, "Catering flag correct opgeslagen");
     }
+
+    /**
+     * Stel in of de meeting online plaatsvindt.
+     * @param value true als de meeting online is.
+     */
+    void setOnline(bool value) {
+        online = value;
+        ENSURE(online == value, "Online flag correct opgeslagen");
+    }
+
+    /**
+     * Stel de CO2-uitstoot van de meeting in.
+     * @param value CO2-uitstoot in gram.
+     */
+    void setCO2Emission(int value) {
+        REQUIRE(value >= 0, "CO2 emission mag niet negatief zijn");
+        co2Emission = value;
+        ENSURE(co2Emission == value, "CO2 emission correct opgeslagen");
+    }
+
+    /**
+     * Stel het bezettingspercentage van de room in voor deze meeting.
+     * @param percentage Percentage tussen 0 en 100.
+     */
+    void setOccupancyPercentage(int percentage) {
+        REQUIRE(percentage >= 0 && percentage <= 100,
+                "Occupancy percentage moet tussen 0 en 100 liggen");
+        occupancyPercentage = percentage;
+        ENSURE(occupancyPercentage == percentage,
+               "Occupancy percentage correct opgeslagen");
+    }
+
 private:
     std::string label;
     std::string identifier;
     std::string roomIdentifier;
     std::string date;
     std::vector<std::string> participants;
-    int occupancyPercentage;
 
     bool externalsAllowed = false;
     bool catering = false;
     bool online = false;
     int co2Emission = 0;
+    int occupancyPercentage = 0;
 };
 
 #endif

@@ -1,5 +1,4 @@
 #include "Meeting.h"
-#include "DesignByContract.h"
 #include <cctype>
 
 /**
