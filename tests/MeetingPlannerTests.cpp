@@ -451,3 +451,29 @@ TEST(MeetingPlannerTest, AutomaticallyContinuesAfterMeetingBlockedByRenovation) 
     EXPECT_TRUE(planner.getRooms()[1].isOccupied());
     EXPECT_FALSE(planner.getConflicts().empty());
 }
+TEST(MeetingPlannerTest, TracksRoomOccupancyPercentageCorrectly) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Room room("Vergaderzaal A", "A101", 10);
+    Meeting meeting("Team Meeting", "M1", "A101", "2026-04-15");
+
+    planner.addRoom(room);
+    planner.addMeeting(meeting);
+
+    planner.addParticipation("M1", "Alice");
+    planner.addParticipation("M1", "Bob");
+    planner.addParticipation("M1", "Charlie");
+    planner.addParticipation("M1", "David");
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    ASSERT_EQ(planner.getSuccessfulMeetings().size(), 1);
+
+    EXPECT_EQ(
+            planner.getSuccessfulMeetings()[0].getOccupancyPercentage(),
+            40
+    );
+}

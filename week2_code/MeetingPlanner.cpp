@@ -182,6 +182,8 @@ bool MeetingPlanner::processSingleMeeting(const Meeting& meeting) {
             }
 
             room.occupy();
+            int occupancy = (meeting.getParticipants().size() * 100) / room.getCapacity();
+            const_cast<Meeting&>(meeting).setOccupancyPercentage(occupancy);
 
             if (loggingEnabled) {
                 std::cout << "Meeting " << meeting.getIdentifier()
@@ -216,13 +218,24 @@ void MeetingPlanner::processMeetings() {
 
     for (const auto& meeting : meetings) {
         bool success = processSingleMeeting(meeting);
+
         if (success) {
-            size_t oldSize = successfulMeetings.size();
-            successfulMeetings.push_back(meeting);
-            ENSURE(successfulMeetings.size() == oldSize + 1,
-                   "Succesvolle meeting moet toegevoegd zijn");
+            Meeting processedMeeting = meeting;
+
+            for (const auto& room : rooms) {
+                if (room.getIdentifier() == meeting.getRoomIdentifier()) {
+                    int occupancy =
+                            (meeting.getParticipants().size() * 100) / room.getCapacity();
+
+                    processedMeeting.setOccupancyPercentage(occupancy);
+                    break;
+                }
+            }
+
+            successfulMeetings.push_back(processedMeeting);
         }
     }
+
 
     ENSURE(successfulMeetings.size() <= meetings.size(),
            "Aantal succesvolle meetings mag niet groter zijn dan totaal aantal meetings");

@@ -40,13 +40,20 @@ public:
     void setCatering(bool value) { catering = value; }
     void setOnline(bool value) { online = value; }
     void setCO2Emission(int value) { co2Emission = value; }
+    int getOccupancyPercentage() const {
+        return occupancyPercentage;
+    }
 
+    void setOccupancyPercentage(int percentage) {
+        occupancyPercentage = percentage;
+    }
 private:
     std::string label;
     std::string identifier;
     std::string roomIdentifier;
     std::string date;
     std::vector<std::string> participants;
+    int occupancyPercentage;
 
     bool externalsAllowed = false;
     bool catering = false;

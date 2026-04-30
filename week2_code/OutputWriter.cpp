@@ -25,7 +25,7 @@ void OutputWriter::writeOutput(const std::string& filename, const MeetingPlanner
     out << "## ==== [SYSTEM STATUS] ==== ##\n\n";
 
     out << "--== Meetings ==--\n";
-    for (const auto& meeting : planner.getMeetings()) {
+    for (const auto& meeting : planner.getSuccessfulMeetings()) {
         out << "[" << meeting.getIdentifier() << "]\n";
         out << "- Label: " << meeting.getLabel() << "\n";
         out << "- Time: " << formatDate(meeting.getDate()) << "\n";
@@ -45,6 +45,10 @@ void OutputWriter::writeOutput(const std::string& filename, const MeetingPlanner
             }
         }
         out << "\n";
+
+        out << "- Room occupancy: "
+            << meeting.getOccupancyPercentage()
+            << "%\n";
 
         if (meeting.areExternalsAllowed()) {
             out << "- Externals allowed\n";
@@ -80,7 +84,7 @@ void OutputWriter::writeOutput(const std::string& filename, const MeetingPlanner
     }
 
     int totalCO2 = 0;
-    for (const auto& meeting : planner.getMeetings()) {
+    for (const auto& meeting : planner.getSuccessfulMeetings()) {
         totalCO2 += meeting.getCO2Emission();
     }
 

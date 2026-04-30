@@ -41,4 +41,5 @@ TEST(OutputWriterTest, WriteOutputCreatesFileWithExpectedSections) {
     EXPECT_NE(content.find("CO2 emitted: 560g"), std::string::npos);
     EXPECT_NE(content.find("Externals allowed"), std::string::npos);
     EXPECT_NE(content.find("Catering"), std::string::npos);
+    EXPECT_NE(content.find("Room occupancy"), std::string::npos);
 }
