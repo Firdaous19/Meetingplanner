@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Kamers>
-    <Kamer naam="Vergaderzaal A" capaciteit="10" />
-    <Kamer naam="Lunchruimte" capaciteit="25" />
-</Kamers>
