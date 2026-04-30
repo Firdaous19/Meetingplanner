@@ -1,6 +1,3 @@
-//
-// Created by firdi on 21/04/2026.
-//
 
 #ifndef PROJECTTITLE_MEETINGPLANNER_H
 #define PROJECTTITLE_MEETINGPLANNER_H
