@@ -2,7 +2,10 @@
 #include <fstream>
 #include <iostream>
 
+
 std::string OutputWriter::formatDate(const std::string& isoDate) const {
+    REQUIRE(!isoDate.empty(), "Datum mag niet leeg zijn");
+
     if (isoDate.size() != 10) {
         return isoDate;
     }
@@ -15,6 +18,8 @@ std::string OutputWriter::formatDate(const std::string& isoDate) const {
 }
 
 void OutputWriter::writeOutput(const std::string& filename, const MeetingPlanner& planner) const {
+    REQUIRE(!filename.empty(), "Output filename mag niet leeg zijn");
+
     std::ofstream out(filename.c_str());
 
     if (!out.is_open()) {
@@ -90,6 +95,8 @@ void OutputWriter::writeOutput(const std::string& filename, const MeetingPlanner
 
     out << "--== CO2 summary ==--\n";
     out << "- Total CO2 emitted: " << totalCO2 << "g\n";
+
+    ENSURE(out.good(), "Outputbestand moet correct geschreven zijn");
 
     out.close();
 }

@@ -21,6 +21,6 @@ EXPECT_DEATH(
 TEST(CateringProviderTest, NegativeCO2IsRejected) {
 EXPECT_DEATH(
         CateringProvider("Campus_CDE", -5),
-"CO2 moet positief zijn"
+"CO2 mag niet negatief zijn"
 );
 }

@@ -142,3 +142,14 @@ TEST(XMLParserTest, ParseFileWithMultipleInputErrorsContinuesReadingValidElement
     ASSERT_EQ(planner.getMeetings()[0].getParticipants().size(), 1);
     EXPECT_EQ(planner.getMeetings()[0].getParticipants()[0], "Alice");
 }
+TEST(XMLParserTest, ParseNonExistingFileReturnsFalse) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    XMLParser parser;
+    parser.setLoggingEnabled(false);
+
+    bool success = parser.parse("../week2_code/does_not_exist.xml", planner);
+
+    EXPECT_FALSE(success);
+}

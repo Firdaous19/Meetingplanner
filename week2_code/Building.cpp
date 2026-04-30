@@ -1,6 +1,4 @@
-//
-// Created by firdi on 27/04/2026.
-//
+
 #include "Building.h"
 #include "DesignByContract.h"
 

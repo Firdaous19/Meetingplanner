@@ -104,3 +104,14 @@ EXPECT_NE(content.find("--== Conflicts ==--"), std::string::npos);
 EXPECT_NE(content.find("geannuleerd"), std::string::npos);
 EXPECT_NE(content.find("is al bezet"), std::string::npos);
 }
+TEST(OutputWriterTest, EmptyFilenameIsRejected) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    OutputWriter writer;
+
+    EXPECT_DEATH(
+            writer.writeOutput("", planner),
+            "Output filename mag niet leeg zijn"
+    );
+}

@@ -10,7 +10,7 @@ CateringProvider::CateringProvider(const std::string& campusIdentifier,
           co2(co2) {
 
     REQUIRE(!campusIdentifier.empty(), "Campus identifier mag niet leeg zijn");
-    REQUIRE(co2 >= 0, "CO2 moet positief zijn");
+    REQUIRE(co2 >= 0, "CO2 mag niet negatief zijn");
 
     ENSURE(this->campusIdentifier == campusIdentifier,
            "Campus identifier correct opgeslagen");
