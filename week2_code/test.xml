@@ -1,36 +1,36 @@
 <SYSTEM>
 
     <CAMPUS>
-            <NAME>Campus Middelheim</NAME>
-            <IDENTIFIER>Campus_MH</IDENTIFIER>
+        <NAME>Campus Drie Eiken</NAME>
+        <IDENTIFIER>CDE</IDENTIFIER>
     </CAMPUS>
 
     <BUILDING>
-            <NAME>Gebouw G</NAME>
-            <IDENTIFIER>GEBOUW_G</IDENTIFIER>
-            <CAMPUS>Campus_MH</CAMPUS>
+        <NAME>Gebouw R</NAME>
+        <IDENTIFIER>CDE_R</IDENTIFIER>
+        <CAMPUS>CDE</CAMPUS>
     </BUILDING>
 
     <BUILDING>
         <NAME>Gebouw A</NAME>
-        <IDENTIFIER>GEBOUW_A</IDENTIFIER>
-        <CAMPUS>Campus_MH</CAMPUS>
+        <IDENTIFIER>CDE_A</IDENTIFIER>
+        <CAMPUS>CDE</CAMPUS>
     </BUILDING>
 
     <ROOM>
-        <NAME>Vergaderzaal A</NAME>
-        <IDENTIFIER>A101</IDENTIFIER>
-        <CAPACITY>5</CAPACITY>
-        <CAMPUS>Campus_MH</CAMPUS>
-        <BUILDING>GEBOUW_G</BUILDING>
+        <NAME>R.014</NAME>
+        <IDENTIFIER>Room123</IDENTIFIER>
+        <CAPACITY>20</CAPACITY>
+        <CAMPUS>CDE</CAMPUS>
+        <BUILDING>CDE_R</BUILDING>
     </ROOM>
 
     <ROOM>
         <NAME>Vergaderzaal B</NAME>
         <IDENTIFIER>B202</IDENTIFIER>
         <CAPACITY>3</CAPACITY>
-        <CAMPUS>Campus_MH</CAMPUS>
-        <BUILDING>GEBOUW_A</BUILDING>
+        <CAMPUS>CDE</CAMPUS>
+        <BUILDING>CDE_A</BUILDING>
     </ROOM>
 
     <MEETING>
