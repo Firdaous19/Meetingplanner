@@ -20,6 +20,7 @@
         <IDENTIFIER>Meeting123</IDENTIFIER>
         <ROOM>Room123</ROOM>
         <DATE>2026-05-22</DATE>
+        <ONLINE>false</ONLINE>
         <CATERING>TRUE</CATERING>
     </MEETING>
 

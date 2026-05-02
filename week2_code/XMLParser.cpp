@@ -3,11 +3,26 @@
 //
 #include "XMLParser.h"
 #include <iostream>
+#include <string>
 #include "tinyxml/tinyxml.h"
 #include "Campus.h"
 #include "Building.h"
 #include "Renovation.h"
 #include "CateringProvider.h"
+
+namespace {
+    bool parseBooleanText(const std::string& text, bool& value) {
+        if (text == "TRUE" || text == "true" || text == "1") {
+            value = true;
+            return true;
+        }
+        if (text == "FALSE" || text == "false" || text == "0") {
+            value = false;
+            return true;
+        }
+        return false;
+    }
+}
 
 XMLParser::XMLParser()
         : loggingEnabled(true) {
@@ -104,6 +119,7 @@ bool XMLParser::parse(const std::string& filename, MeetingPlanner& planner) cons
                 }
             }
         }
+
         else if (elementName == "CATERING") {
             TiXmlElement* campusElem = elem->FirstChildElement("CAMPUS");
             TiXmlElement* co2Elem = elem->FirstChildElement("CO2");
@@ -145,6 +161,7 @@ bool XMLParser::parse(const std::string& filename, MeetingPlanner& planner) cons
                 }
             }
         }
+
         else if (elementName == "RENOVATION") {
             TiXmlElement* roomElem = elem->FirstChildElement("ROOM");
             TiXmlElement* startElem = elem->FirstChildElement("START_DATE");
@@ -178,6 +195,7 @@ bool XMLParser::parse(const std::string& filename, MeetingPlanner& planner) cons
                 }
             }
         }
+
         else if (elementName == "ROOM") {
             TiXmlElement* nameElem = elem->FirstChildElement("NAME");
             TiXmlElement* idElem = elem->FirstChildElement("IDENTIFIER");
@@ -226,46 +244,76 @@ bool XMLParser::parse(const std::string& filename, MeetingPlanner& planner) cons
             TiXmlElement* idElem = elem->FirstChildElement("IDENTIFIER");
             TiXmlElement* roomElem = elem->FirstChildElement("ROOM");
             TiXmlElement* dateElem = elem->FirstChildElement("DATE");
+            TiXmlElement* onlineElem = elem->FirstChildElement("ONLINE");
             TiXmlElement* cateringElem = elem->FirstChildElement("CATERING");
 
-            if (labelElem == nullptr || idElem == nullptr || roomElem == nullptr || dateElem == nullptr) {
+            if (labelElem == nullptr || idElem == nullptr || dateElem == nullptr || onlineElem == nullptr) {
                 if (loggingEnabled) {
-                    std::cerr << "Fout in MEETING: ontbrekende velden." << std::endl;
+                    std::cerr << "Fout in MEETING: ontbrekende verplichte velden." << std::endl;
                 }
                 continue;
             }
 
             std::string label = labelElem->GetText() ? labelElem->GetText() : "";
             std::string identifier = idElem->GetText() ? idElem->GetText() : "";
-            std::string roomIdentifier = roomElem->GetText() ? roomElem->GetText() : "";
+            std::string roomIdentifier = roomElem && roomElem->GetText() ? roomElem->GetText() : "";
             std::string date = dateElem->GetText() ? dateElem->GetText() : "";
+            std::string onlineText = onlineElem->GetText() ? onlineElem->GetText() : "";
 
+            bool online = false;
             bool catering = false;
+
+            if (label.empty() || identifier.empty() || date.empty()) {
+                if (loggingEnabled) {
+                    std::cerr << "Fout in MEETING: lege verplichte velden." << std::endl;
+                }
+                continue;
+            }
+
+            if (!parseBooleanText(onlineText, online)) {
+                if (loggingEnabled) {
+                    std::cerr << "Fout in MEETING: ONLINE moet TRUE of FALSE zijn." << std::endl;
+                }
+                continue;
+            }
 
             if (cateringElem != nullptr) {
                 std::string cateringText = cateringElem->GetText() ? cateringElem->GetText() : "";
 
-                if (cateringText == "TRUE" || cateringText == "true" || cateringText == "1") {
-                    catering = true;
-                } else if (cateringText == "FALSE" || cateringText == "false" || cateringText == "0") {
-                    catering = false;
-                } else {
+                if (!parseBooleanText(cateringText, catering)) {
                     if (loggingEnabled) {
-                        std::cerr << "Fout in MEETING: catering moet TRUE of FALSE zijn." << std::endl;
+                        std::cerr << "Fout in MEETING: CATERING moet TRUE of FALSE zijn." << std::endl;
                     }
                     continue;
                 }
             }
-            if (label.empty() || identifier.empty() || roomIdentifier.empty() || date.empty()) {
+
+            // Use case 3.4:
+            // - online meeting heeft geen room nodig
+            // - fysieke meeting moet wel een room hebben
+            // - online meeting mag geen catering hebben
+            if (online && catering) {
                 if (loggingEnabled) {
-                    std::cerr << "Fout in MEETING: lege velden." << std::endl;
+                    std::cerr << "Fout in MEETING: online meeting mag geen catering hebben." << std::endl;
+                }
+                continue;
+            }
+
+            if (!online && roomIdentifier.empty()) {
+                if (loggingEnabled) {
+                    std::cerr << "Fout in MEETING: fysieke meeting moet een room hebben." << std::endl;
                 }
                 continue;
             }
 
             try {
                 Meeting meeting(label, identifier, roomIdentifier, date);
+
+                // Eerst online zetten, daarna catering,
+                // zodat de contracten logisch blijven.
+                meeting.setOnline(online);
                 meeting.setCatering(catering);
+
                 planner.addMeeting(meeting);
             } catch (...) {
                 if (loggingEnabled) {

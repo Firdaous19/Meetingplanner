@@ -17,6 +17,7 @@ public:
      * @param label De naam of titel van de meeting.
      * @param identifier De unieke identifier van de meeting.
      * @param roomIdentifier De identifier van de gekoppelde room.
+     *        Mag leeg zijn voor online meetings.
      * @param date De datum van de meeting.
      */
     Meeting(const std::string& label,
@@ -71,20 +72,46 @@ public:
 
     /**
      * Stel in of de meeting catering nodig heeft.
+     * PRE:
+     * - een online meeting mag geen catering hebben
+     *
+     * POST:
+     * - catering flag is correct opgeslagen
+     * - meeting is niet tegelijk online én met catering
+     *
      * @param value true als catering nodig is.
      */
     void setCatering(bool value) {
+        REQUIRE(!(online && value),
+                "Online meeting mag geen catering hebben");
+
         catering = value;
+
         ENSURE(catering == value, "Catering flag correct opgeslagen");
+        ENSURE(!(online && catering),
+               "Meeting mag niet tegelijk online en catering hebben");
     }
 
     /**
      * Stel in of de meeting online plaatsvindt.
+     * PRE:
+     * - een online meeting mag geen catering hebben
+     *
+     * POST:
+     * - online flag is correct opgeslagen
+     * - meeting is niet tegelijk online én met catering
+     *
      * @param value true als de meeting online is.
      */
     void setOnline(bool value) {
+        REQUIRE(!(value && catering),
+                "Online meeting mag geen catering hebben");
+
         online = value;
+
         ENSURE(online == value, "Online flag correct opgeslagen");
+        ENSURE(!(online && catering),
+               "Meeting mag niet tegelijk online en catering hebben");
     }
 
     /**

@@ -20,6 +20,7 @@
         <LABEL>Meeting zonder datum</LABEL>
         <IDENTIFIER>BadMeeting</IDENTIFIER>
         <ROOM>GoodRoom</ROOM>
+        <ONLINE>false</ONLINE>
     </MEETING>
 
     <MEETING>
@@ -27,6 +28,7 @@
         <IDENTIFIER>GoodMeeting</IDENTIFIER>
         <ROOM>GoodRoom</ROOM>
         <DATE>2026-05-22</DATE>
+        <ONLINE>false</ONLINE>
     </MEETING>
 
     <PARTICIPATION>

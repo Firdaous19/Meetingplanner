@@ -88,6 +88,7 @@ TEST(MeetingPlannerTest, CheckConsistencyReturnsFalseForUnknownRoomReference) {
 
     EXPECT_FALSE(planner.checkConsistency());
 }
+
 TEST(MeetingPlannerTest, CheckConsistencyReturnsFalseForDuplicateMeetingIdentifiers) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
@@ -154,6 +155,7 @@ TEST(MeetingPlannerTest, ProcessMeetingsWithSameRoomCreatesConflict) {
     EXPECT_EQ(planner.getSuccessfulMeetings().size(), 1);
     EXPECT_FALSE(planner.getConflicts().empty());
 }
+
 TEST(MeetingPlannerTest, ProcessingSingleMeetingSucceedsWhenRoomIsFree) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
@@ -194,6 +196,7 @@ TEST(MeetingPlannerTest, ProcessingSingleMeetingFailsWhenRoomAlreadyOccupied) {
     EXPECT_TRUE(planner.getRooms()[0].isOccupied());
     EXPECT_FALSE(planner.getConflicts().empty());
 }
+
 TEST(MeetingPlannerTest, AutomaticallyProcessesMultipleMeetings) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
@@ -252,6 +255,7 @@ TEST(MeetingPlannerTest, AutomaticallyContinuesAfterFailedMeeting) {
     EXPECT_FALSE(planner.getConflicts().empty());
     EXPECT_TRUE(planner.getRooms()[1].isOccupied());
 }
+
 TEST(MeetingPlannerTest, AddCampusIncreasesCampusCount) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
@@ -275,6 +279,7 @@ TEST(MeetingPlannerTest, AddBuildingIncreasesBuildingCount) {
     EXPECT_EQ(planner.getBuildings().size(), 1);
     EXPECT_EQ(planner.getBuildings()[0].getIdentifier(), "CDE_R");
 }
+
 TEST(MeetingPlannerTest, AddRenovationIncreasesRenovationCount) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
@@ -288,6 +293,7 @@ TEST(MeetingPlannerTest, AddRenovationIncreasesRenovationCount) {
     EXPECT_EQ(planner.getRenovations().size(), 1);
     EXPECT_EQ(planner.getRenovations()[0].getRoomIdentifier(), "A101");
 }
+
 TEST(MeetingPlannerTest, AddCateringProviderIncreasesCateringProviderCount) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
@@ -301,7 +307,7 @@ TEST(MeetingPlannerTest, AddCateringProviderIncreasesCateringProviderCount) {
     EXPECT_EQ(planner.getCateringProviders()[0].getCO2(), 20);
 }
 
-  //USE CASE 3.3 - RENOVATIONS
+// USE CASE 3.3 - RENOVATIONS
 
 TEST(MeetingPlannerTest, ProcessMeetingsCancelsMeetingWhenRoomIsUnderRenovation) {
     MeetingPlanner planner;
@@ -451,6 +457,7 @@ TEST(MeetingPlannerTest, AutomaticallyContinuesAfterMeetingBlockedByRenovation) 
     EXPECT_TRUE(planner.getRooms()[1].isOccupied());
     EXPECT_FALSE(planner.getConflicts().empty());
 }
+
 TEST(MeetingPlannerTest, TracksRoomOccupancyPercentageCorrectly) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
@@ -477,6 +484,7 @@ TEST(MeetingPlannerTest, TracksRoomOccupancyPercentageCorrectly) {
             40
     );
 }
+
 TEST(MeetingPlannerTest, TracksFullRoomOccupancyAs100Percent) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
@@ -497,6 +505,7 @@ TEST(MeetingPlannerTest, TracksFullRoomOccupancyAs100Percent) {
     ASSERT_EQ(planner.getSuccessfulMeetings().size(), 1);
     EXPECT_EQ(planner.getSuccessfulMeetings()[0].getOccupancyPercentage(), 100);
 }
+
 TEST(MeetingPlannerTest, TracksLowRoomOccupancyCorrectly) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
@@ -520,6 +529,7 @@ TEST(MeetingPlannerTest, TracksLowRoomOccupancyCorrectly) {
             10
     );
 }
+
 TEST(MeetingPlannerTest, MeetingBeforeRenovationPeriodIsAllowed) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
@@ -541,6 +551,7 @@ TEST(MeetingPlannerTest, MeetingBeforeRenovationPeriodIsAllowed) {
     EXPECT_EQ(planner.getSuccessfulMeetings()[0].getIdentifier(), "M_BEFORE");
     EXPECT_TRUE(planner.getConflicts().empty());
 }
+
 TEST(MeetingPlannerTest, AddRenovationForUnknownRoomIsRejected) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
@@ -550,5 +561,70 @@ TEST(MeetingPlannerTest, AddRenovationForUnknownRoomIsRejected) {
     EXPECT_DEATH(
             planner.addRenovation(renovation),
             "Renovation moet verwijzen naar een bestaande room"
+    );
+}
+
+// USE CASE 3.4 - ONLINE MEETINGS
+
+TEST(MeetingPlannerTest, AddOnlineMeetingWithoutRoomIncreasesMeetingCount) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Meeting meeting("Online Meeting", "M_ONLINE", "", "2026-05-22");
+    meeting.setOnline(true);
+
+    planner.addMeeting(meeting);
+
+    ASSERT_EQ(planner.getMeetings().size(), 1);
+    EXPECT_EQ(planner.getMeetings()[0].getIdentifier(), "M_ONLINE");
+    EXPECT_TRUE(planner.getMeetings()[0].isOnline());
+    EXPECT_EQ(planner.getMeetings()[0].getRoomIdentifier(), "");
+}
+
+TEST(MeetingPlannerTest, CheckConsistencyReturnsTrueForValidOnlineMeeting) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Meeting meeting("Online Meeting", "M_ONLINE", "", "2026-05-22");
+    meeting.setOnline(true);
+
+    planner.addMeeting(meeting);
+    planner.addParticipation("M_ONLINE", "Alice");
+
+    EXPECT_TRUE(planner.checkConsistency());
+}
+
+TEST(MeetingPlannerTest, ProcessOnlineMeetingSucceedsWithoutOccupyingRoom) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Room room("Vergaderzaal A", "A101", 5);
+    Meeting meeting("Online Meeting", "M_ONLINE", "", "2026-05-22");
+    meeting.setOnline(true);
+
+    planner.addRoom(room);
+    planner.addMeeting(meeting);
+    planner.addParticipation("M_ONLINE", "Alice");
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    ASSERT_EQ(planner.getSuccessfulMeetings().size(), 1);
+    EXPECT_TRUE(planner.getSuccessfulMeetings()[0].isOnline());
+    EXPECT_EQ(planner.getSuccessfulMeetings()[0].getOccupancyPercentage(), 0);
+    EXPECT_FALSE(planner.getRooms()[0].isOccupied());
+    EXPECT_TRUE(planner.getConflicts().empty());
+}
+
+TEST(MeetingPlannerTest, AddPhysicalMeetingWithoutRoomIsRejected) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Meeting meeting("Fysieke Meeting", "M_PHYSICAL", "", "2026-05-22");
+
+    EXPECT_DEATH(
+            planner.addMeeting(meeting),
+            "Fysieke meeting moet een room identifier hebben"
     );
 }

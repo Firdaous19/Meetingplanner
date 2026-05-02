@@ -22,6 +22,7 @@ TEST(MeetingTest, AddParticipantIncreasesParticipantCount) {
     EXPECT_EQ(meeting.getParticipants().size(), 1);
     EXPECT_EQ(meeting.getParticipants()[0], "Alice");
 }
+
 TEST(MeetingTest, ValidDateFormatIsAccepted) {
     Meeting meeting("Weekly meeting", "Meeting123", "Room123", "2026-05-22");
 
@@ -34,6 +35,7 @@ TEST(MeetingTest, InvalidDateFormatIsRejected) {
             "Meeting date moet formaat YYYY-MM-DD hebben"
     );
 }
+
 TEST(MeetingTest, InvalidMonthIsRejected) {
     EXPECT_DEATH(
             Meeting("Weekly meeting", "Meeting123", "Room123", "2026-15-22"),
@@ -47,6 +49,7 @@ TEST(MeetingTest, InvalidDayIsRejected) {
             "Meeting date moet formaat YYYY-MM-DD hebben"
     );
 }
+
 TEST(MeetingTest, NegativeCO2EmissionIsRejected) {
     Meeting meeting("Weekly meeting", "Meeting123", "Room123", "2026-05-22");
 
@@ -55,6 +58,7 @@ TEST(MeetingTest, NegativeCO2EmissionIsRejected) {
             "CO2 emission mag niet negatief zijn"
     );
 }
+
 TEST(MeetingTest, InvalidOccupancyPercentageIsRejected) {
     Meeting meeting("Weekly meeting", "Meeting123", "Room123", "2026-05-22");
 
@@ -63,18 +67,30 @@ TEST(MeetingTest, InvalidOccupancyPercentageIsRejected) {
             "Occupancy percentage moet tussen 0 en 100 liggen"
     );
 }
+
 TEST(MeetingTest, ValidCO2AndOccupancyValuesAreStoredCorrectly) {
     Meeting meeting("Weekly meeting", "Meeting123", "Room123", "2026-05-22");
 
+    meeting.setOnline(false);
+    meeting.setCatering(true);
     meeting.setCO2Emission(250);
     meeting.setOccupancyPercentage(80);
-    meeting.setCatering(true);
-    meeting.setOnline(true);
     meeting.setExternalsAllowed(true);
 
     EXPECT_EQ(meeting.getCO2Emission(), 250);
     EXPECT_EQ(meeting.getOccupancyPercentage(), 80);
     EXPECT_TRUE(meeting.hasCatering());
-    EXPECT_TRUE(meeting.isOnline());
+    EXPECT_FALSE(meeting.isOnline());
     EXPECT_TRUE(meeting.areExternalsAllowed());
+}
+
+TEST(MeetingTest, OnlineMeetingCannotHaveCatering) {
+    Meeting meeting("Online meeting", "Meeting999", "", "2026-05-22");
+
+    meeting.setOnline(true);
+
+    EXPECT_DEATH(
+            meeting.setCatering(true),
+            "Online meeting mag geen catering hebben"
+    );
 }

@@ -1,7 +1,6 @@
 #include "MeetingPlanner.h"
 #include <iostream>
 
-
 void MeetingPlanner::setLoggingEnabled(bool enabled) {
     loggingEnabled = enabled;
 }
@@ -13,6 +12,13 @@ void MeetingPlanner::addRoom(const Room& room) {
 }
 
 void MeetingPlanner::addMeeting(const Meeting& meeting) {
+    REQUIRE(!meeting.getIdentifier().empty(), "Meeting identifier mag niet leeg zijn");
+    REQUIRE(!meeting.getDate().empty(), "Meeting date mag niet leeg zijn");
+    REQUIRE(!(meeting.isOnline() && meeting.hasCatering()),
+            "Online meeting mag geen catering hebben");
+    REQUIRE(meeting.isOnline() || !meeting.getRoomIdentifier().empty(),
+            "Fysieke meeting moet een room identifier hebben");
+
     size_t oldSize = meetings.size();
     meetings.push_back(meeting);
     ENSURE(meetings.size() == oldSize + 1, "Meeting moet toegevoegd zijn");
@@ -95,6 +101,37 @@ bool MeetingPlanner::checkConsistency() {
     }
 
     for (const auto& meeting : meetings) {
+        if (meeting.isOnline() && meeting.hasCatering()) {
+            std::string msg = "Meeting " + meeting.getIdentifier() +
+                              " is ongeldig: online meetings mogen geen catering hebben";
+
+            if (loggingEnabled) {
+                std::cerr << "Fout: " << msg << std::endl;
+            }
+
+            conflicts.push_back(msg);
+            consistent = false;
+            continue;
+        }
+
+        // Use case 3.4: online meetings hebben geen room nodig
+        if (meeting.isOnline()) {
+            continue;
+        }
+
+        if (meeting.getRoomIdentifier().empty()) {
+            std::string msg = "Meeting " + meeting.getIdentifier() +
+                              " heeft geen room identifier";
+
+            if (loggingEnabled) {
+                std::cerr << "Fout: " << msg << std::endl;
+            }
+
+            conflicts.push_back(msg);
+            consistent = false;
+            continue;
+        }
+
         bool roomFound = false;
         int roomCapacity = 0;
 
@@ -140,8 +177,26 @@ bool MeetingPlanner::checkConsistency() {
 
 bool MeetingPlanner::processSingleMeeting(const Meeting& meeting) {
     REQUIRE(!meeting.getIdentifier().empty(), "Meeting identifier mag niet leeg zijn");
-    REQUIRE(!meeting.getRoomIdentifier().empty(), "Meeting room identifier mag niet leeg zijn");
     REQUIRE(!meeting.getDate().empty(), "Meeting date mag niet leeg zijn");
+    REQUIRE(!(meeting.isOnline() && meeting.hasCatering()),
+            "Online meeting mag geen catering hebben");
+    REQUIRE(meeting.isOnline() || !meeting.getRoomIdentifier().empty(),
+            "Fysieke meeting moet een room identifier hebben");
+
+    // Use case 3.4: online meetings hebben geen room nodig
+    if (meeting.isOnline()) {
+        const_cast<Meeting&>(meeting).setOccupancyPercentage(0);
+
+        if (loggingEnabled) {
+            std::cout << "Meeting " << meeting.getIdentifier()
+                      << " vindt online plaats" << std::endl;
+        }
+
+        ENSURE(meeting.getOccupancyPercentage() == 0,
+               "Online meeting moet occupancy 0 hebben");
+
+        return true;
+    }
 
     if (isRoomUnderRenovation(meeting.getRoomIdentifier(), meeting.getDate())) {
         std::string msg = "Meeting " + meeting.getIdentifier() +
@@ -222,20 +277,23 @@ void MeetingPlanner::processMeetings() {
         if (success) {
             Meeting processedMeeting = meeting;
 
-            for (const auto& room : rooms) {
-                if (room.getIdentifier() == meeting.getRoomIdentifier()) {
-                    int occupancy =
-                            (meeting.getParticipants().size() * 100) / room.getCapacity();
+            if (meeting.isOnline()) {
+                processedMeeting.setOccupancyPercentage(0);
+            } else {
+                for (const auto& room : rooms) {
+                    if (room.getIdentifier() == meeting.getRoomIdentifier()) {
+                        int occupancy =
+                                (meeting.getParticipants().size() * 100) / room.getCapacity();
 
-                    processedMeeting.setOccupancyPercentage(occupancy);
-                    break;
+                        processedMeeting.setOccupancyPercentage(occupancy);
+                        break;
+                    }
                 }
             }
 
             successfulMeetings.push_back(processedMeeting);
         }
     }
-
 
     ENSURE(successfulMeetings.size() <= meetings.size(),
            "Aantal succesvolle meetings mag niet groter zijn dan totaal aantal meetings");

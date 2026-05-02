@@ -11,6 +11,7 @@
         <IDENTIFIER>M3</IDENTIFIER>
         <ROOM>Z999</ROOM>
         <DATE>2026-03-22</DATE>
+        <ONLINE>false</ONLINE>
     </MEETING>
 
 </SYSTEM>

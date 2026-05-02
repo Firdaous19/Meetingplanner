@@ -40,6 +40,7 @@ TEST(XMLParserTest, ParseDuplicateFileStillLoadsData) {
     EXPECT_TRUE(success);
     EXPECT_GT(planner.getRooms().size(), 0);
 }
+
 TEST(XMLParserTest, ParseRoomWithMissingFieldDoesNotAddRoom) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
@@ -75,6 +76,7 @@ TEST(XMLParserTest, ParseMeetingWithMissingFieldDoesNotAddMeeting) {
     EXPECT_TRUE(success);
     EXPECT_EQ(planner.getMeetings().size(), 0);
 }
+
 TEST(XMLParserTest, ParseBuildingsFileLoadsCampusesAndBuildings) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
@@ -84,12 +86,13 @@ TEST(XMLParserTest, ParseBuildingsFileLoadsCampusesAndBuildings) {
     bool success = parser.parse("../week2_code/test_buildings.xml", planner);
 
     EXPECT_TRUE(success);
-    EXPECT_EQ(planner.getCampuses().size(), 1);
-    EXPECT_EQ(planner.getBuildings().size(), 1);
+    ASSERT_EQ(planner.getCampuses().size(), 1);
+    ASSERT_EQ(planner.getBuildings().size(), 1);
     EXPECT_EQ(planner.getCampuses()[0].getIdentifier(), "CDE");
     EXPECT_EQ(planner.getBuildings()[0].getIdentifier(), "CDE_R");
     EXPECT_EQ(planner.getBuildings()[0].getCampusIdentifier(), "CDE");
 }
+
 TEST(XMLParserTest, ParseRenovationFileLoadsRenovations) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
@@ -100,11 +103,12 @@ TEST(XMLParserTest, ParseRenovationFileLoadsRenovations) {
     bool success = parser.parse("../week2_code/test_renovation.xml", planner);
 
     EXPECT_TRUE(success);
-    EXPECT_EQ(planner.getRenovations().size(), 1);
+    ASSERT_EQ(planner.getRenovations().size(), 1);
     EXPECT_EQ(planner.getRenovations()[0].getRoomIdentifier(), "A101");
     EXPECT_EQ(planner.getRenovations()[0].getStartDate(), "2026-04-01");
     EXPECT_EQ(planner.getRenovations()[0].getEndDate(), "2026-06-01");
 }
+
 TEST(XMLParserTest, ParseCateringFileLoadsCateringProviderAndMeetingFlag) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
@@ -115,13 +119,15 @@ TEST(XMLParserTest, ParseCateringFileLoadsCateringProviderAndMeetingFlag) {
     bool success = parser.parse("../week2_code/test_catering.xml", planner);
 
     EXPECT_TRUE(success);
-    EXPECT_EQ(planner.getCateringProviders().size(), 1);
+    ASSERT_EQ(planner.getCateringProviders().size(), 1);
     EXPECT_EQ(planner.getCateringProviders()[0].getCampusIdentifier(), "Campus_CDE");
     EXPECT_EQ(planner.getCateringProviders()[0].getCO2(), 20);
 
     ASSERT_EQ(planner.getMeetings().size(), 1);
     EXPECT_TRUE(planner.getMeetings()[0].hasCatering());
+    EXPECT_FALSE(planner.getMeetings()[0].isOnline());
 }
+
 TEST(XMLParserTest, ParseFileWithMultipleInputErrorsContinuesReadingValidElements) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
@@ -133,15 +139,16 @@ TEST(XMLParserTest, ParseFileWithMultipleInputErrorsContinuesReadingValidElement
 
     EXPECT_TRUE(success);
 
-    EXPECT_EQ(planner.getRooms().size(), 1);
+    ASSERT_EQ(planner.getRooms().size(), 1);
     EXPECT_EQ(planner.getRooms()[0].getIdentifier(), "GoodRoom");
 
-    EXPECT_EQ(planner.getMeetings().size(), 1);
+    ASSERT_EQ(planner.getMeetings().size(), 1);
     EXPECT_EQ(planner.getMeetings()[0].getIdentifier(), "GoodMeeting");
 
     ASSERT_EQ(planner.getMeetings()[0].getParticipants().size(), 1);
     EXPECT_EQ(planner.getMeetings()[0].getParticipants()[0], "Alice");
 }
+
 TEST(XMLParserTest, ParseNonExistingFileReturnsFalse) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
@@ -153,6 +160,7 @@ TEST(XMLParserTest, ParseNonExistingFileReturnsFalse) {
 
     EXPECT_FALSE(success);
 }
+
 TEST(XMLParserTest, ParseFileWithoutSystemRootReturnsFalse) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
@@ -164,4 +172,37 @@ TEST(XMLParserTest, ParseFileWithoutSystemRootReturnsFalse) {
 
     EXPECT_FALSE(success);
     EXPECT_EQ(planner.getRooms().size(), 0);
+}
+
+/* =========================
+   Nieuw voor Use Case 3.4
+   ========================= */
+
+TEST(XMLParserTest, ParseOnlineMeetingWithoutRoomSucceeds) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    XMLParser parser;
+    parser.setLoggingEnabled(false);
+
+    bool success = parser.parse("../week2_code/test_online_meeting.xml", planner);
+
+    EXPECT_TRUE(success);
+    ASSERT_EQ(planner.getMeetings().size(), 1);
+    EXPECT_TRUE(planner.getMeetings()[0].isOnline());
+    EXPECT_FALSE(planner.getMeetings()[0].hasCatering());
+    EXPECT_EQ(planner.getMeetings()[0].getRoomIdentifier(), "");
+}
+
+TEST(XMLParserTest, ParseOnlineMeetingWithCateringDoesNotAddMeeting) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    XMLParser parser;
+    parser.setLoggingEnabled(false);
+
+    bool success = parser.parse("../week2_code/test_ongeldige_online_meeting_catering.xml", planner);
+
+    EXPECT_TRUE(success);
+    EXPECT_EQ(planner.getMeetings().size(), 0);
 }

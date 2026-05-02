@@ -47,14 +47,19 @@ Meeting::Meeting(const std::string& label,
           occupancyPercentage(0) {
     REQUIRE(!label.empty(), "Meeting label mag niet leeg zijn");
     REQUIRE(!identifier.empty(), "Meeting identifier mag niet leeg zijn");
-    REQUIRE(!roomIdentifier.empty(), "Meeting room identifier mag niet leeg zijn");
     REQUIRE(!date.empty(), "Meeting date mag niet leeg zijn");
     REQUIRE(isValidDateFormat(date), "Meeting date moet formaat YYYY-MM-DD hebben");
+
+    // roomIdentifier mag leeg zijn voor online meetings (use case 3.4)
 
     ENSURE(this->label == label, "Meeting label correct opgeslagen");
     ENSURE(this->identifier == identifier, "Meeting identifier correct opgeslagen");
     ENSURE(this->roomIdentifier == roomIdentifier, "Meeting room identifier correct opgeslagen");
     ENSURE(this->date == date, "Meeting date correct opgeslagen");
+    ENSURE(!online, "Nieuwe meeting is standaard niet online");
+    ENSURE(!catering, "Nieuwe meeting heeft standaard geen catering");
+    ENSURE(!(online && catering),
+           "Nieuwe meeting mag niet tegelijk online en catering hebben");
 }
 
 void Meeting::addParticipant(const std::string& user) {

@@ -1,0 +1,35 @@
+<SYSTEM>
+
+    <CAMPUS>
+        <NAME>Campus Drie Eiken</NAME>
+        <IDENTIFIER>CDE</IDENTIFIER>
+    </CAMPUS>
+
+    <BUILDING>
+        <NAME>Gebouw R</NAME>
+        <IDENTIFIER>CDE_R</IDENTIFIER>
+        <CAMPUS>CDE</CAMPUS>
+    </BUILDING>
+
+    <ROOM>
+        <NAME>R.014</NAME>
+        <IDENTIFIER>Room123</IDENTIFIER>
+        <CAPACITY>20</CAPACITY>
+        <CAMPUS>CDE</CAMPUS>
+        <BUILDING>CDE_R</BUILDING>
+    </ROOM>
+
+    <MEETING>
+        <LABEL>Foute Online Meeting</LABEL>
+        <IDENTIFIER>M2</IDENTIFIER>
+        <DATE>2026-04-26</DATE>
+        <ONLINE>true</ONLINE>
+        <CATERING>true</CATERING>
+    </MEETING>
+
+    <PARTICIPATION>
+        <USER>Robbe</USER>
+        <MEETING>M2</MEETING>
+    </PARTICIPATION>
+
+</SYSTEM>

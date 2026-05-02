@@ -9,5 +9,6 @@
         <LABEL>Weekly meeting</LABEL>
         <IDENTIFIER>Meeting123</IDENTIFIER>
         <ROOM>Room123</ROOM>
+        <ONLINE>false</ONLINE>
     </MEETING>
 </SYSTEM>
