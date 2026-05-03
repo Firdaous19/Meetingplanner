@@ -108,24 +108,17 @@ public:
      */
     float getTotalCO2Emission() const;
 
+    /**
+     * Geef de totale cateringkost van alle succesvol verwerkte meetings terug.
+     * @return Totale cateringkost in euro.
+     */
+    float getTotalCateringCost() const;
+
 private:
     bool loggingEnabled = true;
 
     /**
      * Verwerk één individuele meeting.
-     *
-     * PRE:
-     * - meeting identifier mag niet leeg zijn
-     * - meeting date mag niet leeg zijn
-     * - online meeting mag geen catering hebben
-     * - fysieke meeting moet een room identifier hebben
-     * - als catering gevraagd wordt, moet er een provider bestaan
-     *   voor de campus van de room
-     *
-     * POST bij succes:
-     * - de meeting heeft een berekende CO2-uitstoot
-     * - de totale CO2-uitstoot van het systeem is verhoogd
-     *
      * @param meeting De meeting.
      * @return true indien succesvol verwerkt.
      */
@@ -170,8 +163,7 @@ private:
             const std::string& campusIdentifier) const;
 
     /**
-     * Bereken de CO2-uitstoot van een meeting zelf
-     * (zonder catering-CO2).
+     * Bereken de CO2-uitstoot van een meeting zelf.
      * @param meeting De meeting.
      * @return CO2-uitstoot in gram.
      */
@@ -185,6 +177,20 @@ private:
      */
     float calculateCateringCO2(const Meeting& meeting, const Room& room) const;
 
+    /**
+     * Bereken de cateringkost van een meeting.
+     * @param meeting De meeting.
+     * @return Cateringkost in euro.
+     */
+    float calculateCateringCost(const Meeting& meeting) const;
+
+    /**
+     * Schrijf cateringinformatie van een meeting weg naar een bestand.
+     * @param meeting De meeting.
+     * @param room De room waarin de meeting plaatsvindt.
+     */
+    void appendCateringDeliveryToFile(const Meeting& meeting, const Room& room) const;
+
     std::vector<Room> rooms;
     std::vector<Meeting> meetings;
     std::vector<Meeting> successfulMeetings;
@@ -194,6 +200,7 @@ private:
     std::vector<Renovation> renovations;
     std::vector<CateringProvider> cateringProviders;
     float totalCO2Emission = 0.0f;
+    float totalCateringCost = 0.0f;
 };
 
 #endif // PROJECTTITLE_MEETINGPLANNER_H

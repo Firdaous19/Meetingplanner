@@ -1,6 +1,12 @@
 #include "MeetingPlanner.h"
 #include <iostream>
 #include <cmath>
+#include <fstream>
+#include <iomanip>
+
+namespace {
+    const float kInternalCateringCostPerPerson = 10.59f;
+}
 
 void MeetingPlanner::setLoggingEnabled(bool enabled) {
     loggingEnabled = enabled;
@@ -132,6 +138,38 @@ float MeetingPlanner::calculateCateringCO2(const Meeting& meeting, const Room& r
 
     const float participantCount = static_cast<float>(meeting.getParticipants().size());
     return provider->getCO2() * participantCount;
+}
+
+float MeetingPlanner::calculateCateringCost(const Meeting& meeting) const {
+    REQUIRE(meeting.hasCatering(), "Catering cost berekenen vereist catering");
+    REQUIRE(!meeting.isOnline(), "Online meeting mag geen catering hebben");
+
+    const float participantCount = static_cast<float>(meeting.getParticipants().size());
+
+    // Use case 3.7 is niet geïmplementeerd:
+    // daarom behandelen we alle deelnemers voorlopig als intern.
+    return participantCount * kInternalCateringCostPerPerson;
+}
+
+void MeetingPlanner::appendCateringDeliveryToFile(const Meeting& meeting,
+                                                  const Room& room) const {
+    REQUIRE(meeting.hasCatering(), "Alleen meetings met catering mogen weggeschreven worden");
+    REQUIRE(!meeting.isOnline(), "Online meeting mag geen catering hebben");
+    REQUIRE(!meeting.getDate().empty(), "Meeting date mag niet leeg zijn");
+    REQUIRE(!room.getIdentifier().empty(), "Room identifier mag niet leeg zijn");
+
+    std::ofstream output("catering_deliveries.txt", std::ios::app);
+    REQUIRE(output.is_open(), "Catering deliveries file kon niet geopend worden");
+
+    output << "Meeting: " << meeting.getIdentifier() << '\n';
+    output << "Date: " << meeting.getDate() << '\n';
+    output << "Location: " << room.getIdentifier() << '\n';
+    output << "Participants: " << meeting.getParticipants().size() << '\n';
+    output << std::fixed << std::setprecision(2);
+    output << "Catering cost: EUR " << meeting.getCateringCost() << '\n';
+    output << "----------------------------------------" << '\n';
+
+    ENSURE(output.good(), "Catering delivery info moet correct weggeschreven zijn");
 }
 
 bool MeetingPlanner::checkConsistency() {
@@ -284,9 +322,10 @@ bool MeetingPlanner::processSingleMeeting(Meeting& meeting) {
     // Use case 3.4: online meetings hebben geen room nodig
     if (meeting.isOnline()) {
         meeting.setOccupancyPercentage(0);
+        meeting.setCateringCost(0.0f);
 
         float meetingCO2 = calculateMeetingCO2(meeting);
-        meeting.setCO2Emission(static_cast<int>(std::lround(meetingCO2)));
+        meeting.setCO2Emission(static_cast<float>(std::lround(meetingCO2)));
         totalCO2Emission += meetingCO2;
 
         if (loggingEnabled) {
@@ -296,6 +335,8 @@ bool MeetingPlanner::processSingleMeeting(Meeting& meeting) {
 
         ENSURE(meeting.getOccupancyPercentage() == 0,
                "Online meeting moet occupancy 0 hebben");
+        ENSURE(meeting.getCateringCost() == 0.0f,
+               "Online meeting moet 0 cateringkost hebben");
         ENSURE(meeting.getCO2Emission() >= 0,
                "Online meeting moet niet-negatieve CO2 hebben");
 
@@ -389,13 +430,22 @@ bool MeetingPlanner::processSingleMeeting(Meeting& meeting) {
 
     float meetingCO2 = calculateMeetingCO2(meeting);
     float cateringCO2 = 0.0f;
+    float cateringCost = 0.0f;
 
     if (meeting.hasCatering()) {
         cateringCO2 = calculateCateringCO2(meeting, *room);
+        cateringCost = calculateCateringCost(meeting);
+
+        meeting.setCateringCost(cateringCost);
+        totalCateringCost += cateringCost;
+
+        appendCateringDeliveryToFile(meeting, *room);
+    } else {
+        meeting.setCateringCost(0.0f);
     }
 
     float totalMeetingCO2 = meetingCO2 + cateringCO2;
-    meeting.setCO2Emission(static_cast<int>(std::lround(totalMeetingCO2)));
+    meeting.setCO2Emission(static_cast<float>(std::lround(totalMeetingCO2)));
     totalCO2Emission += totalMeetingCO2;
 
     if (loggingEnabled) {
@@ -405,7 +455,10 @@ bool MeetingPlanner::processSingleMeeting(Meeting& meeting) {
     }
 
     ENSURE(room->isOccupied(), "Room moet bezet zijn na processing");
-    ENSURE(meeting.getCO2Emission() >= 0, "Meeting moet niet-negatieve CO2 hebben");
+    ENSURE(meeting.getCateringCost() >= 0.0f,
+           "Meeting moet niet-negatieve cateringkost hebben");
+    ENSURE(meeting.getCO2Emission() >= 0,
+           "Meeting moet niet-negatieve CO2 hebben");
 
     return true;
 }
@@ -414,6 +467,13 @@ void MeetingPlanner::processMeetings() {
     successfulMeetings.clear();
     conflicts.clear();
     totalCO2Emission = 0.0f;
+    totalCateringCost = 0.0f;
+
+    std::ofstream cateringFile("catering_deliveries.txt");
+    if (cateringFile.is_open()) {
+        cateringFile << "CATERING DELIVERIES" << '\n';
+        cateringFile << "========================================" << '\n';
+    }
 
     for (auto& meeting : meetings) {
         bool success = processSingleMeeting(meeting);
@@ -494,4 +554,8 @@ const std::vector<std::string>& MeetingPlanner::getConflicts() const {
 
 float MeetingPlanner::getTotalCO2Emission() const {
     return totalCO2Emission;
+}
+
+float MeetingPlanner::getTotalCateringCost() const {
+    return totalCateringCost;
 }

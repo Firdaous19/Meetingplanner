@@ -8,27 +8,13 @@
 /**
  * Stelt een meeting voor in het systeem.
  * Een meeting heeft een label, identifier, gekoppelde room,
- * datum, een lijst van deelnemers, en houdt ook CO2-uitstoot bij.
+ * datum, een lijst van deelnemers, en houdt ook CO2-uitstoot
+ * en cateringkost bij.
  */
 class Meeting {
 public:
     /**
      * Constructor van een meeting.
-     *
-     * PRE:
-     * - label mag niet leeg zijn
-     * - identifier mag niet leeg zijn
-     * - date mag niet leeg zijn
-     * - date moet formaat YYYY-MM-DD hebben
-     * - roomIdentifier mag leeg zijn voor online meetings
-     *
-     * POST:
-     * - alle velden zijn correct opgeslagen
-     * - nieuwe meeting heeft standaard geen catering
-     * - nieuwe meeting is standaard niet online
-     * - nieuwe meeting heeft standaard 0 CO2-uitstoot
-     * - nieuwe meeting heeft standaard 0% occupancy
-     *
      * @param label De naam of titel van de meeting.
      * @param identifier De unieke identifier van de meeting.
      * @param roomIdentifier De identifier van de gekoppelde room.
@@ -76,6 +62,9 @@ public:
     /** @return Bezettingspercentage van de room voor deze meeting. */
     int getOccupancyPercentage() const { return occupancyPercentage; }
 
+    /** @return Cateringkost van deze meeting in euro. */
+    float getCateringCost() const { return cateringCost; }
+
     /**
      * Stel in of externen toegelaten zijn.
      * @param value true als externen toegelaten zijn.
@@ -87,14 +76,6 @@ public:
 
     /**
      * Stel in of de meeting catering nodig heeft.
-     *
-     * PRE:
-     * - een online meeting mag geen catering hebben
-     *
-     * POST:
-     * - catering flag is correct opgeslagen
-     * - meeting is niet tegelijk online én met catering
-     *
      * @param value true als catering nodig is.
      */
     void setCatering(bool value) {
@@ -110,14 +91,6 @@ public:
 
     /**
      * Stel in of de meeting online plaatsvindt.
-     *
-     * PRE:
-     * - een online meeting mag geen catering hebben
-     *
-     * POST:
-     * - online flag is correct opgeslagen
-     * - meeting is niet tegelijk online én met catering
-     *
      * @param value true als de meeting online is.
      */
     void setOnline(bool value) {
@@ -133,13 +106,6 @@ public:
 
     /**
      * Stel de CO2-uitstoot van de meeting in.
-     *
-     * PRE:
-     * - value mag niet negatief zijn
-     *
-     * POST:
-     * - co2Emission is correct opgeslagen
-     *
      * @param value CO2-uitstoot in gram.
      */
     void setCO2Emission(float value) {
@@ -152,13 +118,6 @@ public:
 
     /**
      * Stel het bezettingspercentage van de room in voor deze meeting.
-     *
-     * PRE:
-     * - percentage moet tussen 0 en 100 liggen
-     *
-     * POST:
-     * - occupancyPercentage is correct opgeslagen
-     *
      * @param percentage Percentage tussen 0 en 100.
      */
     void setOccupancyPercentage(int percentage) {
@@ -169,6 +128,18 @@ public:
 
         ENSURE(occupancyPercentage == percentage,
                "Occupancy percentage correct opgeslagen");
+    }
+
+    /**
+     * Stel de cateringkost van de meeting in.
+     * @param value Cateringkost in euro.
+     */
+    void setCateringCost(float value) {
+        REQUIRE(value >= 0, "Catering cost mag niet negatief zijn");
+
+        cateringCost = value;
+
+        ENSURE(cateringCost == value, "Catering cost correct opgeslagen");
     }
 
 private:
@@ -183,6 +154,7 @@ private:
     bool online = false;
     float co2Emission = 0.0f;
     int occupancyPercentage = 0;
+    float cateringCost = 0.0f;
 };
 
 #endif
