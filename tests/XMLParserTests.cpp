@@ -244,3 +244,19 @@ TEST(XMLParserTest, ParseOnlineMeetingCanBeProcessedAndTracksOnlineCO2) {
     EXPECT_FLOAT_EQ(planner.getSuccessfulMeetings()[0].getCO2Emission(), 60.0f);
     EXPECT_FLOAT_EQ(planner.getTotalCO2Emission(), 60.0f);
 }
+TEST(XMLParserTest, ParseMeetingHourAndExternalsCorrectly) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    XMLParser parser;
+    parser.setLoggingEnabled(false);
+
+    bool success = parser.parse("../week2_code/test_meeting_hour_externals.xml", planner);
+
+    EXPECT_TRUE(success);
+
+    ASSERT_EQ(planner.getMeetings().size(), 1);
+    EXPECT_EQ(planner.getMeetings()[0].getIdentifier(), "M1");
+    EXPECT_FALSE(planner.getMeetings()[0].isOnline());
+    EXPECT_TRUE(planner.getMeetings()[0].areExternalsAllowed());
+}

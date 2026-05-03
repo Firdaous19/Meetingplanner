@@ -254,7 +254,7 @@ bool XMLParser::parse(const std::string& filename, MeetingPlanner& planner) cons
             TiXmlElement* dateElem = elem->FirstChildElement("DATE");
             TiXmlElement* onlineElem = elem->FirstChildElement("ONLINE");
             TiXmlElement* cateringElem = elem->FirstChildElement("CATERING");
-
+            TiXmlElement* externalsElem = elem->FirstChildElement("EXTERNALS");
             if (labelElem == nullptr || idElem == nullptr || dateElem == nullptr || onlineElem == nullptr) {
                 if (loggingEnabled) {
                     std::cerr << "Fout in MEETING: ontbrekende verplichte velden." << std::endl;
@@ -270,7 +270,22 @@ bool XMLParser::parse(const std::string& filename, MeetingPlanner& planner) cons
 
             bool online = false;
             bool catering = false;
+            bool externalsAllowed = false;
 
+            if (externalsElem != nullptr) {
+                std::string externalsText = externalsElem->GetText() ? externalsElem->GetText() : "";
+
+                if (externalsText == "TRUE" || externalsText == "true" || externalsText == "1") {
+                    externalsAllowed = true;
+                } else if (externalsText == "FALSE" || externalsText == "false" || externalsText == "0") {
+                    externalsAllowed = false;
+                } else {
+                    if (loggingEnabled) {
+                        std::cerr << "Fout in MEETING: externals moet TRUE of FALSE zijn." << std::endl;
+                    }
+                    continue;
+                }
+            }
             if (label.empty() || identifier.empty() || date.empty()) {
                 if (loggingEnabled) {
                     std::cerr << "Fout in MEETING: lege verplichte velden." << std::endl;
@@ -314,6 +329,7 @@ bool XMLParser::parse(const std::string& filename, MeetingPlanner& planner) cons
                 Meeting meeting(label, identifier, roomIdentifier, date);
                 meeting.setOnline(online);
                 meeting.setCatering(catering);
+                meeting.setExternalsAllowed(externalsAllowed);
                 planner.addMeeting(meeting);
             } catch (...) {
                 if (loggingEnabled) {
