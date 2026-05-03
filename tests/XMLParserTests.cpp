@@ -121,7 +121,7 @@ TEST(XMLParserTest, ParseCateringFileLoadsCateringProviderAndMeetingFlag) {
     EXPECT_TRUE(success);
     ASSERT_EQ(planner.getCateringProviders().size(), 1);
     EXPECT_EQ(planner.getCateringProviders()[0].getCampusIdentifier(), "Campus_CDE");
-    EXPECT_EQ(planner.getCateringProviders()[0].getCO2(), 20);
+    EXPECT_FLOAT_EQ(planner.getCateringProviders()[0].getCO2(), 20.0f);
 
     ASSERT_EQ(planner.getMeetings().size(), 1);
     EXPECT_TRUE(planner.getMeetings()[0].hasCatering());
@@ -174,9 +174,7 @@ TEST(XMLParserTest, ParseFileWithoutSystemRootReturnsFalse) {
     EXPECT_EQ(planner.getRooms().size(), 0);
 }
 
-/* =========================
-   Nieuw voor Use Case 3.4
-   ========================= */
+   //Use Case 3.4//
 
 TEST(XMLParserTest, ParseOnlineMeetingWithoutRoomSucceeds) {
     MeetingPlanner planner;
@@ -205,4 +203,44 @@ TEST(XMLParserTest, ParseOnlineMeetingWithCateringDoesNotAddMeeting) {
 
     EXPECT_TRUE(success);
     EXPECT_EQ(planner.getMeetings().size(), 0);
+}
+
+// Use Case 3.5 //
+
+TEST(XMLParserTest, ParseCateringFileCanBeProcessedAndTracksCO2) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    XMLParser parser;
+    parser.setLoggingEnabled(false);
+
+    bool success = parser.parse("../week2_code/test_catering.xml", planner);
+
+    ASSERT_TRUE(success);
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    ASSERT_EQ(planner.getSuccessfulMeetings().size(), 1);
+    EXPECT_FLOAT_EQ(planner.getSuccessfulMeetings()[0].getCO2Emission(), 140.0f);
+    EXPECT_FLOAT_EQ(planner.getTotalCO2Emission(), 140.0f);
+}
+
+TEST(XMLParserTest, ParseOnlineMeetingCanBeProcessedAndTracksOnlineCO2) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    XMLParser parser;
+    parser.setLoggingEnabled(false);
+
+    bool success = parser.parse("../week2_code/test_online_meeting.xml", planner);
+
+    ASSERT_TRUE(success);
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    ASSERT_EQ(planner.getSuccessfulMeetings().size(), 1);
+    EXPECT_FLOAT_EQ(planner.getSuccessfulMeetings()[0].getCO2Emission(), 60.0f);
+    EXPECT_FLOAT_EQ(planner.getTotalCO2Emission(), 60.0f);
 }

@@ -14,5 +14,7 @@
         <NAME>R.014</NAME>
         <IDENTIFIER>Room123</IDENTIFIER>
         <CAPACITY>20</CAPACITY>
+        <CAMPUS>CDE</CAMPUS>
+        <BUILDING>CDE_R</BUILDING>
     </ROOM>
 </SYSTEM>

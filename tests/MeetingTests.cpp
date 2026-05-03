@@ -12,6 +12,8 @@ TEST(MeetingTest, ConstructorStoresValuesCorrectly) {
     EXPECT_EQ(meeting.getRoomIdentifier(), "Room123");
     EXPECT_EQ(meeting.getDate(), "2026-05-22");
     EXPECT_EQ(meeting.getParticipants().size(), 0);
+    EXPECT_FLOAT_EQ(meeting.getCO2Emission(), 0.0f);
+    EXPECT_EQ(meeting.getOccupancyPercentage(), 0);
 }
 
 TEST(MeetingTest, AddParticipantIncreasesParticipantCount) {
@@ -54,7 +56,7 @@ TEST(MeetingTest, NegativeCO2EmissionIsRejected) {
     Meeting meeting("Weekly meeting", "Meeting123", "Room123", "2026-05-22");
 
     EXPECT_DEATH(
-            meeting.setCO2Emission(-1),
+            meeting.setCO2Emission(-1.0f),
             "CO2 emission mag niet negatief zijn"
     );
 }
@@ -73,11 +75,11 @@ TEST(MeetingTest, ValidCO2AndOccupancyValuesAreStoredCorrectly) {
 
     meeting.setOnline(false);
     meeting.setCatering(true);
-    meeting.setCO2Emission(250);
+    meeting.setCO2Emission(250.0f);
     meeting.setOccupancyPercentage(80);
     meeting.setExternalsAllowed(true);
 
-    EXPECT_EQ(meeting.getCO2Emission(), 250);
+    EXPECT_FLOAT_EQ(meeting.getCO2Emission(), 250.0f);
     EXPECT_EQ(meeting.getOccupancyPercentage(), 80);
     EXPECT_TRUE(meeting.hasCatering());
     EXPECT_FALSE(meeting.isOnline());

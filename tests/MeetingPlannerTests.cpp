@@ -13,7 +13,7 @@
 TEST(MeetingPlannerTest, AddRoomIncreasesRoomCount) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
-    Room room("M.G.023", "Room123", 10);
+    Room room("M.G.023", "Room123", 10, "CDE", "CDE_R");
 
     planner.addRoom(room);
 
@@ -57,7 +57,7 @@ TEST(MeetingPlannerTest, AddParticipationToUnknownMeetingFails) {
 TEST(MeetingPlannerTest, CheckConsistencyReturnsTrueForValidSystem) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
-    Room room("M.G.023", "Room123", 10);
+    Room room("M.G.023", "Room123", 10, "CDE", "CDE_R");
     Meeting meeting("Weekly meeting", "Meeting123", "Room123", "2026-05-22");
 
     planner.addRoom(room);
@@ -70,8 +70,8 @@ TEST(MeetingPlannerTest, CheckConsistencyReturnsTrueForValidSystem) {
 TEST(MeetingPlannerTest, CheckConsistencyReturnsFalseForDuplicateRoomIdentifiers) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
-    Room room1("M.G.023", "Room123", 10);
-    Room room2("M.G.024", "Room123", 15);
+    Room room1("M.G.023", "Room123", 10, "CDE", "CDE_R");
+    Room room2("M.G.024", "Room123", 15, "CDE", "CDE_A");
 
     planner.addRoom(room1);
     planner.addRoom(room2);
@@ -92,7 +92,7 @@ TEST(MeetingPlannerTest, CheckConsistencyReturnsFalseForUnknownRoomReference) {
 TEST(MeetingPlannerTest, CheckConsistencyReturnsFalseForDuplicateMeetingIdentifiers) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
-    Room room("M.G.023", "Room123", 10);
+    Room room("M.G.023", "Room123", 10, "CDE", "CDE_R");
     Meeting meeting1("Weekly meeting", "Meeting123", "Room123", "2026-05-22");
     Meeting meeting2("Another meeting", "Meeting123", "Room123", "2026-05-23");
 
@@ -106,7 +106,7 @@ TEST(MeetingPlannerTest, CheckConsistencyReturnsFalseForDuplicateMeetingIdentifi
 TEST(MeetingPlannerTest, CheckConsistencyReturnsFalseWhenRoomCapacityTooSmall) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
-    Room room("M.G.023", "Room123", 1);
+    Room room("M.G.023", "Room123", 1, "CDE", "CDE_R");
     Meeting meeting("Weekly meeting", "Meeting123", "Room123", "2026-05-22");
 
     planner.addRoom(room);
@@ -120,7 +120,7 @@ TEST(MeetingPlannerTest, CheckConsistencyReturnsFalseWhenRoomCapacityTooSmall) {
 TEST(MeetingPlannerTest, ProcessMeetingsAddsSuccessfulMeeting) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
-    Room room("M.G.023", "Room123", 10);
+    Room room("M.G.023", "Room123", 10, "CDE", "CDE_R");
     Meeting meeting("Weekly meeting", "Meeting123", "Room123", "2026-05-22");
 
     planner.addRoom(room);
@@ -138,7 +138,7 @@ TEST(MeetingPlannerTest, ProcessMeetingsAddsSuccessfulMeeting) {
 TEST(MeetingPlannerTest, ProcessMeetingsWithSameRoomCreatesConflict) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
-    Room room("M.G.023", "Room123", 10);
+    Room room("M.G.023", "Room123", 10, "CDE", "CDE_R");
     Meeting meeting1("Weekly meeting", "Meeting123", "Room123", "2026-05-22");
     Meeting meeting2("Another meeting", "Meeting456", "Room123", "2026-05-22");
 
@@ -159,7 +159,7 @@ TEST(MeetingPlannerTest, ProcessMeetingsWithSameRoomCreatesConflict) {
 TEST(MeetingPlannerTest, ProcessingSingleMeetingSucceedsWhenRoomIsFree) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
-    Room room("Vergaderzaal A", "A101", 5);
+    Room room("Vergaderzaal A", "A101", 5, "CDE", "CDE_A");
     Meeting meeting("Eerste meeting", "M1", "A101", "2026-03-20");
 
     planner.addRoom(room);
@@ -178,7 +178,7 @@ TEST(MeetingPlannerTest, ProcessingSingleMeetingSucceedsWhenRoomIsFree) {
 TEST(MeetingPlannerTest, ProcessingSingleMeetingFailsWhenRoomAlreadyOccupied) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
-    Room room("Vergaderzaal A", "A101", 5);
+    Room room("Vergaderzaal A", "A101", 5, "CDE", "CDE_A");
     Meeting meeting1("Eerste meeting", "M1", "A101", "2026-03-20");
     Meeting meeting2("Tweede meeting", "M2", "A101", "2026-03-20");
 
@@ -201,8 +201,8 @@ TEST(MeetingPlannerTest, AutomaticallyProcessesMultipleMeetings) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
 
-    Room room1("A", "A101", 5);
-    Room room2("B", "B202", 5);
+    Room room1("A", "A101", 5, "CDE", "CDE_A");
+    Room room2("B", "B202", 5, "CDE", "CDE_B");
 
     Meeting meeting1("Meeting1", "M1", "A101", "2026-03-20");
     Meeting meeting2("Meeting2", "M2", "B202", "2026-03-20");
@@ -229,8 +229,8 @@ TEST(MeetingPlannerTest, AutomaticallyContinuesAfterFailedMeeting) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
 
-    Room room("A", "A101", 5);
-    Room room2("B", "B202", 5);
+    Room room("A", "A101", 5, "CDE", "CDE_A");
+    Room room2("B", "B202", 5, "CDE", "CDE_B");
 
     Meeting meeting1("Meeting1", "M1", "A101", "2026-03-20");
     Meeting meeting2("Meeting2", "M2", "A101", "2026-03-20");
@@ -284,7 +284,7 @@ TEST(MeetingPlannerTest, AddRenovationIncreasesRenovationCount) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
 
-    Room room("Vergaderzaal A", "A101", 5);
+    Room room("Vergaderzaal A", "A101", 5, "CDE", "CDE_A");
     Renovation renovation("A101", "2026-04-01", "2026-06-01");
 
     planner.addRoom(room);
@@ -298,13 +298,13 @@ TEST(MeetingPlannerTest, AddCateringProviderIncreasesCateringProviderCount) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
 
-    CateringProvider provider("Campus_CDE", 20);
+    CateringProvider provider("Campus_CDE", 20.0f);
 
     planner.addCateringProvider(provider);
 
     EXPECT_EQ(planner.getCateringProviders().size(), 1);
     EXPECT_EQ(planner.getCateringProviders()[0].getCampusIdentifier(), "Campus_CDE");
-    EXPECT_EQ(planner.getCateringProviders()[0].getCO2(), 20);
+    EXPECT_FLOAT_EQ(planner.getCateringProviders()[0].getCO2(), 20.0f);
 }
 
 // USE CASE 3.3 - RENOVATIONS
@@ -313,7 +313,7 @@ TEST(MeetingPlannerTest, ProcessMeetingsCancelsMeetingWhenRoomIsUnderRenovation)
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
 
-    Room room("Vergaderzaal A", "A101", 5);
+    Room room("Vergaderzaal A", "A101", 5, "CDE", "CDE_A");
     Meeting meeting("Team Meeting", "M1", "A101", "2026-04-15");
     Renovation renovation("A101", "2026-04-01", "2026-06-01");
 
@@ -335,7 +335,7 @@ TEST(MeetingPlannerTest, ProcessMeetingsCancelsMeetingOnRenovationStartDate) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
 
-    Room room("Vergaderzaal A", "A101", 5);
+    Room room("Vergaderzaal A", "A101", 5, "CDE", "CDE_A");
     Meeting meeting("Startdag Meeting", "M1", "A101", "2026-04-01");
     Renovation renovation("A101", "2026-04-01", "2026-06-01");
 
@@ -357,7 +357,7 @@ TEST(MeetingPlannerTest, ProcessMeetingsCancelsMeetingOnRenovationEndDate) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
 
-    Room room("Vergaderzaal A", "A101", 5);
+    Room room("Vergaderzaal A", "A101", 5, "CDE", "CDE_A");
     Meeting meeting("Einddag Meeting", "M1", "A101", "2026-06-01");
     Renovation renovation("A101", "2026-04-01", "2026-06-01");
 
@@ -379,7 +379,7 @@ TEST(MeetingPlannerTest, ProcessMeetingsAllowsMeetingOutsideRenovationPeriod) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
 
-    Room room("Vergaderzaal A", "A101", 5);
+    Room room("Vergaderzaal A", "A101", 5, "CDE", "CDE_A");
     Meeting meeting("Team Meeting", "M1", "A101", "2026-06-10");
     Renovation renovation("A101", "2026-04-01", "2026-06-01");
 
@@ -402,8 +402,8 @@ TEST(MeetingPlannerTest, ProcessMeetingsAllowsMeetingWhenAnotherRoomIsUnderRenov
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
 
-    Room room1("Vergaderzaal A", "A101", 5);
-    Room room2("Vergaderzaal B", "B202", 5);
+    Room room1("Vergaderzaal A", "A101", 5, "CDE", "CDE_A");
+    Room room2("Vergaderzaal B", "B202", 5, "CDE", "CDE_B");
     Meeting meeting("Team Meeting", "M1", "A101", "2026-04-15");
     Renovation renovation("B202", "2026-04-01", "2026-06-01");
 
@@ -428,8 +428,8 @@ TEST(MeetingPlannerTest, AutomaticallyContinuesAfterMeetingBlockedByRenovation) 
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
 
-    Room room1("Vergaderzaal A", "A101", 5);
-    Room room2("Vergaderzaal B", "B202", 5);
+    Room room1("Vergaderzaal A", "A101", 5, "CDE", "CDE_A");
+    Room room2("Vergaderzaal B", "B202", 5, "CDE", "CDE_B");
 
     Meeting meeting1("Meeting In Renovatie", "M1", "A101", "2026-04-15");
     Meeting meeting2("Normale Meeting", "M2", "B202", "2026-04-15");
@@ -462,7 +462,7 @@ TEST(MeetingPlannerTest, TracksRoomOccupancyPercentageCorrectly) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
 
-    Room room("Vergaderzaal A", "A101", 10);
+    Room room("Vergaderzaal A", "A101", 10, "CDE", "CDE_A");
     Meeting meeting("Team Meeting", "M1", "A101", "2026-04-15");
 
     planner.addRoom(room);
@@ -478,18 +478,14 @@ TEST(MeetingPlannerTest, TracksRoomOccupancyPercentageCorrectly) {
     planner.processMeetings();
 
     ASSERT_EQ(planner.getSuccessfulMeetings().size(), 1);
-
-    EXPECT_EQ(
-            planner.getSuccessfulMeetings()[0].getOccupancyPercentage(),
-            40
-    );
+    EXPECT_EQ(planner.getSuccessfulMeetings()[0].getOccupancyPercentage(), 40);
 }
 
 TEST(MeetingPlannerTest, TracksFullRoomOccupancyAs100Percent) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
 
-    Room room("Volle zaal", "FULL101", 2);
+    Room room("Volle zaal", "FULL101", 2, "CDE", "CDE_FULL");
     Meeting meeting("Volle meeting", "M_FULL", "FULL101", "2026-05-22");
 
     planner.addRoom(room);
@@ -510,7 +506,7 @@ TEST(MeetingPlannerTest, TracksLowRoomOccupancyCorrectly) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
 
-    Room room("Grote zaal", "BIG101", 10);
+    Room room("Grote zaal", "BIG101", 10, "CDE", "CDE_BIG");
     Meeting meeting("Kleine meeting", "M_SMALL", "BIG101", "2026-05-22");
 
     planner.addRoom(room);
@@ -523,18 +519,14 @@ TEST(MeetingPlannerTest, TracksLowRoomOccupancyCorrectly) {
     planner.processMeetings();
 
     ASSERT_EQ(planner.getSuccessfulMeetings().size(), 1);
-
-    EXPECT_EQ(
-            planner.getSuccessfulMeetings()[0].getOccupancyPercentage(),
-            10
-    );
+    EXPECT_EQ(planner.getSuccessfulMeetings()[0].getOccupancyPercentage(), 10);
 }
 
 TEST(MeetingPlannerTest, MeetingBeforeRenovationPeriodIsAllowed) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
 
-    Room room("Vergaderzaal A", "A101", 5);
+    Room room("Vergaderzaal A", "A101", 5, "CDE", "CDE_A");
     Meeting meeting("Meeting Voor Renovatie", "M_BEFORE", "A101", "2026-03-20");
     Renovation renovation("A101", "2026-04-01", "2026-06-01");
 
@@ -598,7 +590,7 @@ TEST(MeetingPlannerTest, ProcessOnlineMeetingSucceedsWithoutOccupyingRoom) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
 
-    Room room("Vergaderzaal A", "A101", 5);
+    Room room("Vergaderzaal A", "A101", 5, "CDE", "CDE_A");
     Meeting meeting("Online Meeting", "M_ONLINE", "", "2026-05-22");
     meeting.setOnline(true);
 
@@ -627,4 +619,103 @@ TEST(MeetingPlannerTest, AddPhysicalMeetingWithoutRoomIsRejected) {
             planner.addMeeting(meeting),
             "Fysieke meeting moet een room identifier hebben"
     );
+}
+
+// USE CASE 3.5 - CO2 TRACKING
+
+TEST(MeetingPlannerTest, ProcessOnlineMeetingTracksCO2Correctly) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Meeting meeting("Online Meeting", "M_ONLINE", "", "2026-05-22");
+    meeting.setOnline(true);
+
+    planner.addMeeting(meeting);
+    planner.addParticipation("M_ONLINE", "Alice");
+    planner.addParticipation("M_ONLINE", "Bob");
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    ASSERT_EQ(planner.getSuccessfulMeetings().size(), 1);
+    EXPECT_FLOAT_EQ(planner.getSuccessfulMeetings()[0].getCO2Emission(), 60.0f);
+    EXPECT_FLOAT_EQ(planner.getTotalCO2Emission(), 60.0f);
+}
+
+TEST(MeetingPlannerTest, ProcessPhysicalMeetingTracksCO2CorrectlyWithoutCatering) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Room room("Vergaderzaal A", "A101", 5, "CDE", "CDE_A");
+    Meeting meeting("Fysieke Meeting", "M1", "A101", "2026-05-22");
+
+    planner.addRoom(room);
+    planner.addMeeting(meeting);
+    planner.addParticipation("M1", "Alice");
+    planner.addParticipation("M1", "Bob");
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    ASSERT_EQ(planner.getSuccessfulMeetings().size(), 1);
+    EXPECT_FLOAT_EQ(planner.getSuccessfulMeetings()[0].getCO2Emission(), 240.0f);
+    EXPECT_FLOAT_EQ(planner.getTotalCO2Emission(), 240.0f);
+}
+
+TEST(MeetingPlannerTest, ProcessPhysicalMeetingTracksCO2CorrectlyWithCatering) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Room room("Vergaderzaal A", "A101", 5, "CDE", "CDE_A");
+    Meeting meeting("Lunch Meeting", "M1", "A101", "2026-05-22");
+    meeting.setCatering(true);
+
+    CateringProvider provider("CDE", 20.0f);
+
+    planner.addRoom(room);
+    planner.addCateringProvider(provider);
+    planner.addMeeting(meeting);
+    planner.addParticipation("M1", "Alice");
+    planner.addParticipation("M1", "Bob");
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    ASSERT_EQ(planner.getSuccessfulMeetings().size(), 1);
+    // 2 deelnemers => fysieke meeting: 2 * 120 = 240
+    // catering: 2 * 20 = 40
+    // totaal = 280
+    EXPECT_FLOAT_EQ(planner.getSuccessfulMeetings()[0].getCO2Emission(), 280.0f);
+    EXPECT_FLOAT_EQ(planner.getTotalCO2Emission(), 280.0f);
+}
+
+TEST(MeetingPlannerTest, CheckConsistencyReturnsFalseWhenCateringProviderMissingForCampus) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Room room("Vergaderzaal A", "A101", 5, "CDE", "CDE_A");
+    Meeting meeting("Lunch Meeting", "M1", "A101", "2026-05-22");
+    meeting.setCatering(true);
+
+    planner.addRoom(room);
+    planner.addMeeting(meeting);
+    planner.addParticipation("M1", "Alice");
+
+    EXPECT_FALSE(planner.checkConsistency());
+}
+
+TEST(MeetingPlannerTest, CheckConsistencyReturnsFalseForDuplicateCateringProvidersOnSameCampus) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    CateringProvider provider1("CDE", 20.0f);
+    CateringProvider provider2("CDE", 25.0f);
+
+    planner.addCateringProvider(provider1);
+    planner.addCateringProvider(provider2);
+
+    EXPECT_FALSE(planner.checkConsistency());
 }
