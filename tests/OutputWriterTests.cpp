@@ -127,3 +127,36 @@ TEST(OutputWriterTest, EmptyFilenameIsRejected) {
             "Output filename mag niet leeg zijn"
     );
 }
+TEST(OutputWriterTest, WriteOutputShowsOnlineMeetingAndOccupancy) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+    OutputWriter writer;
+
+    Room room("Online backup room", "R1", 10, "Campus_CDE", "Building_A");
+    Meeting meeting("Online Meeting", "M1", "R1", "2026-05-22");
+
+    meeting.setOnline(true);
+    meeting.setCO2Emission(0);
+    meeting.setOccupancyPercentage(0);
+
+    planner.addRoom(room);
+    planner.addMeeting(meeting);
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    const std::string filename = "test_online_output.txt";
+    writer.writeOutput(filename, planner);
+
+    std::ifstream input(filename.c_str());
+    ASSERT_TRUE(input.is_open());
+
+    std::stringstream buffer;
+    buffer << input.rdbuf();
+    std::string content = buffer.str();
+
+    EXPECT_NE(content.find("Location: online"), std::string::npos);
+    EXPECT_NE(content.find("Room occupancy: 0%"), std::string::npos);
+    EXPECT_NE(content.find("CO2 emitted: 0g"), std::string::npos);
+}
