@@ -1,0 +1,19 @@
+<SYSTEM>
+    <MEETING>
+        <LABEL>Online Team Meeting</LABEL>
+        <IDENTIFIER>M3</IDENTIFIER>
+        <DATE>2026-05-22</DATE>
+        <ONLINE>true</ONLINE>
+        <CATERING>false</CATERING>
+    </MEETING>
+
+    <PARTICIPATION>
+        <MEETING>M3</MEETING>
+        <USER>Alice</USER>
+    </PARTICIPATION>
+
+    <PARTICIPATION>
+        <MEETING>M3</MEETING>
+        <USER>Bob</USER>
+    </PARTICIPATION>
+</SYSTEM>

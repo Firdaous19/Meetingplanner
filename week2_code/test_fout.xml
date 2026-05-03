@@ -1,9 +1,21 @@
 <SYSTEM>
+    <CAMPUS>
+        <NAME>Campus Drie Eiken</NAME>
+        <IDENTIFIER>CDE</IDENTIFIER>
+    </CAMPUS>
+
+    <BUILDING>
+        <NAME>Gebouw K</NAME>
+        <IDENTIFIER>CDE_K</IDENTIFIER>
+        <CAMPUS>CDE</CAMPUS>
+    </BUILDING>
 
     <ROOM>
         <NAME>Kleine kamer</NAME>
         <IDENTIFIER>K1</IDENTIFIER>
         <CAPACITY>1</CAPACITY>
+        <CAMPUS>CDE</CAMPUS>
+        <BUILDING>CDE_K</BUILDING>
     </ROOM>
 
     <MEETING>
@@ -23,5 +35,4 @@
         <MEETING>M2</MEETING>
         <USER>Bob</USER>
     </PARTICIPATION>
-
 </SYSTEM>

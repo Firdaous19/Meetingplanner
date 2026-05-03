@@ -719,3 +719,41 @@ TEST(MeetingPlannerTest, CheckConsistencyReturnsFalseForDuplicateCateringProvide
 
     EXPECT_FALSE(planner.checkConsistency());
 }
+
+TEST(MeetingPlannerTest, FailedMeetingDoesNotIncreaseTotalCO2) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Room room1("Vergaderzaal A", "A101", 5, "CDE", "CDE_A");
+    Room room2("Vergaderzaal B", "B202", 5, "CDE", "CDE_B");
+
+    Meeting meeting1("Meeting In Renovatie", "M1", "A101", "2026-04-15");
+    Meeting meeting2("Normale Meeting", "M2", "B202", "2026-04-15");
+
+    Renovation renovation("A101", "2026-04-01", "2026-06-01");
+
+    planner.addRoom(room1);
+    planner.addRoom(room2);
+
+    planner.addMeeting(meeting1);
+    planner.addMeeting(meeting2);
+
+    planner.addParticipation("M1", "Alice");
+    planner.addParticipation("M2", "Bob");
+
+    planner.addRenovation(renovation);
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    ASSERT_EQ(planner.getSuccessfulMeetings().size(), 1);
+    EXPECT_EQ(planner.getSuccessfulMeetings()[0].getIdentifier(), "M2");
+
+    // Enkel de geslaagde fysieke meeting telt mee:
+    // 1 deelnemer * 120 = 120 CO2
+    EXPECT_FLOAT_EQ(planner.getSuccessfulMeetings()[0].getCO2Emission(), 120.0f);
+    EXPECT_FLOAT_EQ(planner.getTotalCO2Emission(), 120.0f);
+
+    EXPECT_FALSE(planner.getConflicts().empty());
+}

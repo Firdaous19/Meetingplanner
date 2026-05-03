@@ -9,7 +9,6 @@
 #include "Building.h"
 #include "Renovation.h"
 #include "CateringProvider.h"
-#include "DesignByContract.h"
 
 namespace {
     bool parseBooleanText(const std::string& text, bool& value) {

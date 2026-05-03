@@ -1,8 +1,21 @@
 <SYSTEM>
+    <CAMPUS>
+        <NAME>Campus Drie Eiken</NAME>
+        <IDENTIFIER>CDE</IDENTIFIER>
+    </CAMPUS>
+
+    <BUILDING>
+        <NAME>Gebouw M</NAME>
+        <IDENTIFIER>CDE_M</IDENTIFIER>
+        <CAMPUS>CDE</CAMPUS>
+    </BUILDING>
+
     <ROOM>
         <NAME>M.G.023</NAME>
         <IDENTIFIER>Room123</IDENTIFIER>
         <CAPACITY>10</CAPACITY>
+        <CAMPUS>CDE</CAMPUS>
+        <BUILDING>CDE_M</BUILDING>
     </ROOM>
 
     <MEETING>

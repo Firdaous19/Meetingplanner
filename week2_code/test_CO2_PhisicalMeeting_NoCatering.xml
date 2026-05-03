@@ -18,9 +18,22 @@
         <BUILDING>CDE_A</BUILDING>
     </ROOM>
 
-    <RENOVATION>
+    <MEETING>
+        <LABEL>Fysieke Meeting Zonder Catering</LABEL>
+        <IDENTIFIER>M1</IDENTIFIER>
         <ROOM>A101</ROOM>
-        <START>2026-04-01</START>
-        <END>2026-06-01</END>
-    </RENOVATION>
+        <DATE>2026-05-22</DATE>
+        <ONLINE>false</ONLINE>
+        <CATERING>false</CATERING>
+    </MEETING>
+
+    <PARTICIPATION>
+        <MEETING>M1</MEETING>
+        <USER>Alice</USER>
+    </PARTICIPATION>
+
+    <PARTICIPATION>
+        <MEETING>M1</MEETING>
+        <USER>Bob</USER>
+    </PARTICIPATION>
 </SYSTEM>

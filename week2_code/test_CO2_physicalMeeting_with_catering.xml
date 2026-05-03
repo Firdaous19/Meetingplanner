@@ -10,32 +10,30 @@
         <CAMPUS>CDE</CAMPUS>
     </BUILDING>
 
+    <CATERING>
+        <CAMPUS>CDE</CAMPUS>
+        <CO2>20.0</CO2>
+    </CATERING>
+
     <ROOM>
         <NAME>Vergaderzaal A</NAME>
         <IDENTIFIER>A101</IDENTIFIER>
-        <CAPACITY>5</CAPACITY>
+        <CAPACITY>10</CAPACITY>
         <CAMPUS>CDE</CAMPUS>
         <BUILDING>CDE_A</BUILDING>
     </ROOM>
 
     <MEETING>
-        <LABEL>Eerste meeting</LABEL>
-        <IDENTIFIER>M1</IDENTIFIER>
-        <ROOM>A101</ROOM>
-        <DATE>2026-03-20</DATE>
-        <ONLINE>false</ONLINE>
-    </MEETING>
-
-    <MEETING>
-        <LABEL>Tweede meeting</LABEL>
+        <LABEL>Fysieke Meeting Met Catering</LABEL>
         <IDENTIFIER>M2</IDENTIFIER>
         <ROOM>A101</ROOM>
-        <DATE>2026-03-20</DATE>
+        <DATE>2026-05-22</DATE>
         <ONLINE>false</ONLINE>
+        <CATERING>true</CATERING>
     </MEETING>
 
     <PARTICIPATION>
-        <MEETING>M1</MEETING>
+        <MEETING>M2</MEETING>
         <USER>Alice</USER>
     </PARTICIPATION>
 
