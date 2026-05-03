@@ -23,7 +23,7 @@ TEST(OutputWriterTest, WriteOutputCreatesFileWithExpectedSections) {
     planner.addCateringProvider(provider);
     planner.addMeeting(meeting);
     planner.addParticipation("Meeting123", "Alice");
-
+    planner.addCateringProvider(CateringProvider("Campus_CDE", 300));
     ASSERT_TRUE(planner.checkConsistency());
     planner.processMeetings();
 
@@ -64,7 +64,7 @@ TEST(OutputWriterTest, WriteOutputShowsNoConflictsWhenNoneExist) {
     planner.addRoom(room);
     planner.addMeeting(meeting);
     planner.addParticipation("M1", "Alice");
-
+    planner.addCateringProvider(CateringProvider("Campus_CDE", 300));
     ASSERT_TRUE(planner.checkConsistency());
 
     planner.processMeetings();
@@ -96,7 +96,7 @@ TEST(OutputWriterTest, WriteOutputShowsConflictsWhenMeetingFails) {
     planner.addMeeting(meeting2);
     planner.addParticipation("M1", "Alice");
     planner.addParticipation("M2", "Bob");
-
+    planner.addCateringProvider(CateringProvider("Campus_CDE", 300));
     ASSERT_TRUE(planner.checkConsistency());
 
     planner.processMeetings();
@@ -141,7 +141,7 @@ TEST(OutputWriterTest, WriteOutputShowsOnlineMeetingAndOccupancy) {
 
     planner.addRoom(room);
     planner.addMeeting(meeting);
-
+    planner.addCateringProvider(CateringProvider("Campus_CDE", 300));
     ASSERT_TRUE(planner.checkConsistency());
 
     planner.processMeetings();
@@ -159,4 +159,37 @@ TEST(OutputWriterTest, WriteOutputShowsOnlineMeetingAndOccupancy) {
     EXPECT_NE(content.find("Location: online"), std::string::npos);
     EXPECT_NE(content.find("Room occupancy: 0%"), std::string::npos);
     EXPECT_NE(content.find("CO2 emitted: 0g"), std::string::npos);
+}
+TEST(OutputWriterTest, WriteOutputShowsCateringAndCO2Summary) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+    OutputWriter writer;
+
+    Room room("Vergaderzaal A", "A101", 10, "Campus_CDE", "Building_A");
+    Meeting meeting("Lunch meeting", "M1", "A101", "2026-05-22");
+
+    meeting.setCatering(true);
+    meeting.setCO2Emission(300);
+
+    planner.addRoom(room);
+    planner.addMeeting(meeting);
+    planner.addParticipation("M1", "Alice");
+    planner.addCateringProvider(CateringProvider("Campus_CDE", 300));
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    const std::string filename = "test_catering_co2_output.txt";
+    writer.writeOutput(filename, planner);
+
+    std::ifstream input(filename.c_str());
+    ASSERT_TRUE(input.is_open());
+
+    std::stringstream buffer;
+    buffer << input.rdbuf();
+    std::string content = buffer.str();
+
+    EXPECT_NE(content.find("- Catering"), std::string::npos);
+    EXPECT_NE(content.find("--== CO2 summary ==--"), std::string::npos);
+    EXPECT_NE(content.find("Total CO2 emitted"), std::string::npos);
 }
