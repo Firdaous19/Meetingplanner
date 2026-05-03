@@ -102,15 +102,34 @@ public:
     /** @return Alle conflicten. */
     const std::vector<std::string>& getConflicts() const;
 
+    /**
+     * Geef de totale CO2-uitstoot van alle succesvol verwerkte meetings terug.
+     * @return Totale CO2-uitstoot in gram.
+     */
+    float getTotalCO2Emission() const;
+
 private:
     bool loggingEnabled = true;
 
     /**
      * Verwerk één individuele meeting.
+     *
+     * PRE:
+     * - meeting identifier mag niet leeg zijn
+     * - meeting date mag niet leeg zijn
+     * - online meeting mag geen catering hebben
+     * - fysieke meeting moet een room identifier hebben
+     * - als catering gevraagd wordt, moet er een provider bestaan
+     *   voor de campus van de room
+     *
+     * POST bij succes:
+     * - de meeting heeft een berekende CO2-uitstoot
+     * - de totale CO2-uitstoot van het systeem is verhoogd
+     *
      * @param meeting De meeting.
      * @return true indien succesvol verwerkt.
      */
-    bool processSingleMeeting(const Meeting& meeting);
+    bool processSingleMeeting(Meeting& meeting);
 
     /**
      * Controleer of een room in renovatie is op een bepaalde datum.
@@ -128,6 +147,44 @@ private:
      */
     bool roomExists(const std::string& roomIdentifier) const;
 
+    /**
+     * Zoek een room op basis van identifier.
+     * @param roomIdentifier Identifier van de room.
+     * @return Pointer naar de room of nullptr indien niet gevonden.
+     */
+    Room* findRoomByIdentifier(const std::string& roomIdentifier);
+
+    /**
+     * Zoek een room op basis van identifier.
+     * @param roomIdentifier Identifier van de room.
+     * @return Pointer naar de room of nullptr indien niet gevonden.
+     */
+    const Room* findRoomByIdentifier(const std::string& roomIdentifier) const;
+
+    /**
+     * Zoek een cateringprovider voor een campus.
+     * @param campusIdentifier Identifier van de campus.
+     * @return Pointer naar de provider of nullptr indien niet gevonden.
+     */
+    const CateringProvider* findCateringProviderByCampus(
+            const std::string& campusIdentifier) const;
+
+    /**
+     * Bereken de CO2-uitstoot van een meeting zelf
+     * (zonder catering-CO2).
+     * @param meeting De meeting.
+     * @return CO2-uitstoot in gram.
+     */
+    float calculateMeetingCO2(const Meeting& meeting) const;
+
+    /**
+     * Bereken de catering-CO2 van een meeting.
+     * @param meeting De meeting.
+     * @param room De room waarin de meeting plaatsvindt.
+     * @return Catering-CO2 in gram.
+     */
+    float calculateCateringCO2(const Meeting& meeting, const Room& room) const;
+
     std::vector<Room> rooms;
     std::vector<Meeting> meetings;
     std::vector<Meeting> successfulMeetings;
@@ -136,6 +193,7 @@ private:
     std::vector<Building> buildings;
     std::vector<Renovation> renovations;
     std::vector<CateringProvider> cateringProviders;
+    float totalCO2Emission = 0.0f;
 };
 
 #endif // PROJECTTITLE_MEETINGPLANNER_H

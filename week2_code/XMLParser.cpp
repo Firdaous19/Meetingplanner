@@ -9,6 +9,7 @@
 #include "Building.h"
 #include "Renovation.h"
 #include "CateringProvider.h"
+#include "DesignByContract.h"
 
 namespace {
     bool parseBooleanText(const std::string& text, bool& value) {
@@ -33,6 +34,8 @@ void XMLParser::setLoggingEnabled(bool enabled) {
 }
 
 bool XMLParser::parse(const std::string& filename, MeetingPlanner& planner) const {
+    REQUIRE(!filename.empty(), "Bestandsnaam mag niet leeg zijn");
+
     TiXmlDocument doc(filename.c_str());
 
     if (!doc.LoadFile()) {
@@ -141,9 +144,9 @@ bool XMLParser::parse(const std::string& filename, MeetingPlanner& planner) cons
                 continue;
             }
 
-            int co2 = 0;
+            float co2 = 0.0f;
             try {
-                co2 = std::stoi(co2Text);
+                co2 = std::stof(co2Text);
             } catch (...) {
                 if (loggingEnabled) {
                     std::cerr << "Fout in CATERING: CO2 is geen geldig getal." << std::endl;
@@ -164,8 +167,8 @@ bool XMLParser::parse(const std::string& filename, MeetingPlanner& planner) cons
 
         else if (elementName == "RENOVATION") {
             TiXmlElement* roomElem = elem->FirstChildElement("ROOM");
-            TiXmlElement* startElem = elem->FirstChildElement("START_DATE");
-            TiXmlElement* endElem = elem->FirstChildElement("END_DATE");
+            TiXmlElement* startElem = elem->FirstChildElement("START");
+            TiXmlElement* endElem = elem->FirstChildElement("END");
 
             if (roomElem == nullptr || startElem == nullptr || endElem == nullptr) {
                 if (loggingEnabled) {
@@ -200,8 +203,11 @@ bool XMLParser::parse(const std::string& filename, MeetingPlanner& planner) cons
             TiXmlElement* nameElem = elem->FirstChildElement("NAME");
             TiXmlElement* idElem = elem->FirstChildElement("IDENTIFIER");
             TiXmlElement* capElem = elem->FirstChildElement("CAPACITY");
+            TiXmlElement* campusElem = elem->FirstChildElement("CAMPUS");
+            TiXmlElement* buildingElem = elem->FirstChildElement("BUILDING");
 
-            if (nameElem == nullptr || idElem == nullptr || capElem == nullptr) {
+            if (nameElem == nullptr || idElem == nullptr || capElem == nullptr ||
+                campusElem == nullptr || buildingElem == nullptr) {
                 if (loggingEnabled) {
                     std::cerr << "Fout in ROOM: ontbrekende velden." << std::endl;
                 }
@@ -211,8 +217,11 @@ bool XMLParser::parse(const std::string& filename, MeetingPlanner& planner) cons
             std::string name = nameElem->GetText() ? nameElem->GetText() : "";
             std::string identifier = idElem->GetText() ? idElem->GetText() : "";
             std::string capacityText = capElem->GetText() ? capElem->GetText() : "";
+            std::string campusIdentifier = campusElem->GetText() ? campusElem->GetText() : "";
+            std::string buildingIdentifier = buildingElem->GetText() ? buildingElem->GetText() : "";
 
-            if (name.empty() || identifier.empty() || capacityText.empty()) {
+            if (name.empty() || identifier.empty() || capacityText.empty() ||
+                campusIdentifier.empty() || buildingIdentifier.empty()) {
                 if (loggingEnabled) {
                     std::cerr << "Fout in ROOM: lege velden." << std::endl;
                 }
@@ -230,7 +239,7 @@ bool XMLParser::parse(const std::string& filename, MeetingPlanner& planner) cons
             }
 
             try {
-                Room room(name, identifier, capacity);
+                Room room(name, identifier, capacity, campusIdentifier, buildingIdentifier);
                 planner.addRoom(room);
             } catch (...) {
                 if (loggingEnabled) {
@@ -288,10 +297,6 @@ bool XMLParser::parse(const std::string& filename, MeetingPlanner& planner) cons
                 }
             }
 
-            // Use case 3.4:
-            // - online meeting heeft geen room nodig
-            // - fysieke meeting moet wel een room hebben
-            // - online meeting mag geen catering hebben
             if (online && catering) {
                 if (loggingEnabled) {
                     std::cerr << "Fout in MEETING: online meeting mag geen catering hebben." << std::endl;
@@ -308,12 +313,8 @@ bool XMLParser::parse(const std::string& filename, MeetingPlanner& planner) cons
 
             try {
                 Meeting meeting(label, identifier, roomIdentifier, date);
-
-                // Eerst online zetten, daarna catering,
-                // zodat de contracten logisch blijven.
                 meeting.setOnline(online);
                 meeting.setCatering(catering);
-
                 planner.addMeeting(meeting);
             } catch (...) {
                 if (loggingEnabled) {

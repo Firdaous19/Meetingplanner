@@ -5,12 +5,12 @@
 #include "DesignByContract.h"
 
 CateringProvider::CateringProvider(const std::string& campusIdentifier,
-                                   int co2)
+                                   float co2)
         : campusIdentifier(campusIdentifier),
           co2(co2) {
 
     REQUIRE(!campusIdentifier.empty(), "Campus identifier mag niet leeg zijn");
-    REQUIRE(co2 >= 0, "CO2 mag niet negatief zijn");
+    REQUIRE(co2 > 0, "CO2 moet groter zijn dan 0");
 
     ENSURE(this->campusIdentifier == campusIdentifier,
            "Campus identifier correct opgeslagen");

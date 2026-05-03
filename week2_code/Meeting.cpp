@@ -44,6 +44,7 @@ Meeting::Meeting(const std::string& label,
           identifier(identifier),
           roomIdentifier(roomIdentifier),
           date(date),
+          co2Emission(0.0f),
           occupancyPercentage(0) {
     REQUIRE(!label.empty(), "Meeting label mag niet leeg zijn");
     REQUIRE(!identifier.empty(), "Meeting identifier mag niet leeg zijn");
@@ -60,6 +61,10 @@ Meeting::Meeting(const std::string& label,
     ENSURE(!catering, "Nieuwe meeting heeft standaard geen catering");
     ENSURE(!(online && catering),
            "Nieuwe meeting mag niet tegelijk online en catering hebben");
+    ENSURE(this->co2Emission == 0.0f,
+           "Nieuwe meeting heeft standaard 0 CO2-uitstoot");
+    ENSURE(this->occupancyPercentage == 0,
+           "Nieuwe meeting heeft standaard 0% occupancy");
 }
 
 void Meeting::addParticipant(const std::string& user) {

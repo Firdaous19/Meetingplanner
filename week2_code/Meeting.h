@@ -8,12 +8,27 @@
 /**
  * Stelt een meeting voor in het systeem.
  * Een meeting heeft een label, identifier, gekoppelde room,
- * datum en een lijst van deelnemers.
+ * datum, een lijst van deelnemers, en houdt ook CO2-uitstoot bij.
  */
 class Meeting {
 public:
     /**
      * Constructor van een meeting.
+     *
+     * PRE:
+     * - label mag niet leeg zijn
+     * - identifier mag niet leeg zijn
+     * - date mag niet leeg zijn
+     * - date moet formaat YYYY-MM-DD hebben
+     * - roomIdentifier mag leeg zijn voor online meetings
+     *
+     * POST:
+     * - alle velden zijn correct opgeslagen
+     * - nieuwe meeting heeft standaard geen catering
+     * - nieuwe meeting is standaard niet online
+     * - nieuwe meeting heeft standaard 0 CO2-uitstoot
+     * - nieuwe meeting heeft standaard 0% occupancy
+     *
      * @param label De naam of titel van de meeting.
      * @param identifier De unieke identifier van de meeting.
      * @param roomIdentifier De identifier van de gekoppelde room.
@@ -56,7 +71,7 @@ public:
     bool isOnline() const { return online; }
 
     /** @return CO2-uitstoot van deze meeting in gram. */
-    int getCO2Emission() const { return co2Emission; }
+    float getCO2Emission() const { return co2Emission; }
 
     /** @return Bezettingspercentage van de room voor deze meeting. */
     int getOccupancyPercentage() const { return occupancyPercentage; }
@@ -72,6 +87,7 @@ public:
 
     /**
      * Stel in of de meeting catering nodig heeft.
+     *
      * PRE:
      * - een online meeting mag geen catering hebben
      *
@@ -94,6 +110,7 @@ public:
 
     /**
      * Stel in of de meeting online plaatsvindt.
+     *
      * PRE:
      * - een online meeting mag geen catering hebben
      *
@@ -116,22 +133,40 @@ public:
 
     /**
      * Stel de CO2-uitstoot van de meeting in.
+     *
+     * PRE:
+     * - value mag niet negatief zijn
+     *
+     * POST:
+     * - co2Emission is correct opgeslagen
+     *
      * @param value CO2-uitstoot in gram.
      */
-    void setCO2Emission(int value) {
+    void setCO2Emission(float value) {
         REQUIRE(value >= 0, "CO2 emission mag niet negatief zijn");
+
         co2Emission = value;
+
         ENSURE(co2Emission == value, "CO2 emission correct opgeslagen");
     }
 
     /**
      * Stel het bezettingspercentage van de room in voor deze meeting.
+     *
+     * PRE:
+     * - percentage moet tussen 0 en 100 liggen
+     *
+     * POST:
+     * - occupancyPercentage is correct opgeslagen
+     *
      * @param percentage Percentage tussen 0 en 100.
      */
     void setOccupancyPercentage(int percentage) {
         REQUIRE(percentage >= 0 && percentage <= 100,
                 "Occupancy percentage moet tussen 0 en 100 liggen");
+
         occupancyPercentage = percentage;
+
         ENSURE(occupancyPercentage == percentage,
                "Occupancy percentage correct opgeslagen");
     }
@@ -146,7 +181,7 @@ private:
     bool externalsAllowed = false;
     bool catering = false;
     bool online = false;
-    int co2Emission = 0;
+    float co2Emission = 0.0f;
     int occupancyPercentage = 0;
 };
 

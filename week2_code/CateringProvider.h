@@ -19,7 +19,7 @@ public:
      * @param co2 De CO2-uitstoot van deze provider.
      */
     CateringProvider(const std::string& campusIdentifier,
-                     int co2);
+                     float co2);
 
     /**
      * Geef de campus identifier van de provider terug.
@@ -31,11 +31,11 @@ public:
      * Geef de CO2-uitstoot van deze provider terug.
      * @return CO2-uitstoot in gram.
      */
-    int getCO2() const { return co2; }
+    float getCO2() const { return co2; }
 
 private:
     std::string campusIdentifier;
-    int co2;
+    float co2;
 };
 
 #endif // PROJECTTITLE_CATERINGPROVIDER_H

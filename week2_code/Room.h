@@ -6,7 +6,8 @@
 
 /**
  * Stelt een vergaderzaal voor in het systeem.
- * Een room heeft een naam, een unieke identifier, een capaciteit
+ * Een room heeft een naam, een unieke identifier, een capaciteit,
+ * een campusidentifier, een buildingidentifier
  * en kan bezet worden tijdens het verwerken van meetings.
  */
 class Room {
@@ -15,9 +16,15 @@ public:
      * Constructor van een room.
      * @param name De leesbare naam van de room.
      * @param identifier De unieke identifier van de room.
-     * @param capacity Het maximum aantal personen in de room.
+     * @param capacity Het maximum aantal personen dat in de room past.
+     * @param campusIdentifier De identifier van de campus waartoe de room behoort.
+     * @param buildingIdentifier De identifier van het gebouw waartoe de room behoort.
      */
-    Room(const std::string& name, const std::string& identifier, int capacity);
+    Room(const std::string& name,
+         const std::string& identifier,
+         int capacity,
+         const std::string& campusIdentifier,
+         const std::string& buildingIdentifier);
 
     /**
      * Geef de naam van de room terug.
@@ -38,6 +45,18 @@ public:
     int getCapacity() const { return capacity; }
 
     /**
+     * Geef de campus identifier van de room terug.
+     * @return De campus identifier.
+     */
+    std::string getCampusIdentifier() const { return campusIdentifier; }
+
+    /**
+     * Geef de building identifier van de room terug.
+     * @return De building identifier.
+     */
+    std::string getBuildingIdentifier() const { return buildingIdentifier; }
+
+    /**
      * Voeg een persoon toe aan de room.
      * @param personName De naam van de persoon.
      */
@@ -47,7 +66,7 @@ public:
      * Geef het aantal personen in de room terug.
      * @return Het aantal toegevoegde personen.
      */
-    int getNumberOfPersons() const { return persons.size(); }
+    int getNumberOfPersons() const { return static_cast<int>(persons.size()); }
 
     /**
      * Controleer of de room bezet is.
@@ -64,6 +83,8 @@ private:
     std::string name;
     std::string identifier;
     int capacity;
+    std::string campusIdentifier;
+    std::string buildingIdentifier;
     std::vector<std::string> persons;
     bool occupied = false;
 };

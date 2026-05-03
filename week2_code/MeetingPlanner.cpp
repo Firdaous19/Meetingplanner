@@ -1,5 +1,7 @@
 #include "MeetingPlanner.h"
+#include "DesignByContract.h"
 #include <iostream>
+#include <cmath>
 
 void MeetingPlanner::setLoggingEnabled(bool enabled) {
     loggingEnabled = enabled;
@@ -21,6 +23,7 @@ void MeetingPlanner::addMeeting(const Meeting& meeting) {
 
     size_t oldSize = meetings.size();
     meetings.push_back(meeting);
+
     ENSURE(meetings.size() == oldSize + 1, "Meeting moet toegevoegd zijn");
 }
 
@@ -32,6 +35,7 @@ bool MeetingPlanner::addParticipation(const std::string& meetingId, const std::s
         if (meeting.getIdentifier() == meetingId) {
             size_t oldSize = meeting.getParticipants().size();
             meeting.addParticipant(user);
+
             ENSURE(meeting.getParticipants().size() == oldSize + 1,
                    "Participant moet toegevoegd zijn aan meeting");
             return true;
@@ -52,7 +56,42 @@ bool MeetingPlanner::roomExists(const std::string& roomIdentifier) const {
     return false;
 }
 
-bool MeetingPlanner::isRoomUnderRenovation(const std::string& roomIdentifier, const std::string& date) const {
+Room* MeetingPlanner::findRoomByIdentifier(const std::string& roomIdentifier) {
+    REQUIRE(!roomIdentifier.empty(), "Room identifier mag niet leeg zijn");
+
+    for (auto& room : rooms) {
+        if (room.getIdentifier() == roomIdentifier) {
+            return &room;
+        }
+    }
+    return nullptr;
+}
+
+const Room* MeetingPlanner::findRoomByIdentifier(const std::string& roomIdentifier) const {
+    REQUIRE(!roomIdentifier.empty(), "Room identifier mag niet leeg zijn");
+
+    for (const auto& room : rooms) {
+        if (room.getIdentifier() == roomIdentifier) {
+            return &room;
+        }
+    }
+    return nullptr;
+}
+
+const CateringProvider* MeetingPlanner::findCateringProviderByCampus(
+        const std::string& campusIdentifier) const {
+    REQUIRE(!campusIdentifier.empty(), "Campus identifier mag niet leeg zijn");
+
+    for (const auto& provider : cateringProviders) {
+        if (provider.getCampusIdentifier() == campusIdentifier) {
+            return &provider;
+        }
+    }
+    return nullptr;
+}
+
+bool MeetingPlanner::isRoomUnderRenovation(const std::string& roomIdentifier,
+                                           const std::string& date) const {
     REQUIRE(!roomIdentifier.empty(), "Room identifier mag niet leeg zijn");
     REQUIRE(!date.empty(), "Date mag niet leeg zijn");
 
@@ -64,6 +103,36 @@ bool MeetingPlanner::isRoomUnderRenovation(const std::string& roomIdentifier, co
     }
 
     return false;
+}
+
+float MeetingPlanner::calculateMeetingCO2(const Meeting& meeting) const {
+    REQUIRE(!meeting.getDate().empty(), "Meeting date mag niet leeg zijn");
+
+    const float participantCount = static_cast<float>(meeting.getParticipants().size());
+
+    // Use case 3.5 + Appendix C:
+    // online = 30g per participant
+    // fysieke meeting = 120g per participant
+    if (meeting.isOnline()) {
+        return participantCount * 30.0f;
+    }
+
+    return participantCount * 120.0f;
+}
+
+float MeetingPlanner::calculateCateringCO2(const Meeting& meeting, const Room& room) const {
+    REQUIRE(!meeting.isOnline(), "Online meeting mag geen catering hebben");
+    REQUIRE(meeting.hasCatering(), "Catering CO2 berekenen vereist catering");
+    REQUIRE(!room.getCampusIdentifier().empty(), "Room campus identifier mag niet leeg zijn");
+
+    const CateringProvider* provider =
+            findCateringProviderByCampus(room.getCampusIdentifier());
+
+    REQUIRE(provider != nullptr,
+            "Catering provider moet bestaan voor campus van room");
+
+    const float participantCount = static_cast<float>(meeting.getParticipants().size());
+    return provider->getCO2() * participantCount;
 }
 
 bool MeetingPlanner::checkConsistency() {
@@ -89,6 +158,24 @@ bool MeetingPlanner::checkConsistency() {
         for (size_t j = i + 1; j < meetings.size(); j++) {
             if (meetings[i].getIdentifier() == meetings[j].getIdentifier()) {
                 std::string msg = "Dubbele meeting identifier: " + meetings[i].getIdentifier();
+
+                if (loggingEnabled) {
+                    std::cerr << "Fout: " << msg << std::endl;
+                }
+
+                conflicts.push_back(msg);
+                consistent = false;
+            }
+        }
+    }
+
+    // Appendix B: er is slechts één catering service per campus
+    for (size_t i = 0; i < cateringProviders.size(); i++) {
+        for (size_t j = i + 1; j < cateringProviders.size(); j++) {
+            if (cateringProviders[i].getCampusIdentifier() ==
+                cateringProviders[j].getCampusIdentifier()) {
+                std::string msg = "Meerdere catering providers voor campus: " +
+                                  cateringProviders[i].getCampusIdentifier();
 
                 if (loggingEnabled) {
                     std::cerr << "Fout: " << msg << std::endl;
@@ -132,18 +219,9 @@ bool MeetingPlanner::checkConsistency() {
             continue;
         }
 
-        bool roomFound = false;
-        int roomCapacity = 0;
+        const Room* room = findRoomByIdentifier(meeting.getRoomIdentifier());
 
-        for (const auto& room : rooms) {
-            if (room.getIdentifier() == meeting.getRoomIdentifier()) {
-                roomFound = true;
-                roomCapacity = room.getCapacity();
-                break;
-            }
-        }
-
-        if (!roomFound) {
+        if (room == nullptr) {
             std::string msg = "Meeting " + meeting.getIdentifier() +
                               " verwijst naar onbekende room " +
                               meeting.getRoomIdentifier();
@@ -154,7 +232,10 @@ bool MeetingPlanner::checkConsistency() {
 
             conflicts.push_back(msg);
             consistent = false;
-        } else if ((int)meeting.getParticipants().size() > roomCapacity) {
+            continue;
+        }
+
+        if (static_cast<int>(meeting.getParticipants().size()) > room->getCapacity()) {
             std::string msg = "Room " + meeting.getRoomIdentifier() +
                               " heeft onvoldoende capaciteit voor meeting " +
                               meeting.getIdentifier();
@@ -166,6 +247,24 @@ bool MeetingPlanner::checkConsistency() {
             conflicts.push_back(msg);
             consistent = false;
         }
+
+        if (meeting.hasCatering()) {
+            const CateringProvider* provider =
+                    findCateringProviderByCampus(room->getCampusIdentifier());
+
+            if (provider == nullptr) {
+                std::string msg = "Geen catering provider gevonden voor campus " +
+                                  room->getCampusIdentifier() +
+                                  " van meeting " + meeting.getIdentifier();
+
+                if (loggingEnabled) {
+                    std::cerr << "Fout: " << msg << std::endl;
+                }
+
+                conflicts.push_back(msg);
+                consistent = false;
+            }
+        }
     }
 
     if (consistent) {
@@ -175,7 +274,7 @@ bool MeetingPlanner::checkConsistency() {
     return consistent;
 }
 
-bool MeetingPlanner::processSingleMeeting(const Meeting& meeting) {
+bool MeetingPlanner::processSingleMeeting(Meeting& meeting) {
     REQUIRE(!meeting.getIdentifier().empty(), "Meeting identifier mag niet leeg zijn");
     REQUIRE(!meeting.getDate().empty(), "Meeting date mag niet leeg zijn");
     REQUIRE(!(meeting.isOnline() && meeting.hasCatering()),
@@ -185,7 +284,11 @@ bool MeetingPlanner::processSingleMeeting(const Meeting& meeting) {
 
     // Use case 3.4: online meetings hebben geen room nodig
     if (meeting.isOnline()) {
-        const_cast<Meeting&>(meeting).setOccupancyPercentage(0);
+        meeting.setOccupancyPercentage(0);
+
+        float meetingCO2 = calculateMeetingCO2(meeting);
+        meeting.setCO2Emission(static_cast<int>(std::lround(meetingCO2)));
+        totalCO2Emission += meetingCO2;
 
         if (loggingEnabled) {
             std::cout << "Meeting " << meeting.getIdentifier()
@@ -194,6 +297,8 @@ bool MeetingPlanner::processSingleMeeting(const Meeting& meeting) {
 
         ENSURE(meeting.getOccupancyPercentage() == 0,
                "Online meeting moet occupancy 0 hebben");
+        ENSURE(meeting.getCO2Emission() >= 0,
+               "Online meeting moet niet-negatieve CO2 hebben");
 
         return true;
     }
@@ -216,82 +321,106 @@ bool MeetingPlanner::processSingleMeeting(const Meeting& meeting) {
         return false;
     }
 
-    for (auto& room : rooms) {
-        if (room.getIdentifier() == meeting.getRoomIdentifier()) {
-            if (room.isOccupied()) {
-                std::string msg = "Meeting " + meeting.getIdentifier() +
-                                  " geannuleerd: room " + room.getIdentifier() +
-                                  " is al bezet.";
+    Room* room = findRoomByIdentifier(meeting.getRoomIdentifier());
 
-                if (loggingEnabled) {
-                    std::cerr << msg << std::endl;
-                }
+    if (room == nullptr) {
+        std::string msg = "Meeting " + meeting.getIdentifier() +
+                          " geannuleerd: onbekende room " +
+                          meeting.getRoomIdentifier();
 
-                size_t oldConflictsSize = conflicts.size();
-                conflicts.push_back(msg);
+        if (loggingEnabled) {
+            std::cerr << msg << std::endl;
+        }
 
-                ENSURE(conflicts.size() == oldConflictsSize + 1,
-                       "Bij bezettingsconflict moet conflict toegevoegd zijn");
+        size_t oldConflictsSize = conflicts.size();
+        conflicts.push_back(msg);
 
-                return false;
-            }
+        ENSURE(conflicts.size() == oldConflictsSize + 1,
+               "Bij onbekende room moet conflict toegevoegd zijn");
 
-            room.occupy();
-            int occupancy = (meeting.getParticipants().size() * 100) / room.getCapacity();
-            const_cast<Meeting&>(meeting).setOccupancyPercentage(occupancy);
+        return false;
+    }
+
+    if (meeting.hasCatering()) {
+        const CateringProvider* provider =
+                findCateringProviderByCampus(room->getCampusIdentifier());
+
+        if (provider == nullptr) {
+            std::string msg = "Meeting " + meeting.getIdentifier() +
+                              " geannuleerd: geen catering provider voor campus " +
+                              room->getCampusIdentifier();
 
             if (loggingEnabled) {
-                std::cout << "Meeting " << meeting.getIdentifier()
-                          << " vindt plaats in room "
-                          << room.getIdentifier() << std::endl;
+                std::cerr << msg << std::endl;
             }
 
-            ENSURE(room.isOccupied(), "Room moet bezet zijn na processing");
-            return true;
+            size_t oldConflictsSize = conflicts.size();
+            conflicts.push_back(msg);
+
+            ENSURE(conflicts.size() == oldConflictsSize + 1,
+                   "Bij ontbrekende catering provider moet conflict toegevoegd zijn");
+
+            return false;
         }
     }
 
-    std::string msg = "Meeting " + meeting.getIdentifier() +
-                      " geannuleerd: onbekende room " +
-                      meeting.getRoomIdentifier();
+    if (room->isOccupied()) {
+        std::string msg = "Meeting " + meeting.getIdentifier() +
+                          " geannuleerd: room " + room->getIdentifier() +
+                          " is al bezet.";
 
-    if (loggingEnabled) {
-        std::cerr << msg << std::endl;
+        if (loggingEnabled) {
+            std::cerr << msg << std::endl;
+        }
+
+        size_t oldConflictsSize = conflicts.size();
+        conflicts.push_back(msg);
+
+        ENSURE(conflicts.size() == oldConflictsSize + 1,
+               "Bij bezettingsconflict moet conflict toegevoegd zijn");
+
+        return false;
     }
 
-    size_t oldConflictsSize = conflicts.size();
-    conflicts.push_back(msg);
+    room->occupy();
 
-    ENSURE(conflicts.size() == oldConflictsSize + 1,
-           "Bij onbekende room moet conflict toegevoegd zijn");
+    int occupancy = static_cast<int>(
+            (meeting.getParticipants().size() * 100) / room->getCapacity());
+    meeting.setOccupancyPercentage(occupancy);
 
-    return false;
+    float meetingCO2 = calculateMeetingCO2(meeting);
+    float cateringCO2 = 0.0f;
+
+    if (meeting.hasCatering()) {
+        cateringCO2 = calculateCateringCO2(meeting, *room);
+    }
+
+    float totalMeetingCO2 = meetingCO2 + cateringCO2;
+    meeting.setCO2Emission(static_cast<int>(std::lround(totalMeetingCO2)));
+    totalCO2Emission += totalMeetingCO2;
+
+    if (loggingEnabled) {
+        std::cout << "Meeting " << meeting.getIdentifier()
+                  << " vindt plaats in room "
+                  << room->getIdentifier() << std::endl;
+    }
+
+    ENSURE(room->isOccupied(), "Room moet bezet zijn na processing");
+    ENSURE(meeting.getCO2Emission() >= 0, "Meeting moet niet-negatieve CO2 hebben");
+
+    return true;
 }
 
 void MeetingPlanner::processMeetings() {
     successfulMeetings.clear();
+    conflicts.clear();
+    totalCO2Emission = 0.0f;
 
-    for (const auto& meeting : meetings) {
+    for (auto& meeting : meetings) {
         bool success = processSingleMeeting(meeting);
 
         if (success) {
-            Meeting processedMeeting = meeting;
-
-            if (meeting.isOnline()) {
-                processedMeeting.setOccupancyPercentage(0);
-            } else {
-                for (const auto& room : rooms) {
-                    if (room.getIdentifier() == meeting.getRoomIdentifier()) {
-                        int occupancy =
-                                (meeting.getParticipants().size() * 100) / room.getCapacity();
-
-                        processedMeeting.setOccupancyPercentage(occupancy);
-                        break;
-                    }
-                }
-            }
-
-            successfulMeetings.push_back(processedMeeting);
+            successfulMeetings.push_back(meeting);
         }
     }
 
@@ -362,4 +491,8 @@ const std::vector<Meeting>& MeetingPlanner::getSuccessfulMeetings() const {
 
 const std::vector<std::string>& MeetingPlanner::getConflicts() const {
     return conflicts;
+}
+
+float MeetingPlanner::getTotalCO2Emission() const {
+    return totalCO2Emission;
 }
