@@ -1,7 +1,7 @@
 #include "OutputWriter.h"
 #include <fstream>
 #include <iostream>
-
+#include <iomanip>
 
 std::string OutputWriter::formatDate(const std::string& isoDate) const {
     REQUIRE(!isoDate.empty(), "Datum mag niet leeg zijn");
@@ -17,7 +17,8 @@ std::string OutputWriter::formatDate(const std::string& isoDate) const {
     return day + "/" + month + "/" + year;
 }
 
-void OutputWriter::writeOutput(const std::string& filename, const MeetingPlanner& planner) const {
+void OutputWriter::writeOutput(const std::string& filename,
+                               const MeetingPlanner& planner) const {
     REQUIRE(!filename.empty(), "Output filename mag niet leeg zijn");
 
     std::ofstream out(filename.c_str());
@@ -42,10 +43,10 @@ void OutputWriter::writeOutput(const std::string& filename, const MeetingPlanner
         }
 
         out << "- Participants: ";
-        const auto& participants = meeting.getParticipants();
+        const std::vector<std::string>& participants = meeting.getParticipants();
         for (size_t i = 0; i < participants.size(); i++) {
             out << participants[i];
-            if (i < participants.size() - 1) {
+            if (i + 1 < participants.size()) {
                 out << ", ";
             }
         }
@@ -63,6 +64,8 @@ void OutputWriter::writeOutput(const std::string& filename, const MeetingPlanner
 
         if (meeting.hasCatering()) {
             out << "- Catering\n";
+            out << std::fixed << std::setprecision(2);
+            out << "- Catering cost: EUR " << meeting.getCateringCost() << "\n";
         } else {
             out << "- No catering\n";
         }
@@ -88,13 +91,11 @@ void OutputWriter::writeOutput(const std::string& filename, const MeetingPlanner
         out << "\n";
     }
 
-    int totalCO2 = 0;
-    for (const auto& meeting : planner.getSuccessfulMeetings()) {
-        totalCO2 += meeting.getCO2Emission();
-    }
-
     out << "--== CO2 summary ==--\n";
-    out << "- Total CO2 emitted: " << totalCO2 << "g\n";
+    out << "- Total CO2 emitted: " << planner.getTotalCO2Emission() << "g\n";
+
+    out << std::fixed << std::setprecision(2);
+    out << "- Total catering cost: EUR " << planner.getTotalCateringCost() << "\n";
 
     ENSURE(out.good(), "Outputbestand moet correct geschreven zijn");
 

@@ -96,3 +96,50 @@ TEST(MeetingTest, OnlineMeetingCannotHaveCatering) {
             "Online meeting mag geen catering hebben"
     );
 }
+
+TEST(MeetingTest, EmptyLabelIsRejected) {
+    EXPECT_DEATH(
+            Meeting("", "Meeting123", "Room123", "2026-05-22"),
+            "Meeting label mag niet leeg zijn"
+    );
+}
+
+TEST(MeetingTest, EmptyIdentifierIsRejected) {
+    EXPECT_DEATH(
+            Meeting("Weekly meeting", "", "Room123", "2026-05-22"),
+            "Meeting identifier mag niet leeg zijn"
+    );
+}
+
+TEST(MeetingTest, EmptyDateIsRejected) {
+    EXPECT_DEATH(
+            Meeting("Weekly meeting", "Meeting123", "Room123", ""),
+            "Meeting date mag niet leeg zijn"
+    );
+}
+
+TEST(MeetingTest, EmptyParticipantNameIsRejected) {
+    Meeting meeting("Weekly meeting", "Meeting123", "Room123", "2026-05-22");
+
+    EXPECT_DEATH(
+            meeting.addParticipant(""),
+            "Participant name mag niet leeg zijn"
+    );
+}
+
+TEST(MeetingTest, NegativeCateringCostIsRejected) {
+    Meeting meeting("Weekly meeting", "Meeting123", "Room123", "2026-05-22");
+
+    EXPECT_DEATH(
+            meeting.setCateringCost(-1.0f),
+            "Catering cost mag niet negatief zijn"
+    );
+}
+
+TEST(MeetingTest, ValidCateringCostIsStoredCorrectly) {
+    Meeting meeting("Weekly meeting", "Meeting123", "Room123", "2026-05-22");
+
+    meeting.setCateringCost(21.18f);
+
+    EXPECT_FLOAT_EQ(meeting.getCateringCost(), 21.18f);
+}

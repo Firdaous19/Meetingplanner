@@ -10,6 +10,20 @@
 #include "week2_code/Renovation.h"
 #include "week2_code/CateringProvider.h"
 
+#include <cstdio>
+#include <fstream>
+#include <sstream>
+#include <string>
+
+namespace {
+    std::string readWholeFile(const std::string& fileName) {
+        std::ifstream input(fileName.c_str());
+        std::ostringstream buffer;
+        buffer << input.rdbuf();
+        return buffer.str();
+    }
+}
+
 TEST(MeetingPlannerTest, AddRoomIncreasesRoomCount) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
@@ -685,9 +699,6 @@ TEST(MeetingPlannerTest, ProcessPhysicalMeetingTracksCO2CorrectlyWithCatering) {
     planner.processMeetings();
 
     ASSERT_EQ(planner.getSuccessfulMeetings().size(), 1);
-    // 2 deelnemers => fysieke meeting: 2 * 120 = 240
-    // catering: 2 * 20 = 40
-    // totaal = 280
     EXPECT_FLOAT_EQ(planner.getSuccessfulMeetings()[0].getCO2Emission(), 280.0f);
     EXPECT_FLOAT_EQ(planner.getTotalCO2Emission(), 280.0f);
 }
@@ -749,11 +760,116 @@ TEST(MeetingPlannerTest, FailedMeetingDoesNotIncreaseTotalCO2) {
 
     ASSERT_EQ(planner.getSuccessfulMeetings().size(), 1);
     EXPECT_EQ(planner.getSuccessfulMeetings()[0].getIdentifier(), "M2");
-
-    // Enkel de geslaagde fysieke meeting telt mee:
-    // 1 deelnemer * 120 = 120 CO2
     EXPECT_FLOAT_EQ(planner.getSuccessfulMeetings()[0].getCO2Emission(), 120.0f);
     EXPECT_FLOAT_EQ(planner.getTotalCO2Emission(), 120.0f);
 
     EXPECT_FALSE(planner.getConflicts().empty());
+}
+
+// USE CASE 3.8 - CATERING PLANNING AND COSTS
+
+TEST(MeetingPlannerTest, ProcessPhysicalMeetingTracksCateringCostCorrectly) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Room room("Vergaderzaal A", "A101", 5, "CDE", "CDE_A");
+    Meeting meeting("Lunch Meeting", "M1", "A101", "2026-05-22");
+    meeting.setCatering(true);
+
+    CateringProvider provider("CDE", 20.0f);
+
+    planner.addRoom(room);
+    planner.addCateringProvider(provider);
+    planner.addMeeting(meeting);
+    planner.addParticipation("M1", "Alice");
+    planner.addParticipation("M1", "Bob");
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    ASSERT_EQ(planner.getSuccessfulMeetings().size(), 1);
+    EXPECT_NEAR(planner.getSuccessfulMeetings()[0].getCateringCost(), 21.18f, 0.001f);
+    EXPECT_NEAR(planner.getTotalCateringCost(), 21.18f, 0.001f);
+}
+
+TEST(MeetingPlannerTest, ProcessMeetingWithoutCateringKeepsCateringCostAtZero) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Room room("Vergaderzaal A", "A101", 5, "CDE", "CDE_A");
+    Meeting meeting("Gewone Meeting", "M1", "A101", "2026-05-22");
+
+    planner.addRoom(room);
+    planner.addMeeting(meeting);
+    planner.addParticipation("M1", "Alice");
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    ASSERT_EQ(planner.getSuccessfulMeetings().size(), 1);
+    EXPECT_FLOAT_EQ(planner.getSuccessfulMeetings()[0].getCateringCost(), 0.0f);
+    EXPECT_FLOAT_EQ(planner.getTotalCateringCost(), 0.0f);
+}
+
+TEST(MeetingPlannerTest, FailedCateredMeetingDoesNotIncreaseTotalCateringCost) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Room room("Vergaderzaal A", "A101", 5, "CDE", "CDE_A");
+    Meeting meeting("Lunch Meeting", "M1", "A101", "2026-04-15");
+    meeting.setCatering(true);
+
+    Renovation renovation("A101", "2026-04-01", "2026-06-01");
+    CateringProvider provider("CDE", 20.0f);
+
+    planner.addRoom(room);
+    planner.addCateringProvider(provider);
+    planner.addMeeting(meeting);
+    planner.addParticipation("M1", "Alice");
+    planner.addRenovation(renovation);
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    EXPECT_EQ(planner.getSuccessfulMeetings().size(), 0);
+    EXPECT_FLOAT_EQ(planner.getTotalCateringCost(), 0.0f);
+}
+
+TEST(MeetingPlannerTest, ProcessMeetingWithCateringWritesDeliveryFile) {
+    std::remove("catering_deliveries.txt");
+
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Room room("Vergaderzaal A", "A101", 5, "CDE", "CDE_A");
+    Meeting meeting("Lunch Meeting", "M1", "A101", "2026-05-22");
+    meeting.setCatering(true);
+
+    CateringProvider provider("CDE", 20.0f);
+
+    planner.addRoom(room);
+    planner.addCateringProvider(provider);
+    planner.addMeeting(meeting);
+    planner.addParticipation("M1", "Alice");
+    planner.addParticipation("M1", "Bob");
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    std::ifstream input("catering_deliveries.txt");
+    ASSERT_TRUE(input.is_open());
+
+    const std::string content = readWholeFile("catering_deliveries.txt");
+
+    EXPECT_NE(content.find("CATERING DELIVERIES"), std::string::npos);
+    EXPECT_NE(content.find("Meeting: M1"), std::string::npos);
+    EXPECT_NE(content.find("Date: 2026-05-22"), std::string::npos);
+    EXPECT_NE(content.find("Location: A101"), std::string::npos);
+    EXPECT_NE(content.find("Participants: 2"), std::string::npos);
+
+    std::remove("catering_deliveries.txt");
 }

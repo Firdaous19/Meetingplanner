@@ -115,9 +115,6 @@ float MeetingPlanner::calculateMeetingCO2(const Meeting& meeting) const {
 
     const float participantCount = static_cast<float>(meeting.getParticipants().size());
 
-    // Use case 3.5 + Appendix C:
-    // online = 30g per participant
-    // fysieke meeting = 120g per participant
     if (meeting.isOnline()) {
         return participantCount * 30.0f;
     }
@@ -146,8 +143,6 @@ float MeetingPlanner::calculateCateringCost(const Meeting& meeting) const {
 
     const float participantCount = static_cast<float>(meeting.getParticipants().size());
 
-    // Use case 3.7 is niet geïmplementeerd:
-    // daarom behandelen we alle deelnemers voorlopig als intern.
     return participantCount * kInternalCateringCostPerPerson;
 }
 
@@ -170,6 +165,8 @@ void MeetingPlanner::appendCateringDeliveryToFile(const Meeting& meeting,
     output << "----------------------------------------" << '\n';
 
     ENSURE(output.good(), "Catering delivery info moet correct weggeschreven zijn");
+
+    output.close();
 }
 
 bool MeetingPlanner::checkConsistency() {
@@ -206,7 +203,6 @@ bool MeetingPlanner::checkConsistency() {
         }
     }
 
-    // Appendix B: er is slechts één catering service per campus
     for (size_t i = 0; i < cateringProviders.size(); i++) {
         for (size_t j = i + 1; j < cateringProviders.size(); j++) {
             if (cateringProviders[i].getCampusIdentifier() ==
@@ -238,7 +234,6 @@ bool MeetingPlanner::checkConsistency() {
             continue;
         }
 
-        // Use case 3.4: online meetings hebben geen room nodig
         if (meeting.isOnline()) {
             continue;
         }
@@ -319,7 +314,6 @@ bool MeetingPlanner::processSingleMeeting(Meeting& meeting) {
     REQUIRE(meeting.isOnline() || !meeting.getRoomIdentifier().empty(),
             "Fysieke meeting moet een room identifier hebben");
 
-    // Use case 3.4: online meetings hebben geen room nodig
     if (meeting.isOnline()) {
         meeting.setOccupancyPercentage(0);
         meeting.setCateringCost(0.0f);
@@ -473,6 +467,7 @@ void MeetingPlanner::processMeetings() {
     if (cateringFile.is_open()) {
         cateringFile << "CATERING DELIVERIES" << '\n';
         cateringFile << "========================================" << '\n';
+        cateringFile.close();
     }
 
     for (auto& meeting : meetings) {

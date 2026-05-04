@@ -127,6 +127,7 @@ TEST(OutputWriterTest, EmptyFilenameIsRejected) {
             "Output filename mag niet leeg zijn"
     );
 }
+
 TEST(OutputWriterTest, WriteOutputShowsOnlineMeetingAndOccupancy) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
@@ -160,6 +161,7 @@ TEST(OutputWriterTest, WriteOutputShowsOnlineMeetingAndOccupancy) {
     EXPECT_NE(content.find("Room occupancy: 0%"), std::string::npos);
     EXPECT_NE(content.find("CO2 emitted: 0g"), std::string::npos);
 }
+
 TEST(OutputWriterTest, WriteOutputShowsCateringAndCO2Summary) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
@@ -192,4 +194,112 @@ TEST(OutputWriterTest, WriteOutputShowsCateringAndCO2Summary) {
     EXPECT_NE(content.find("- Catering"), std::string::npos);
     EXPECT_NE(content.find("--== CO2 summary ==--"), std::string::npos);
     EXPECT_NE(content.find("Total CO2 emitted"), std::string::npos);
+}
+
+// USE CASE 3.8 - OUTPUT OF CATERING COSTS
+
+TEST(OutputWriterTest, WriteOutputShowsMeetingCateringCost) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+    OutputWriter writer;
+
+    Room room("Vergaderzaal A", "A101", 10, "CDE", "CDE_A");
+    Meeting meeting("Lunch meeting", "M1", "A101", "2026-05-22");
+    CateringProvider provider("CDE", 20.0f);
+
+    meeting.setCatering(true);
+
+    planner.addRoom(room);
+    planner.addCateringProvider(provider);
+    planner.addMeeting(meeting);
+    planner.addParticipation("M1", "Alice");
+    planner.addParticipation("M1", "Bob");
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    const std::string filename = "test_output_catering_cost.txt";
+    writer.writeOutput(filename, planner);
+
+    std::ifstream input(filename.c_str());
+    ASSERT_TRUE(input.is_open());
+
+    std::stringstream buffer;
+    buffer << input.rdbuf();
+    std::string content = buffer.str();
+
+    EXPECT_NE(content.find("- Catering"), std::string::npos);
+    EXPECT_NE(content.find("- Catering cost: EUR 21.18"), std::string::npos);
+}
+
+TEST(OutputWriterTest, WriteOutputShowsTotalCateringCostSummary) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+    OutputWriter writer;
+
+    Room room1("Vergaderzaal A", "A101", 10, "CDE", "CDE_A");
+    Room room2("Vergaderzaal B", "B202", 10, "CDE", "CDE_B");
+    Meeting meeting1("Lunch meeting 1", "M1", "A101", "2026-05-22");
+    Meeting meeting2("Lunch meeting 2", "M2", "B202", "2026-05-22");
+    CateringProvider provider("CDE", 20.0f);
+
+    meeting1.setCatering(true);
+    meeting2.setCatering(true);
+
+    planner.addRoom(room1);
+    planner.addRoom(room2);
+    planner.addCateringProvider(provider);
+    planner.addMeeting(meeting1);
+    planner.addMeeting(meeting2);
+
+    planner.addParticipation("M1", "Alice");
+    planner.addParticipation("M2", "Bob");
+    planner.addParticipation("M2", "Charlie");
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    const std::string filename = "test_output_total_catering_cost.txt";
+    writer.writeOutput(filename, planner);
+
+    std::ifstream input(filename.c_str());
+    ASSERT_TRUE(input.is_open());
+
+    std::stringstream buffer;
+    buffer << input.rdbuf();
+    std::string content = buffer.str();
+
+    EXPECT_NE(content.find("- Total catering cost: EUR 31.77"), std::string::npos);
+}
+
+TEST(OutputWriterTest, WriteOutputShowsZeroTotalCateringCostWithoutCatering) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+    OutputWriter writer;
+
+    Room room("Vergaderzaal A", "A101", 10, "CDE", "CDE_A");
+    Meeting meeting("Gewone meeting", "M1", "A101", "2026-05-22");
+
+    planner.addRoom(room);
+    planner.addMeeting(meeting);
+    planner.addParticipation("M1", "Alice");
+
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    const std::string filename = "test_output_zero_catering_cost.txt";
+    writer.writeOutput(filename, planner);
+
+    std::ifstream input(filename.c_str());
+    ASSERT_TRUE(input.is_open());
+
+    std::stringstream buffer;
+    buffer << input.rdbuf();
+    std::string content = buffer.str();
+
+    EXPECT_NE(content.find("- No catering"), std::string::npos);
+    EXPECT_NE(content.find("- Total catering cost: EUR 0.00"), std::string::npos);
 }
