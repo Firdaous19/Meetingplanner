@@ -17,6 +17,13 @@ public:
      * Constructor van een cateringprovider.
      * @param campusIdentifier De identifier van de campus waarvoor catering beschikbaar is.
      * @param co2 De CO2-uitstoot van deze provider.
+     *
+     * REQUIRE(!campusIdentifier.empty(), "Campus identifier mag niet leeg zijn");
+     * REQUIRE(co2 > 0, "CO2 moet groter zijn dan 0");
+     * ENSURE(this->campusIdentifier == campusIdentifier,
+     *        "Campus identifier correct opgeslagen");
+     * ENSURE(this->co2 == co2,
+     *        "CO2 correct opgeslagen");
      */
     CateringProvider(const std::string& campusIdentifier,
                      float co2);

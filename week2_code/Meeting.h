@@ -20,6 +20,25 @@ public:
      * @param roomIdentifier De identifier van de gekoppelde room.
      *        Mag leeg zijn voor online meetings.
      * @param date De datum van de meeting.
+     *
+     * REQUIRE(!label.empty(), "Meeting label mag niet leeg zijn");
+     * REQUIRE(!identifier.empty(), "Meeting identifier mag niet leeg zijn");
+     * REQUIRE(!date.empty(), "Meeting date mag niet leeg zijn");
+     * REQUIRE(isValidDateFormat(date), "Meeting date moet formaat YYYY-MM-DD hebben");
+     * ENSURE(this->label == label, "Meeting label correct opgeslagen");
+     * ENSURE(this->identifier == identifier, "Meeting identifier correct opgeslagen");
+     * ENSURE(this->roomIdentifier == roomIdentifier, "Meeting room identifier correct opgeslagen");
+     * ENSURE(this->date == date, "Meeting date correct opgeslagen");
+     * ENSURE(!online, "Nieuwe meeting is standaard niet online");
+     * ENSURE(!catering, "Nieuwe meeting heeft standaard geen catering");
+     * ENSURE(!(online && catering),
+     *        "Nieuwe meeting mag niet tegelijk online en catering hebben");
+     * ENSURE(this->co2Emission == 0.0f,
+     *        "Nieuwe meeting heeft standaard 0 CO2-uitstoot");
+     * ENSURE(this->occupancyPercentage == 0,
+     *        "Nieuwe meeting heeft standaard 0% occupancy");
+     * ENSURE(this->cateringCost == 0.0f,
+     *        "Nieuwe meeting heeft standaard 0 cateringkost");
      */
     Meeting(const std::string& label,
             const std::string& identifier,
@@ -41,6 +60,9 @@ public:
     /**
      * Voeg een deelnemer toe aan deze meeting.
      * @param user Naam van de deelnemer.
+     *
+     * REQUIRE(!user.empty(), "Participant name mag niet leeg zijn");
+     * ENSURE(participants.size() == oldSize + 1, "Participant moet toegevoegd zijn");
      */
     void addParticipant(const std::string& user);
 
@@ -68,6 +90,8 @@ public:
     /**
      * Stel in of externen toegelaten zijn.
      * @param value true als externen toegelaten zijn.
+     *
+     * ENSURE(externalsAllowed == value, "Externals allowed flag correct opgeslagen");
      */
     void setExternalsAllowed(bool value) {
         externalsAllowed = value;
@@ -77,6 +101,12 @@ public:
     /**
      * Stel in of de meeting catering nodig heeft.
      * @param value true als catering nodig is.
+     *
+     * REQUIRE(!(online && value),
+     *         "Online meeting mag geen catering hebben");
+     * ENSURE(catering == value, "Catering flag correct opgeslagen");
+     * ENSURE(!(online && catering),
+     *        "Meeting mag niet tegelijk online en catering hebben");
      */
     void setCatering(bool value) {
         REQUIRE(!(online && value),
@@ -92,6 +122,12 @@ public:
     /**
      * Stel in of de meeting online plaatsvindt.
      * @param value true als de meeting online is.
+     *
+     * REQUIRE(!(value && catering),
+     *         "Online meeting mag geen catering hebben");
+     * ENSURE(online == value, "Online flag correct opgeslagen");
+     * ENSURE(!(online && catering),
+     *        "Meeting mag niet tegelijk online en catering hebben");
      */
     void setOnline(bool value) {
         REQUIRE(!(value && catering),
@@ -107,6 +143,9 @@ public:
     /**
      * Stel de CO2-uitstoot van de meeting in.
      * @param value CO2-uitstoot in gram.
+     *
+     * REQUIRE(value >= 0, "CO2 emission mag niet negatief zijn");
+     * ENSURE(co2Emission == value, "CO2 emission correct opgeslagen");
      */
     void setCO2Emission(float value) {
         REQUIRE(value >= 0, "CO2 emission mag niet negatief zijn");
@@ -119,6 +158,11 @@ public:
     /**
      * Stel het bezettingspercentage van de room in voor deze meeting.
      * @param percentage Percentage tussen 0 en 100.
+     *
+     * REQUIRE(percentage >= 0 && percentage <= 100,
+     *         "Occupancy percentage moet tussen 0 en 100 liggen");
+     * ENSURE(occupancyPercentage == percentage,
+     *        "Occupancy percentage correct opgeslagen");
      */
     void setOccupancyPercentage(int percentage) {
         REQUIRE(percentage >= 0 && percentage <= 100,
@@ -133,6 +177,9 @@ public:
     /**
      * Stel de cateringkost van de meeting in.
      * @param value Cateringkost in euro.
+     *
+     * REQUIRE(value >= 0, "Catering cost mag niet negatief zijn");
+     * ENSURE(cateringCost == value, "Catering cost correct opgeslagen");
      */
     void setCateringCost(float value) {
         REQUIRE(value >= 0, "Catering cost mag niet negatief zijn");

@@ -17,6 +17,11 @@ public:
      * Constructor van een campus.
      * @param name De naam van de campus.
      * @param identifier De unieke identifier van de campus.
+     *
+     * REQUIRE(!name.empty(), "Campus name mag niet leeg zijn");
+     * REQUIRE(!identifier.empty(), "Campus identifier mag niet leeg zijn");
+     * ENSURE(this->name == name, "Campus name correct opgeslagen");
+     * ENSURE(this->identifier == identifier, "Campus identifier correct opgeslagen");
      */
     Campus(const std::string& name,
            const std::string& identifier);

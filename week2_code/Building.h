@@ -19,6 +19,13 @@ public:
      * @param name De naam van het gebouw.
      * @param identifier De unieke identifier van het gebouw.
      * @param campusIdentifier De identifier van de gekoppelde campus.
+     *
+     * \n REQUIRE(!name.empty(), "Building name mag niet leeg zijn");
+     * \n REQUIRE(!identifier.empty(), "Building identifier mag niet leeg zijn");
+     * \n REQUIRE(!campusIdentifier.empty(), "Campus identifier mag niet leeg zijn");
+     * \n ENSURE(this->name == name, "Building name correct opgeslagen");
+     * \n ENSURE(this->identifier == identifier, "Building identifier correct opgeslagen");
+     * \n ENSURE(this->campusIdentifier == campusIdentifier, "Campus identifier correct opgeslagen");
      */
     Building(const std::string& name,
              const std::string& identifier,

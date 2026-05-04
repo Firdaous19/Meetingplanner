@@ -1,0 +1,44 @@
+<SYSTEM>
+    <CAMPUS>
+        <NAME>Campus Drie Eiken</NAME>
+        <IDENTIFIER>Campus_CDE</IDENTIFIER>
+    </CAMPUS>
+
+    <BUILDING>
+        <NAME>Gebouw R</NAME>
+        <IDENTIFIER>CDE_R</IDENTIFIER>
+        <CAMPUS>Campus_CDE</CAMPUS>
+    </BUILDING>
+
+    <CATERING>
+        <CAMPUS>Campus_CDE</CAMPUS>
+        <CO2>20.0</CO2>
+    </CATERING>
+
+    <CATERING>
+        <CAMPUS>Campus_CDE</CAMPUS>
+        <CO2>30.0</CO2>
+    </CATERING>
+
+    <ROOM>
+        <NAME>R.014</NAME>
+        <IDENTIFIER>Room123</IDENTIFIER>
+        <CAPACITY>10</CAPACITY>
+        <CAMPUS>Campus_CDE</CAMPUS>
+        <BUILDING>CDE_R</BUILDING>
+    </ROOM>
+
+    <MEETING>
+        <LABEL>Lunch meeting</LABEL>
+        <IDENTIFIER>Meeting123</IDENTIFIER>
+        <ROOM>Room123</ROOM>
+        <DATE>2026-05-22</DATE>
+        <ONLINE>false</ONLINE>
+        <CATERING>TRUE</CATERING>
+    </MEETING>
+
+    <PARTICIPATION>
+        <MEETING>Meeting123</MEETING>
+        <USER>Alice</USER>
+    </PARTICIPATION>
+</SYSTEM>
