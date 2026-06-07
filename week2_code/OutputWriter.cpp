@@ -1,4 +1,5 @@
 #include "OutputWriter.h"
+#include "DesignByContract.h"
 #include <fstream>
 #include <iostream>
 #include <iomanip>

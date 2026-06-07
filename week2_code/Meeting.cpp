@@ -1,4 +1,5 @@
 #include "Meeting.h"
+#include "DesignByContract.h"
 #include <cctype>
 
 /**
@@ -52,8 +53,6 @@ Meeting::Meeting(const std::string& label,
     REQUIRE(!date.empty(), "Meeting date mag niet leeg zijn");
     REQUIRE(isValidDateFormat(date), "Meeting date moet formaat YYYY-MM-DD hebben");
 
-    // roomIdentifier mag leeg zijn voor online meetings (use case 3.4)
-
     ENSURE(this->label == label, "Meeting label correct opgeslagen");
     ENSURE(this->identifier == identifier, "Meeting identifier correct opgeslagen");
     ENSURE(this->roomIdentifier == roomIdentifier, "Meeting room identifier correct opgeslagen");
@@ -77,4 +76,58 @@ void Meeting::addParticipant(const std::string& user) {
     participants.push_back(user);
 
     ENSURE(participants.size() == oldSize + 1, "Participant moet toegevoegd zijn");
+}
+
+void Meeting::setExternalsAllowed(bool value) {
+    externalsAllowed = value;
+
+    ENSURE(externalsAllowed == value, "Externals allowed flag correct opgeslagen");
+}
+
+void Meeting::setCatering(bool value) {
+    REQUIRE(!(online && value),
+            "Online meeting mag geen catering hebben");
+
+    catering = value;
+
+    ENSURE(catering == value, "Catering flag correct opgeslagen");
+    ENSURE(!(online && catering),
+           "Meeting mag niet tegelijk online en catering hebben");
+}
+
+void Meeting::setOnline(bool value) {
+    REQUIRE(!(value && catering),
+            "Online meeting mag geen catering hebben");
+
+    online = value;
+
+    ENSURE(online == value, "Online flag correct opgeslagen");
+    ENSURE(!(online && catering),
+           "Meeting mag niet tegelijk online en catering hebben");
+}
+
+void Meeting::setCO2Emission(float value) {
+    REQUIRE(value >= 0, "CO2 emission mag niet negatief zijn");
+
+    co2Emission = value;
+
+    ENSURE(co2Emission == value, "CO2 emission correct opgeslagen");
+}
+
+void Meeting::setOccupancyPercentage(int percentage) {
+    REQUIRE(percentage >= 0 && percentage <= 100,
+            "Occupancy percentage moet tussen 0 en 100 liggen");
+
+    occupancyPercentage = percentage;
+
+    ENSURE(occupancyPercentage == percentage,
+           "Occupancy percentage correct opgeslagen");
+}
+
+void Meeting::setCateringCost(float value) {
+    REQUIRE(value >= 0, "Catering cost mag niet negatief zijn");
+
+    cateringCost = value;
+
+    ENSURE(cateringCost == value, "Catering cost correct opgeslagen");
 }

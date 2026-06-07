@@ -2,6 +2,7 @@
 // Created by firdi on 21/04/2026.
 //
 #include "XMLParser.h"
+#include "DesignByContract.h"
 #include <iostream>
 #include <string>
 #include "tinyxml/tinyxml.h"

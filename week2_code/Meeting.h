@@ -3,7 +3,6 @@
 
 #include <string>
 #include <vector>
-#include "DesignByContract.h"
 
 /**
  * Stelt een meeting voor in het systeem.
@@ -93,10 +92,7 @@ public:
      *
      * ENSURE(externalsAllowed == value, "Externals allowed flag correct opgeslagen");
      */
-    void setExternalsAllowed(bool value) {
-        externalsAllowed = value;
-        ENSURE(externalsAllowed == value, "Externals allowed flag correct opgeslagen");
-    }
+    void setExternalsAllowed(bool value);
 
     /**
      * Stel in of de meeting catering nodig heeft.
@@ -108,16 +104,7 @@ public:
      * ENSURE(!(online && catering),
      *        "Meeting mag niet tegelijk online en catering hebben");
      */
-    void setCatering(bool value) {
-        REQUIRE(!(online && value),
-                "Online meeting mag geen catering hebben");
-
-        catering = value;
-
-        ENSURE(catering == value, "Catering flag correct opgeslagen");
-        ENSURE(!(online && catering),
-               "Meeting mag niet tegelijk online en catering hebben");
-    }
+    void setCatering(bool value);
 
     /**
      * Stel in of de meeting online plaatsvindt.
@@ -129,16 +116,7 @@ public:
      * ENSURE(!(online && catering),
      *        "Meeting mag niet tegelijk online en catering hebben");
      */
-    void setOnline(bool value) {
-        REQUIRE(!(value && catering),
-                "Online meeting mag geen catering hebben");
-
-        online = value;
-
-        ENSURE(online == value, "Online flag correct opgeslagen");
-        ENSURE(!(online && catering),
-               "Meeting mag niet tegelijk online en catering hebben");
-    }
+    void setOnline(bool value);
 
     /**
      * Stel de CO2-uitstoot van de meeting in.
@@ -147,13 +125,7 @@ public:
      * REQUIRE(value >= 0, "CO2 emission mag niet negatief zijn");
      * ENSURE(co2Emission == value, "CO2 emission correct opgeslagen");
      */
-    void setCO2Emission(float value) {
-        REQUIRE(value >= 0, "CO2 emission mag niet negatief zijn");
-
-        co2Emission = value;
-
-        ENSURE(co2Emission == value, "CO2 emission correct opgeslagen");
-    }
+    void setCO2Emission(float value);
 
     /**
      * Stel het bezettingspercentage van de room in voor deze meeting.
@@ -164,15 +136,7 @@ public:
      * ENSURE(occupancyPercentage == percentage,
      *        "Occupancy percentage correct opgeslagen");
      */
-    void setOccupancyPercentage(int percentage) {
-        REQUIRE(percentage >= 0 && percentage <= 100,
-                "Occupancy percentage moet tussen 0 en 100 liggen");
-
-        occupancyPercentage = percentage;
-
-        ENSURE(occupancyPercentage == percentage,
-               "Occupancy percentage correct opgeslagen");
-    }
+    void setOccupancyPercentage(int percentage);
 
     /**
      * Stel de cateringkost van de meeting in.
@@ -181,13 +145,7 @@ public:
      * REQUIRE(value >= 0, "Catering cost mag niet negatief zijn");
      * ENSURE(cateringCost == value, "Catering cost correct opgeslagen");
      */
-    void setCateringCost(float value) {
-        REQUIRE(value >= 0, "Catering cost mag niet negatief zijn");
-
-        cateringCost = value;
-
-        ENSURE(cateringCost == value, "Catering cost correct opgeslagen");
-    }
+    void setCateringCost(float value);
 
 private:
     std::string label;
