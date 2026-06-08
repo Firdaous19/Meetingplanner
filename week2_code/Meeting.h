@@ -3,12 +3,16 @@
 
 #include <string>
 #include <vector>
+#include <cstddef>
 
 /**
  * Stelt een meeting voor in het systeem.
  * Een meeting heeft een label, identifier, gekoppelde room,
  * datum, een lijst van deelnemers, en houdt ook CO2-uitstoot
  * en cateringkost bij.
+ *
+ * Vanaf use case 3.7 wordt per deelnemer ook bijgehouden
+ * of die intern of extern is.
  */
 class Meeting {
 public:
@@ -38,6 +42,9 @@ public:
      *        "Nieuwe meeting heeft standaard 0% occupancy");
      * ENSURE(this->cateringCost == 0.0f,
      *        "Nieuwe meeting heeft standaard 0 cateringkost");
+     * ENSURE(this->participants.empty(), "Nieuwe meeting heeft standaard geen deelnemers");
+     * ENSURE(this->externalParticipants.empty(),
+     *        "Nieuwe meeting heeft standaard geen external participant flags");
      */
     Meeting(const std::string& label,
             const std::string& identifier,
@@ -57,16 +64,57 @@ public:
     std::string getDate() const { return date; }
 
     /**
-     * Voeg een deelnemer toe aan deze meeting.
+     * Voeg een interne deelnemer toe aan deze meeting.
+     * Deze functie blijft bestaan zodat oude code en oude testen blijven werken.
      * @param user Naam van de deelnemer.
      *
      * REQUIRE(!user.empty(), "Participant name mag niet leeg zijn");
      * ENSURE(participants.size() == oldSize + 1, "Participant moet toegevoegd zijn");
+     * ENSURE(externalParticipants.size() == participants.size(),
+     *        "Voor elke participant moet een external flag bestaan");
+     * ENSURE(!externalParticipants.back(),
+     *        "addParticipant zonder external parameter voegt interne participant toe");
      */
     void addParticipant(const std::string& user);
 
+    /**
+     * Voeg een deelnemer toe aan deze meeting.
+     * @param user Naam van de deelnemer.
+     * @param external true als de deelnemer extern is.
+     *
+     * REQUIRE(!user.empty(), "Participant name mag niet leeg zijn");
+     * ENSURE(participants.size() == oldSize + 1, "Participant moet toegevoegd zijn");
+     * ENSURE(externalParticipants.size() == participants.size(),
+     *        "Voor elke participant moet een external flag bestaan");
+     * ENSURE(externalParticipants.back() == external,
+     *        "External participant flag moet correct opgeslagen zijn");
+     */
+    void addParticipant(const std::string& user, bool external);
+
     /** @return Alle deelnemers van deze meeting. */
     const std::vector<std::string>& getParticipants() const { return participants; }
+
+    /**
+     * Geef terug of een participant extern is.
+     * @param index Index van de participant.
+     * @return true als deze participant extern is.
+     *
+     * REQUIRE(index < externalParticipants.size(),
+     *         "Participant index moet geldig zijn");
+     */
+    bool isParticipantExternal(std::size_t index) const;
+
+    /** @return Aantal interne deelnemers. */
+    int getInternalParticipantCount() const;
+
+    /** @return Aantal externe deelnemers. */
+    int getExternalParticipantCount() const;
+
+    /** @return true als er minstens één interne deelnemer is. */
+    bool hasInternalParticipants() const;
+
+    /** @return true als er minstens één externe deelnemer is. */
+    bool hasExternalParticipants() const;
 
     /** @return true als externen toegelaten zijn. */
     bool areExternalsAllowed() const { return externalsAllowed; }
@@ -152,7 +200,9 @@ private:
     std::string identifier;
     std::string roomIdentifier;
     std::string date;
+
     std::vector<std::string> participants;
+    std::vector<bool> externalParticipants;
 
     bool externalsAllowed = false;
     bool catering = false;
