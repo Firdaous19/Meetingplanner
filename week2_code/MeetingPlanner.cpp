@@ -35,7 +35,7 @@ void MeetingPlanner::addMeeting(const Meeting& meeting) {
 bool MeetingPlanner::addParticipation(const std::string& meetingId,
                                       const std::string& user) {
     return addParticipation(meetingId, user, false);
-}alles groen
+}
 bool MeetingPlanner::addParticipation(const std::string& meetingId,
                                       const std::string& user,
                                       bool external) {

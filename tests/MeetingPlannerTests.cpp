@@ -873,3 +873,17 @@ TEST(MeetingPlannerTest, ProcessMeetingWithCateringWritesDeliveryFile) {
 
     std::remove("catering_deliveries.txt");
 }
+TEST(MeetingPlannerTest, ExternalParticipantIsRejectedWhenExternalsAreNotAllowed) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Meeting meeting("Meeting zonder externen", "M1", "A101", "2026-05-22");
+    meeting.setExternalsAllowed(false);
+
+    planner.addMeeting(meeting);
+
+    bool result = planner.addParticipation("M1", "External User", true);
+
+    EXPECT_FALSE(result);
+    EXPECT_EQ(planner.getMeetings()[0].getParticipants().size(), 0);
+}
