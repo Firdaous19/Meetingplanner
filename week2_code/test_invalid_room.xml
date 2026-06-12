@@ -1,0 +1,9 @@
+<SYSTEM>
+    <ROOM>
+        <NAME></NAME>
+        <IDENTIFIER>A101</IDENTIFIER>
+        <CAPACITY>5</CAPACITY>
+        <CAMPUS>CDE</CAMPUS>
+        <BUILDING>CDE_A</BUILDING>
+    </ROOM>
+</SYSTEM>

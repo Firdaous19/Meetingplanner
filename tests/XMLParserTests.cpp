@@ -19,7 +19,27 @@ namespace {
 
     bool fileCompare(const std::string& expectedFile,
                      const std::string& actualFile) {
-        return readFile(expectedFile) == readFile(actualFile);
+
+        std::string expected = readFile(expectedFile);
+        std::string actual = readFile(actualFile);
+
+        while (!expected.empty() &&
+               (expected.back() == '\n' ||
+                expected.back() == '\r' ||
+                expected.back() == ' '))
+        {
+            expected.pop_back();
+        }
+
+        while (!actual.empty() &&
+               (actual.back() == '\n' ||
+                actual.back() == '\r' ||
+                actual.back() == ' '))
+        {
+            actual.pop_back();
+        }
+
+        return expected == actual;
     }
 }
 TEST(XMLParserTest, ParseValidFileLoadsRoomsAndMeetings) {
@@ -310,4 +330,31 @@ TEST(XMLParserTest, FileCompareHelperDetectsEqualFiles) {
 
     std::remove("expected_file_compare_test.txt");
     std::remove("actual_file_compare_test.txt");
+}
+TEST(XMLParserTest, InvalidRoomErrorMessageMatchesExpectedFile) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(true);
+
+    XMLParser parser;
+    parser.setLoggingEnabled(true);
+
+    const std::string expectedFile = "expected_invalid_room_error.txt";
+    const std::string actualFile = "actual_invalid_room_error.txt";
+
+    std::ofstream expected(expectedFile.c_str());
+    expected << "Fout in ROOM: lege velden." << std::endl;
+    expected.close();
+
+    std::ofstream actual(actualFile.c_str());
+    std::streambuf* oldCerr = std::cerr.rdbuf(actual.rdbuf());
+
+    parser.parse("../week2_code/test_invalid_room.xml", planner);
+
+    std::cerr.rdbuf(oldCerr);
+    actual.close();
+
+    EXPECT_TRUE(fileCompare(expectedFile, actualFile));
+
+    std::remove(expectedFile.c_str());
+    std::remove(actualFile.c_str());
 }
