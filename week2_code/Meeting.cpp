@@ -70,12 +70,7 @@ Meeting::Meeting(const std::string& label,
 }
 
 void Meeting::addParticipant(const std::string& user) {
-    REQUIRE(!user.empty(), "Participant name mag niet leeg zijn");
-
-    size_t oldSize = participants.size();
-    participants.push_back(user);
-
-    ENSURE(participants.size() == oldSize + 1, "Participant moet toegevoegd zijn");
+    addParticipant(user, false);
 }
 
 void Meeting::setExternalsAllowed(bool value) {
