@@ -50,7 +50,9 @@ public:
      *        "Participant moet toegevoegd zijn aan meeting");
      */
     bool addParticipation(const std::string& meetingId, const std::string& user);
-
+    bool addParticipation(const std::string& meetingId,
+                          const std::string& user,
+                          bool external);
     /**
      * Controleer de algemene consistentie van het systeem.
      * @return true indien systeem consistent is.

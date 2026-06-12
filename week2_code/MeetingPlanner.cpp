@@ -32,18 +32,28 @@ void MeetingPlanner::addMeeting(const Meeting& meeting) {
 
     ENSURE(meetings.size() == oldSize + 1, "Meeting moet toegevoegd zijn");
 }
-
-bool MeetingPlanner::addParticipation(const std::string& meetingId, const std::string& user) {
+bool MeetingPlanner::addParticipation(const std::string& meetingId,
+                                      const std::string& user) {
+    return addParticipation(meetingId, user, false);
+}alles groen
+bool MeetingPlanner::addParticipation(const std::string& meetingId,
+                                      const std::string& user,
+                                      bool external) {
     REQUIRE(!meetingId.empty(), "Meeting ID mag niet leeg zijn");
     REQUIRE(!user.empty(), "User mag niet leeg zijn");
 
     for (auto& meeting : meetings) {
         if (meeting.getIdentifier() == meetingId) {
+            if (external && !meeting.areExternalsAllowed()) {
+                return false;
+            }
+
             size_t oldSize = meeting.getParticipants().size();
-            meeting.addParticipant(user);
+            meeting.addParticipant(user, external);
 
             ENSURE(meeting.getParticipants().size() == oldSize + 1,
                    "Participant moet toegevoegd zijn aan meeting");
+
             return true;
         }
     }

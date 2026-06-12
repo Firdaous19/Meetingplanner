@@ -131,3 +131,18 @@ void Meeting::setCateringCost(float value) {
 
     ENSURE(cateringCost == value, "Catering cost correct opgeslagen");
 }
+void Meeting::addParticipant(const std::string& user, bool external) {
+    REQUIRE(!user.empty(), "Participant name mag niet leeg zijn");
+
+    size_t oldSize = participants.size();
+
+    participants.push_back(user);
+    externalParticipants.push_back(external);
+
+    ENSURE(participants.size() == oldSize + 1,
+           "Participant moet toegevoegd zijn");
+    ENSURE(externalParticipants.size() == participants.size(),
+           "Voor elke participant moet een external flag bestaan");
+    ENSURE(externalParticipants.back() == external,
+           "External participant flag moet correct opgeslagen zijn");
+}
