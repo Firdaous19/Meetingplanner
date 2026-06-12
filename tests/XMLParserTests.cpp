@@ -4,7 +4,44 @@
 #include "gtest/gtest.h"
 #include "week2_code/XMLParser.h"
 #include "week2_code/MeetingPlanner.h"
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <cstdio>
 
+namespace {
+    std::string readFile(const std::string& filename) {
+        std::ifstream input(filename.c_str());
+        std::stringstream buffer;
+        buffer << input.rdbuf();
+        return buffer.str();
+    }
+
+    bool fileCompare(const std::string& expectedFile,
+                     const std::string& actualFile) {
+
+        std::string expected = readFile(expectedFile);
+        std::string actual = readFile(actualFile);
+
+        while (!expected.empty() &&
+               (expected.back() == '\n' ||
+                expected.back() == '\r' ||
+                expected.back() == ' '))
+        {
+            expected.pop_back();
+        }
+
+        while (!actual.empty() &&
+               (actual.back() == '\n' ||
+                actual.back() == '\r' ||
+                actual.back() == ' '))
+        {
+            actual.pop_back();
+        }
+
+        return expected == actual;
+    }
+}
 TEST(XMLParserTest, ParseValidFileLoadsRoomsAndMeetings) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
@@ -259,4 +296,65 @@ TEST(XMLParserTest, ParseMeetingHourAndExternalsCorrectly) {
     EXPECT_EQ(planner.getMeetings()[0].getIdentifier(), "M1");
     EXPECT_FALSE(planner.getMeetings()[0].isOnline());
     EXPECT_TRUE(planner.getMeetings()[0].areExternalsAllowed());
+}
+TEST(XMLParserTest, ParseExternalParticipationCorrectly) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    XMLParser parser;
+    parser.setLoggingEnabled(false);
+
+    bool success = parser.parse("../week2_code/test_external_participation.xml", planner);
+
+    EXPECT_TRUE(success);
+
+    ASSERT_EQ(planner.getMeetings().size(), 1);
+    ASSERT_EQ(planner.getMeetings()[0].getParticipants().size(), 1);
+
+    EXPECT_EQ(planner.getMeetings()[0].getParticipants()[0], "External User");
+    EXPECT_TRUE(planner.getMeetings()[0].isParticipantExternal(0));
+    EXPECT_EQ(planner.getMeetings()[0].getExternalParticipantCount(), 1);
+    EXPECT_EQ(planner.getMeetings()[0].getInternalParticipantCount(), 0);
+}
+TEST(XMLParserTest, FileCompareHelperDetectsEqualFiles) {
+    std::ofstream expected("expected_file_compare_test.txt");
+    expected << "Fout in ROOM: ontbrekende velden.\n";
+    expected.close();
+
+    std::ofstream actual("actual_file_compare_test.txt");
+    actual << "Fout in ROOM: ontbrekende velden.\n";
+    actual.close();
+
+    EXPECT_TRUE(fileCompare("expected_file_compare_test.txt",
+                            "actual_file_compare_test.txt"));
+
+    std::remove("expected_file_compare_test.txt");
+    std::remove("actual_file_compare_test.txt");
+}
+TEST(XMLParserTest, InvalidRoomErrorMessageMatchesExpectedFile) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(true);
+
+    XMLParser parser;
+    parser.setLoggingEnabled(true);
+
+    const std::string expectedFile = "expected_invalid_room_error.txt";
+    const std::string actualFile = "actual_invalid_room_error.txt";
+
+    std::ofstream expected(expectedFile.c_str());
+    expected << "Fout in ROOM: lege velden." << std::endl;
+    expected.close();
+
+    std::ofstream actual(actualFile.c_str());
+    std::streambuf* oldCerr = std::cerr.rdbuf(actual.rdbuf());
+
+    parser.parse("../week2_code/test_invalid_room.xml", planner);
+
+    std::cerr.rdbuf(oldCerr);
+    actual.close();
+
+    EXPECT_TRUE(fileCompare(expectedFile, actualFile));
+
+    std::remove(expectedFile.c_str());
+    std::remove(actualFile.c_str());
 }

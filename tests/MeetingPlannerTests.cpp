@@ -873,3 +873,39 @@ TEST(MeetingPlannerTest, ProcessMeetingWithCateringWritesDeliveryFile) {
 
     std::remove("catering_deliveries.txt");
 }
+// USE CASE 3.7 - EXTERNAL PARTICIPANTS
+TEST(MeetingPlannerTest, ExternalParticipantIsRejectedWhenExternalsAreNotAllowed) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Meeting meeting("Meeting zonder externen", "M1", "A101", "2026-05-22");
+    meeting.setExternalsAllowed(false);
+
+    planner.addMeeting(meeting);
+
+    bool result = planner.addParticipation("M1", "External User", true);
+
+    EXPECT_FALSE(result);
+    EXPECT_EQ(planner.getMeetings()[0].getParticipants().size(), 0);
+}
+TEST(MeetingPlannerTest, ExternalParticipantIsAcceptedWhenExternalsAreAllowed) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    Meeting meeting("Meeting met externen", "M1", "A101", "2026-05-22");
+    meeting.setExternalsAllowed(true);
+
+    planner.addMeeting(meeting);
+
+    bool result = planner.addParticipation("M1", "External User", true);
+
+    EXPECT_TRUE(result);
+    ASSERT_EQ(planner.getMeetings()[0].getParticipants().size(), 1);
+    EXPECT_EQ(planner.getMeetings()[0].getParticipants()[0], "External User");
+    EXPECT_TRUE(planner.getMeetings()[0].isParticipantExternal(0));
+    EXPECT_EQ(planner.getMeetings()[0].getExternalParticipantCount(), 1);
+    EXPECT_EQ(planner.getMeetings()[0].getInternalParticipantCount(), 0);
+
+    EXPECT_TRUE(planner.getMeetings()[0].hasExternalParticipants());
+    EXPECT_FALSE(planner.getMeetings()[0].hasInternalParticipants());
+}

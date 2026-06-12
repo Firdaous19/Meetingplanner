@@ -1,0 +1,42 @@
+<SYSTEM>
+    <CAMPUS>
+        <NAME>Campus Drie Eiken</NAME>
+        <IDENTIFIER>Campus_CDE</IDENTIFIER>
+    </CAMPUS>
+
+    <BUILDING>
+        <NAME>Gebouw A</NAME>
+        <IDENTIFIER>Building_A</IDENTIFIER>
+        <CAMPUS>Campus_CDE</CAMPUS>
+    </BUILDING>
+
+    <ROOM>
+        <NAME>Vergaderzaal A</NAME>
+        <IDENTIFIER>A101</IDENTIFIER>
+        <CAPACITY>10</CAPACITY>
+        <CAMPUS>Campus_CDE</CAMPUS>
+        <BUILDING>Building_A</BUILDING>
+    </ROOM>
+
+    <MEETING>
+        <LABEL>Meeting met externals</LABEL>
+        <IDENTIFIER>M1</IDENTIFIER>
+        <ROOM>A101</ROOM>
+        <DATE>2026-05-22</DATE>
+        <ONLINE>FALSE</ONLINE>
+        <EXTERNALS>TRUE</EXTERNALS>
+        <CATERING>FALSE</CATERING>
+    </MEETING>
+
+    <PARTICIPATION>
+        <MEETING>M1</MEETING>
+        <USER>Alice</USER>
+        <EXTERNAL>FALSE</EXTERNAL>
+    </PARTICIPATION>
+
+    <PARTICIPATION>
+        <MEETING>M1</MEETING>
+        <USER>Bob External</USER>
+        <EXTERNAL>TRUE</EXTERNAL>
+    </PARTICIPATION>
+</SYSTEM>

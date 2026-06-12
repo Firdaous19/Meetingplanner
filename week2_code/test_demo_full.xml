@@ -1,0 +1,122 @@
+<SYSTEM>
+
+    <!-- CAMPUS -->
+    <CAMPUS>
+        <NAME>Campus Drie Eiken</NAME>
+        <IDENTIFIER>CDE</IDENTIFIER>
+    </CAMPUS>
+
+    <!-- BUILDING -->
+    <BUILDING>
+        <NAME>Gebouw A</NAME>
+        <IDENTIFIER>CDE_A</IDENTIFIER>
+        <CAMPUS>CDE</CAMPUS>
+    </BUILDING>
+
+    <!-- ROOMS -->
+    <ROOM>
+        <NAME>Vergaderzaal A</NAME>
+        <IDENTIFIER>A101</IDENTIFIER>
+        <CAPACITY>5</CAPACITY>
+        <CAMPUS>CDE</CAMPUS>
+        <BUILDING>CDE_A</BUILDING>
+    </ROOM>
+
+    <ROOM>
+        <NAME>Vergaderzaal B</NAME>
+        <IDENTIFIER>B101</IDENTIFIER>
+        <CAPACITY>10</CAPACITY>
+        <CAMPUS>CDE</CAMPUS>
+        <BUILDING>CDE_A</BUILDING>
+    </ROOM>
+
+    <!-- CATERING PROVIDER -->
+    <CATERING>
+        <CAMPUS>CDE</CAMPUS>
+        <CO2>40</CO2>
+    </CATERING>
+
+    <!-- RENOVATION -->
+    <RENOVATION>
+        <ROOM>B101</ROOM>
+        <START>2026-03-20</START>
+        <END>2026-03-25</END>
+    </RENOVATION>
+
+    <!-- PHYSICAL MEETING -->
+    <MEETING>
+        <LABEL>Team Meeting</LABEL>
+        <IDENTIFIER>M1</IDENTIFIER>
+        <ROOM>A101</ROOM>
+        <DATE>2026-03-20</DATE>
+        <ONLINE>FALSE</ONLINE>
+        <EXTERNALS>FALSE</EXTERNALS>
+        <CATERING>FALSE</CATERING>
+    </MEETING>
+
+    <!-- ONLINE MEETING -->
+    <MEETING>
+        <LABEL>Online Sync</LABEL>
+        <IDENTIFIER>M2</IDENTIFIER>
+        <DATE>2026-03-20</DATE>
+        <ONLINE>TRUE</ONLINE>
+        <EXTERNALS>FALSE</EXTERNALS>
+        <CATERING>FALSE</CATERING>
+    </MEETING>
+
+    <!-- CATERING + EXTERNALS -->
+    <MEETING>
+        <LABEL>Business Lunch</LABEL>
+        <IDENTIFIER>M3</IDENTIFIER>
+        <ROOM>A101</ROOM>
+        <DATE>2026-03-21</DATE>
+        <ONLINE>FALSE</ONLINE>
+        <EXTERNALS>TRUE</EXTERNALS>
+        <CATERING>TRUE</CATERING>
+    </MEETING>
+
+    <!-- RENOVATION CONFLICT -->
+    <MEETING>
+        <LABEL>Renovation Meeting</LABEL>
+        <IDENTIFIER>M4</IDENTIFIER>
+        <ROOM>B101</ROOM>
+        <DATE>2026-03-22</DATE>
+        <ONLINE>FALSE</ONLINE>
+        <EXTERNALS>FALSE</EXTERNALS>
+        <CATERING>FALSE</CATERING>
+    </MEETING>
+
+    <!-- PARTICIPANTS -->
+
+    <PARTICIPATION>
+        <MEETING>M1</MEETING>
+        <USER>Alice</USER>
+    </PARTICIPATION>
+
+    <PARTICIPATION>
+        <MEETING>M1</MEETING>
+        <USER>Bob</USER>
+    </PARTICIPATION>
+
+    <PARTICIPATION>
+        <MEETING>M2</MEETING>
+        <USER>Charlie</USER>
+    </PARTICIPATION>
+
+    <PARTICIPATION>
+        <MEETING>M3</MEETING>
+        <USER>David</USER>
+    </PARTICIPATION>
+
+    <PARTICIPATION>
+        <MEETING>M3</MEETING>
+        <USER>ExternalGuest</USER>
+        <EXTERNAL>TRUE</EXTERNAL>
+    </PARTICIPATION>
+
+    <PARTICIPATION>
+        <MEETING>M4</MEETING>
+        <USER>Eve</USER>
+    </PARTICIPATION>
+
+</SYSTEM>

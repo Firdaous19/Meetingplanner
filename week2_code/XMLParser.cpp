@@ -2,6 +2,7 @@
 // Created by firdi on 21/04/2026.
 //
 #include "XMLParser.h"
+#include "DesignByContract.h"
 #include <iostream>
 #include <string>
 #include "tinyxml/tinyxml.h"
@@ -341,6 +342,7 @@ bool XMLParser::parse(const std::string& filename, MeetingPlanner& planner) cons
         else if (elementName == "PARTICIPATION") {
             TiXmlElement* meetingElem = elem->FirstChildElement("MEETING");
             TiXmlElement* userElem = elem->FirstChildElement("USER");
+            TiXmlElement* externalElem = elem->FirstChildElement("EXTERNAL");
 
             if (meetingElem == nullptr || userElem == nullptr) {
                 if (loggingEnabled) {
@@ -351,6 +353,18 @@ bool XMLParser::parse(const std::string& filename, MeetingPlanner& planner) cons
 
             std::string meetingId = meetingElem->GetText() ? meetingElem->GetText() : "";
             std::string user = userElem->GetText() ? userElem->GetText() : "";
+            bool external = false;
+
+            if (externalElem != nullptr) {
+                std::string externalText = externalElem->GetText() ? externalElem->GetText() : "";
+
+                if (!parseBooleanText(externalText, external)) {
+                    if (loggingEnabled) {
+                        std::cerr << "Fout in PARTICIPATION: EXTERNAL moet TRUE of FALSE zijn." << std::endl;
+                    }
+                    continue;
+                }
+            }
 
             if (meetingId.empty() || user.empty()) {
                 if (loggingEnabled) {
@@ -359,7 +373,7 @@ bool XMLParser::parse(const std::string& filename, MeetingPlanner& planner) cons
                 continue;
             }
 
-            bool found = planner.addParticipation(meetingId, user);
+            bool found = planner.addParticipation(meetingId, user, external);
             if (!found) {
                 if (loggingEnabled) {
                     std::cerr << "Fout: participation verwijst naar onbekende meeting: "

@@ -59,6 +59,8 @@ set(DEBUG_SOURCE_FILES
         tests/CampusTests.cpp
         week2_code/CateringProvider.cpp
         tests/CateringProviderTests.cpp
+        tests/XMLParserTests.cpp
+        tests/XMLParserTests.cpp
 
 )
 
