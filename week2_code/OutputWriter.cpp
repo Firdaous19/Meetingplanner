@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <iomanip>
+#include <cstddef>
 
 std::string OutputWriter::formatDate(const std::string& isoDate) const {
     REQUIRE(!isoDate.empty(), "Datum mag niet leeg zijn");
@@ -101,4 +102,10 @@ void OutputWriter::writeOutput(const std::string& filename,
     ENSURE(out.good(), "Outputbestand moet correct geschreven zijn");
 
     out.close();
+}
+bool Meeting::isParticipantExternal(std::size_t index) const {
+    REQUIRE(index < externalParticipants.size(),
+            "Participant index moet geldig zijn");
+
+    return externalParticipants[index];
 }

@@ -146,3 +146,34 @@ void Meeting::addParticipant(const std::string& user, bool external) {
     ENSURE(externalParticipants.back() == external,
            "External participant flag moet correct opgeslagen zijn");
 }
+int Meeting::getExternalParticipantCount() const {
+    int count = 0;
+
+    for (bool external : externalParticipants) {
+        if (external) {
+            count++;
+        }
+    }
+
+    return count;
+}
+
+int Meeting::getInternalParticipantCount() const {
+    int count = 0;
+
+    for (bool external : externalParticipants) {
+        if (!external) {
+            count++;
+        }
+    }
+
+    return count;
+}
+
+bool Meeting::hasExternalParticipants() const {
+    return getExternalParticipantCount() > 0;
+}
+
+bool Meeting::hasInternalParticipants() const {
+    return getInternalParticipantCount() > 0;
+}

@@ -260,3 +260,22 @@ TEST(XMLParserTest, ParseMeetingHourAndExternalsCorrectly) {
     EXPECT_FALSE(planner.getMeetings()[0].isOnline());
     EXPECT_TRUE(planner.getMeetings()[0].areExternalsAllowed());
 }
+TEST(XMLParserTest, ParseExternalParticipationCorrectly) {
+    MeetingPlanner planner;
+    planner.setLoggingEnabled(false);
+
+    XMLParser parser;
+    parser.setLoggingEnabled(false);
+
+    bool success = parser.parse("../week2_code/test_external_participation.xml", planner);
+
+    EXPECT_TRUE(success);
+
+    ASSERT_EQ(planner.getMeetings().size(), 1);
+    ASSERT_EQ(planner.getMeetings()[0].getParticipants().size(), 1);
+
+    EXPECT_EQ(planner.getMeetings()[0].getParticipants()[0], "External User");
+    EXPECT_TRUE(planner.getMeetings()[0].isParticipantExternal(0));
+    EXPECT_EQ(planner.getMeetings()[0].getExternalParticipantCount(), 1);
+    EXPECT_EQ(planner.getMeetings()[0].getInternalParticipantCount(), 0);
+}

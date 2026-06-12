@@ -1,0 +1,25 @@
+<SYSTEM>
+    <ROOM>
+        <NAME>Vergaderzaal A</NAME>
+        <IDENTIFIER>A101</IDENTIFIER>
+        <CAPACITY>10</CAPACITY>
+        <CAMPUS>CDE</CAMPUS>
+        <BUILDING>CDE_A</BUILDING>
+    </ROOM>
+
+    <MEETING>
+        <LABEL>Meeting met externen</LABEL>
+        <IDENTIFIER>M1</IDENTIFIER>
+        <ROOM>A101</ROOM>
+        <DATE>2026-05-22</DATE>
+        <ONLINE>FALSE</ONLINE>
+        <EXTERNALS>TRUE</EXTERNALS>
+        <CATERING>FALSE</CATERING>
+    </MEETING>
+
+    <PARTICIPATION>
+        <MEETING>M1</MEETING>
+        <USER>External User</USER>
+        <EXTERNAL>TRUE</EXTERNAL>
+    </PARTICIPATION>
+</SYSTEM>
