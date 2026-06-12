@@ -4,7 +4,24 @@
 #include "gtest/gtest.h"
 #include "week2_code/XMLParser.h"
 #include "week2_code/MeetingPlanner.h"
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <cstdio>
 
+namespace {
+    std::string readFile(const std::string& filename) {
+        std::ifstream input(filename.c_str());
+        std::stringstream buffer;
+        buffer << input.rdbuf();
+        return buffer.str();
+    }
+
+    bool fileCompare(const std::string& expectedFile,
+                     const std::string& actualFile) {
+        return readFile(expectedFile) == readFile(actualFile);
+    }
+}
 TEST(XMLParserTest, ParseValidFileLoadsRoomsAndMeetings) {
     MeetingPlanner planner;
     planner.setLoggingEnabled(false);
@@ -278,4 +295,19 @@ TEST(XMLParserTest, ParseExternalParticipationCorrectly) {
     EXPECT_TRUE(planner.getMeetings()[0].isParticipantExternal(0));
     EXPECT_EQ(planner.getMeetings()[0].getExternalParticipantCount(), 1);
     EXPECT_EQ(planner.getMeetings()[0].getInternalParticipantCount(), 0);
+}
+TEST(XMLParserTest, FileCompareHelperDetectsEqualFiles) {
+    std::ofstream expected("expected_file_compare_test.txt");
+    expected << "Fout in ROOM: ontbrekende velden.\n";
+    expected.close();
+
+    std::ofstream actual("actual_file_compare_test.txt");
+    actual << "Fout in ROOM: ontbrekende velden.\n";
+    actual.close();
+
+    EXPECT_TRUE(fileCompare("expected_file_compare_test.txt",
+                            "actual_file_compare_test.txt"));
+
+    std::remove("expected_file_compare_test.txt");
+    std::remove("actual_file_compare_test.txt");
 }
