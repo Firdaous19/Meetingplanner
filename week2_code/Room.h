@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include "Renovation.h"
 
 /**
  * Stelt een vergaderzaal voor in het systeem.
@@ -99,6 +100,9 @@ public:
      * ENSURE(occupied, "Room moet bezet zijn na occupy()");
      */
     void occupy();
+    void addRenovation(const Renovation& renovation);
+
+    bool isBeingRenovated(const std::string& date) const;
 
 private:
     std::string name;
@@ -107,6 +111,7 @@ private:
     std::string campusIdentifier;
     std::string buildingIdentifier;
     std::vector<std::string> persons;
+    std::vector<Renovation> renovations;
     bool occupied = false;
 };
 

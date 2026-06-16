@@ -44,3 +44,25 @@ void Room::occupy() {
 
     ENSURE(occupied, "Room moet bezet zijn na occupy()");
 }
+void Room::addRenovation(const Renovation& renovation) {
+    REQUIRE(renovation.getRoomIdentifier() == identifier,
+            "Renovation moet bij deze room horen");
+
+    size_t oldSize = renovations.size();
+    renovations.push_back(renovation);
+
+    ENSURE(renovations.size() == oldSize + 1,
+           "Renovation moet toegevoegd zijn aan room");
+}
+
+bool Room::isBeingRenovated(const std::string& date) const {
+    REQUIRE(!date.empty(), "Datum mag niet leeg zijn");
+
+    for (const Renovation& renovation : renovations) {
+        if (renovation.isActiveOnDate(date)) {
+            return true;
+        }
+    }
+
+    return false;
+}

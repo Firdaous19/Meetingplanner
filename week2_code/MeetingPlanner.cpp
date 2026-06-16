@@ -348,7 +348,27 @@ bool MeetingPlanner::processSingleMeeting(Meeting& meeting) {
         return true;
     }
 
-    if (isRoomUnderRenovation(meeting.getRoomIdentifier(), meeting.getDate())) {
+    Room* room = findRoomByIdentifier(meeting.getRoomIdentifier());
+
+    if (room == nullptr) {
+        std::string msg = "Meeting " + meeting.getIdentifier() +
+                          " geannuleerd: onbekende room " +
+                          meeting.getRoomIdentifier();
+
+        if (loggingEnabled) {
+            std::cerr << msg << std::endl;
+        }
+
+        size_t oldConflictsSize = conflicts.size();
+        conflicts.push_back(msg);
+
+        ENSURE(conflicts.size() == oldConflictsSize + 1,
+               "Bij onbekende room moet conflict toegevoegd zijn");
+
+        return false;
+    }
+
+    if (room->isBeingRenovated(meeting.getDate())) {
         std::string msg = "Meeting " + meeting.getIdentifier() +
                           " geannuleerd: room " + meeting.getRoomIdentifier() +
                           " is in renovatie op " + meeting.getDate() + ".";
@@ -366,7 +386,7 @@ bool MeetingPlanner::processSingleMeeting(Meeting& meeting) {
         return false;
     }
 
-    Room* room = findRoomByIdentifier(meeting.getRoomIdentifier());
+
 
     if (room == nullptr) {
         std::string msg = "Meeting " + meeting.getIdentifier() +
@@ -516,6 +536,11 @@ void MeetingPlanner::addRenovation(const Renovation& renovation) {
 
     size_t oldSize = renovations.size();
     renovations.push_back(renovation);
+    Room* room = findRoomByIdentifier(renovation.getRoomIdentifier());
+
+    if (room != nullptr) {
+        room->addRenovation(renovation);
+    }
 
     ENSURE(renovations.size() == oldSize + 1, "Renovation moet toegevoegd zijn");
 }
