@@ -61,6 +61,8 @@ set(DEBUG_SOURCE_FILES
         tests/CateringProviderTests.cpp
         tests/XMLParserTests.cpp
         tests/XMLParserTests.cpp
+        week2_code/Logger.h
+        week2_code/Logger.cpp
 
 )
 

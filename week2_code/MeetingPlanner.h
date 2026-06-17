@@ -9,6 +9,7 @@
 #include "Building.h"
 #include "Renovation.h"
 #include "CateringProvider.h"
+#include "Logger.h"
 
 /**
  * Centrale klasse die alle rooms, meetings, campussen,
@@ -151,6 +152,7 @@ public:
     float getTotalCateringCost() const;
 
 private:
+    Logger logger;
     bool loggingEnabled = true;
 
     /**

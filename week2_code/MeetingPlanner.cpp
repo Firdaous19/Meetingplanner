@@ -11,6 +11,7 @@ namespace {
 
 void MeetingPlanner::setLoggingEnabled(bool enabled) {
     loggingEnabled = enabled;
+    logger.setEnabled(enabled);
 }
 
 void MeetingPlanner::addRoom(const Room& room) {
@@ -189,10 +190,7 @@ bool MeetingPlanner::checkConsistency() {
             if (rooms[i].getIdentifier() == rooms[j].getIdentifier()) {
                 std::string msg = "Dubbele room identifier: " + rooms[i].getIdentifier();
 
-                if (loggingEnabled) {
-                    std::cerr << "Fout: " << msg << std::endl;
-                }
-
+                logger.error(msg);
                 conflicts.push_back(msg);
                 consistent = false;
             }
@@ -204,9 +202,7 @@ bool MeetingPlanner::checkConsistency() {
             if (meetings[i].getIdentifier() == meetings[j].getIdentifier()) {
                 std::string msg = "Dubbele meeting identifier: " + meetings[i].getIdentifier();
 
-                if (loggingEnabled) {
-                    std::cerr << "Fout: " << msg << std::endl;
-                }
+                logger.error("Fout: " + msg);
 
                 conflicts.push_back(msg);
                 consistent = false;
@@ -221,10 +217,7 @@ bool MeetingPlanner::checkConsistency() {
                 std::string msg = "Meerdere catering providers voor campus: " +
                                   cateringProviders[i].getCampusIdentifier();
 
-                if (loggingEnabled) {
-                    std::cerr << "Fout: " << msg << std::endl;
-                }
-
+                logger.error("Fout: " + msg);
                 conflicts.push_back(msg);
                 consistent = false;
             }
@@ -236,9 +229,7 @@ bool MeetingPlanner::checkConsistency() {
             std::string msg = "Meeting " + meeting.getIdentifier() +
                               " is ongeldig: online meetings mogen geen catering hebben";
 
-            if (loggingEnabled) {
-                std::cerr << "Fout: " << msg << std::endl;
-            }
+            logger.error("Fout: " + msg);
 
             conflicts.push_back(msg);
             consistent = false;
@@ -253,9 +244,7 @@ bool MeetingPlanner::checkConsistency() {
             std::string msg = "Meeting " + meeting.getIdentifier() +
                               " heeft geen room identifier";
 
-            if (loggingEnabled) {
-                std::cerr << "Fout: " << msg << std::endl;
-            }
+            logger.error("Fout: " + msg);
 
             conflicts.push_back(msg);
             consistent = false;
@@ -269,9 +258,7 @@ bool MeetingPlanner::checkConsistency() {
                               " verwijst naar onbekende room " +
                               meeting.getRoomIdentifier();
 
-            if (loggingEnabled) {
-                std::cerr << "Fout: " << msg << std::endl;
-            }
+            logger.error("Fout: " + msg);
 
             conflicts.push_back(msg);
             consistent = false;
@@ -283,9 +270,7 @@ bool MeetingPlanner::checkConsistency() {
                               " heeft onvoldoende capaciteit voor meeting " +
                               meeting.getIdentifier();
 
-            if (loggingEnabled) {
-                std::cerr << "Fout: " << msg << std::endl;
-            }
+            logger.error("Fout: " + msg);
 
             conflicts.push_back(msg);
             consistent = false;
@@ -300,9 +285,7 @@ bool MeetingPlanner::checkConsistency() {
                                   room->getCampusIdentifier() +
                                   " van meeting " + meeting.getIdentifier();
 
-                if (loggingEnabled) {
-                    std::cerr << "Fout: " << msg << std::endl;
-                }
+                logger.error("Fout: " + msg);
 
                 conflicts.push_back(msg);
                 consistent = false;
@@ -333,10 +316,7 @@ bool MeetingPlanner::processSingleMeeting(Meeting& meeting) {
         meeting.setCO2Emission(static_cast<float>(std::lround(meetingCO2)));
         totalCO2Emission += meetingCO2;
 
-        if (loggingEnabled) {
-            std::cout << "Meeting " << meeting.getIdentifier()
-                      << " vindt online plaats" << std::endl;
-        }
+        logger.info("Meeting " + meeting.getIdentifier() + " vindt online plaats");
 
         ENSURE(meeting.getOccupancyPercentage() == 0,
                "Online meeting moet occupancy 0 hebben");
@@ -355,9 +335,7 @@ bool MeetingPlanner::processSingleMeeting(Meeting& meeting) {
                           " geannuleerd: onbekende room " +
                           meeting.getRoomIdentifier();
 
-        if (loggingEnabled) {
-            std::cerr << msg << std::endl;
-        }
+        logger.error(msg);
 
         size_t oldConflictsSize = conflicts.size();
         conflicts.push_back(msg);
@@ -373,9 +351,7 @@ bool MeetingPlanner::processSingleMeeting(Meeting& meeting) {
                           " geannuleerd: room " + meeting.getRoomIdentifier() +
                           " is in renovatie op " + meeting.getDate() + ".";
 
-        if (loggingEnabled) {
-            std::cerr << msg << std::endl;
-        }
+        logger.error(msg);
 
         size_t oldConflictsSize = conflicts.size();
         conflicts.push_back(msg);
@@ -388,23 +364,7 @@ bool MeetingPlanner::processSingleMeeting(Meeting& meeting) {
 
 
 
-    if (room == nullptr) {
-        std::string msg = "Meeting " + meeting.getIdentifier() +
-                          " geannuleerd: onbekende room " +
-                          meeting.getRoomIdentifier();
 
-        if (loggingEnabled) {
-            std::cerr << msg << std::endl;
-        }
-
-        size_t oldConflictsSize = conflicts.size();
-        conflicts.push_back(msg);
-
-        ENSURE(conflicts.size() == oldConflictsSize + 1,
-               "Bij onbekende room moet conflict toegevoegd zijn");
-
-        return false;
-    }
 
     if (meeting.hasCatering()) {
         const CateringProvider* provider =
@@ -415,9 +375,7 @@ bool MeetingPlanner::processSingleMeeting(Meeting& meeting) {
                               " geannuleerd: geen catering provider voor campus " +
                               room->getCampusIdentifier();
 
-            if (loggingEnabled) {
-                std::cerr << msg << std::endl;
-            }
+            logger.error(msg);
 
             size_t oldConflictsSize = conflicts.size();
             conflicts.push_back(msg);
@@ -434,9 +392,7 @@ bool MeetingPlanner::processSingleMeeting(Meeting& meeting) {
                           " geannuleerd: room " + room->getIdentifier() +
                           " is al bezet.";
 
-        if (loggingEnabled) {
-            std::cerr << msg << std::endl;
-        }
+        logger.error(msg);
 
         size_t oldConflictsSize = conflicts.size();
         conflicts.push_back(msg);
@@ -473,11 +429,9 @@ bool MeetingPlanner::processSingleMeeting(Meeting& meeting) {
     meeting.setCO2Emission(static_cast<float>(std::lround(totalMeetingCO2)));
     totalCO2Emission += totalMeetingCO2;
 
-    if (loggingEnabled) {
-        std::cout << "Meeting " << meeting.getIdentifier()
-                  << " vindt plaats in room "
-                  << room->getIdentifier() << std::endl;
-    }
+    logger.info("Meeting " + meeting.getIdentifier() +
+                " vindt plaats in room " +
+                room->getIdentifier());
 
     ENSURE(room->isOccupied(), "Room moet bezet zijn na processing");
     ENSURE(meeting.getCateringCost() >= 0.0f,
