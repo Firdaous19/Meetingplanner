@@ -54,16 +54,16 @@ public:
             const std::string& date);
 
     /** @return Het label van de meeting. */
-    std::string getLabel() const { return label; }
+    std::string getLabel() const;
 
     /** @return De unieke identifier van de meeting. */
-    std::string getIdentifier() const { return identifier; }
+    std::string getIdentifier() const;
 
     /** @return De identifier van de room waarin de meeting plaatsvindt. */
-    std::string getRoomIdentifier() const { return roomIdentifier; }
+    std::string getRoomIdentifier() const;
 
     /** @return De datum van de meeting in formaat YYYY-MM-DD. */
-    std::string getDate() const { return date; }
+    std::string getDate() const;
 
     /**
      * Voeg een interne deelnemer toe aan deze meeting.
@@ -94,7 +94,7 @@ public:
     void addParticipant(const std::string& user, bool external);
 
     /** @return Alle deelnemers van deze meeting. */
-    const std::vector<std::string>& getParticipants() const { return participants; }
+    const std::vector<std::string>& getParticipants() const;
 
     /**
      * Geef terug of een participant extern is.
@@ -119,22 +119,22 @@ public:
     bool hasExternalParticipants() const;
 
     /** @return true als externen toegelaten zijn. */
-    bool areExternalsAllowed() const { return externalsAllowed; }
+    bool areExternalsAllowed() const;
 
     /** @return true als catering nodig is. */
-    bool hasCatering() const { return catering; }
+    bool hasCatering() const;
 
     /** @return true als de meeting online plaatsvindt. */
-    bool isOnline() const { return online; }
+    bool isOnline() const;
 
     /** @return CO2-uitstoot van deze meeting in gram. */
-    float getCO2Emission() const { return co2Emission; }
+    float getCO2Emission() const;
 
     /** @return Bezettingspercentage van de room voor deze meeting. */
-    int getOccupancyPercentage() const { return occupancyPercentage; }
+    int getOccupancyPercentage() const;
 
     /** @return Cateringkost van deze meeting in euro. */
-    float getCateringCost() const { return cateringCost; }
+    float getCateringCost() const;
 
     /**
      * Stel in of externen toegelaten zijn.
