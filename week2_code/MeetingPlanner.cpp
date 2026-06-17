@@ -1,6 +1,5 @@
 #include "MeetingPlanner.h"
 #include "DesignByContract.h"
-#include <iostream>
 #include <cmath>
 #include <fstream>
 #include <iomanip>
@@ -274,7 +273,90 @@ bool MeetingPlanner::checkConsistency() {
 
     return consistent;
 }
+bool MeetingPlanner::validatePhysicalMeeting(Meeting& meeting, Room*& room) {
+    room = findRoomByIdentifier(meeting.getRoomIdentifier());
 
+    if (room == nullptr) {
+        std::string msg = "Meeting " + meeting.getIdentifier() +
+                          " geannuleerd: onbekende room " +
+                          meeting.getRoomIdentifier();
+
+        logger.error(msg);
+        conflicts.push_back(msg);
+        return false;
+    }
+
+    if (room->isBeingRenovated(meeting.getDate())) {
+        std::string msg = "Meeting " + meeting.getIdentifier() +
+                          " geannuleerd: room " +
+                          meeting.getRoomIdentifier() +
+                          " is in renovatie op " +
+                          meeting.getDate() + ".";
+
+        logger.error(msg);
+        conflicts.push_back(msg);
+        return false;
+    }
+
+    if (meeting.hasCatering()) {
+        const CateringProvider* provider =
+                findCateringProviderByCampus(room->getCampusIdentifier());
+
+        if (provider == nullptr) {
+            std::string msg = "Meeting " + meeting.getIdentifier() +
+                              " geannuleerd: geen catering provider voor campus " +
+                              room->getCampusIdentifier();
+
+            logger.error(msg);
+            conflicts.push_back(msg);
+            return false;
+        }
+    }
+
+    if (room->isOccupied()) {
+        std::string msg = "Meeting " + meeting.getIdentifier() +
+                          " geannuleerd: room " +
+                          room->getIdentifier() +
+                          " is al bezet.";
+
+        logger.error(msg);
+        conflicts.push_back(msg);
+        return false;
+    }
+
+    return true;
+}
+void MeetingPlanner::processSuccessfulPhysicalMeeting(Meeting& meeting, Room& room) {
+    room.occupy();
+
+    int occupancy = static_cast<int>(
+            (meeting.getParticipants().size() * 100) / room.getCapacity());
+    meeting.setOccupancyPercentage(occupancy);
+
+    float meetingCO2 = calculateMeetingCO2(meeting);
+    float cateringCO2 = 0.0f;
+    float cateringCost = 0.0f;
+
+    if (meeting.hasCatering()) {
+        cateringCO2 = calculateCateringCO2(meeting, room);
+        cateringCost = calculateCateringCost(meeting);
+
+        meeting.setCateringCost(cateringCost);
+        totalCateringCost += cateringCost;
+
+        appendCateringDeliveryToFile(meeting, room);
+    } else {
+        meeting.setCateringCost(0.0f);
+    }
+
+    float totalMeetingCO2 = meetingCO2 + cateringCO2;
+    meeting.setCO2Emission(static_cast<float>(std::lround(totalMeetingCO2)));
+    totalCO2Emission += totalMeetingCO2;
+
+    logger.info("Meeting " + meeting.getIdentifier() +
+                " vindt plaats in room " +
+                room.getIdentifier());
+}
 bool MeetingPlanner::processSingleMeeting(Meeting& meeting) {
     REQUIRE(!meeting.getIdentifier().empty(), "Meeting identifier mag niet leeg zijn");
     REQUIRE(!meeting.getDate().empty(), "Meeting date mag niet leeg zijn");
@@ -303,111 +385,12 @@ bool MeetingPlanner::processSingleMeeting(Meeting& meeting) {
         return true;
     }
 
-    Room* room = findRoomByIdentifier(meeting.getRoomIdentifier());
+    Room* room = nullptr;
 
-    if (room == nullptr) {
-        std::string msg = "Meeting " + meeting.getIdentifier() +
-                          " geannuleerd: onbekende room " +
-                          meeting.getRoomIdentifier();
-
-        logger.error(msg);
-
-        size_t oldConflictsSize = conflicts.size();
-        conflicts.push_back(msg);
-
-        ENSURE(conflicts.size() == oldConflictsSize + 1,
-               "Bij onbekende room moet conflict toegevoegd zijn");
-
+    if (!validatePhysicalMeeting(meeting, room)) {
         return false;
     }
-
-    if (room->isBeingRenovated(meeting.getDate())) {
-        std::string msg = "Meeting " + meeting.getIdentifier() +
-                          " geannuleerd: room " + meeting.getRoomIdentifier() +
-                          " is in renovatie op " + meeting.getDate() + ".";
-
-        logger.error(msg);
-
-        size_t oldConflictsSize = conflicts.size();
-        conflicts.push_back(msg);
-
-        ENSURE(conflicts.size() == oldConflictsSize + 1,
-               "Bij renovatieconflict moet conflict toegevoegd zijn");
-
-        return false;
-    }
-
-
-
-
-
-    if (meeting.hasCatering()) {
-        const CateringProvider* provider =
-                findCateringProviderByCampus(room->getCampusIdentifier());
-
-        if (provider == nullptr) {
-            std::string msg = "Meeting " + meeting.getIdentifier() +
-                              " geannuleerd: geen catering provider voor campus " +
-                              room->getCampusIdentifier();
-
-            logger.error(msg);
-
-            size_t oldConflictsSize = conflicts.size();
-            conflicts.push_back(msg);
-
-            ENSURE(conflicts.size() == oldConflictsSize + 1,
-                   "Bij ontbrekende catering provider moet conflict toegevoegd zijn");
-
-            return false;
-        }
-    }
-
-    if (room->isOccupied()) {
-        std::string msg = "Meeting " + meeting.getIdentifier() +
-                          " geannuleerd: room " + room->getIdentifier() +
-                          " is al bezet.";
-
-        logger.error(msg);
-
-        size_t oldConflictsSize = conflicts.size();
-        conflicts.push_back(msg);
-
-        ENSURE(conflicts.size() == oldConflictsSize + 1,
-               "Bij bezettingsconflict moet conflict toegevoegd zijn");
-
-        return false;
-    }
-
-    room->occupy();
-
-    int occupancy = static_cast<int>(
-            (meeting.getParticipants().size() * 100) / room->getCapacity());
-    meeting.setOccupancyPercentage(occupancy);
-
-    float meetingCO2 = calculateMeetingCO2(meeting);
-    float cateringCO2 = 0.0f;
-    float cateringCost = 0.0f;
-
-    if (meeting.hasCatering()) {
-        cateringCO2 = calculateCateringCO2(meeting, *room);
-        cateringCost = calculateCateringCost(meeting);
-
-        meeting.setCateringCost(cateringCost);
-        totalCateringCost += cateringCost;
-
-        appendCateringDeliveryToFile(meeting, *room);
-    } else {
-        meeting.setCateringCost(0.0f);
-    }
-
-    float totalMeetingCO2 = meetingCO2 + cateringCO2;
-    meeting.setCO2Emission(static_cast<float>(std::lround(totalMeetingCO2)));
-    totalCO2Emission += totalMeetingCO2;
-
-    logger.info("Meeting " + meeting.getIdentifier() +
-                " vindt plaats in room " +
-                room->getIdentifier());
-
+    processSuccessfulPhysicalMeeting(meeting, *room);
     ENSURE(room->isOccupied(), "Room moet bezet zijn na processing");
     ENSURE(meeting.getCateringCost() >= 0.0f,
            "Meeting moet niet-negatieve cateringkost hebben");

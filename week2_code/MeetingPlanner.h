@@ -152,6 +152,8 @@ public:
     float getTotalCateringCost() const;
 
 private:
+    bool validatePhysicalMeeting(Meeting& meeting, Room*& room);
+    void processSuccessfulPhysicalMeeting(Meeting& meeting, Room& room);
     Logger logger;
     bool loggingEnabled = true;
 
