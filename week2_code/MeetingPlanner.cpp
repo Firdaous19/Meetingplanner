@@ -5,9 +5,7 @@
 #include <fstream>
 #include <iomanip>
 
-namespace {
-    const float kInternalCateringCostPerPerson = 10.59f;
-}
+
 
 void MeetingPlanner::setLoggingEnabled(bool enabled) {
     loggingEnabled = enabled;
@@ -130,12 +128,9 @@ float MeetingPlanner::calculateCateringCO2(const Meeting& meeting, const Room& r
 }
 
 float MeetingPlanner::calculateCateringCost(const Meeting& meeting) const {
-    REQUIRE(meeting.hasCatering(), "Catering cost berekenen vereist catering");
     REQUIRE(!meeting.isOnline(), "Online meeting mag geen catering hebben");
 
-    const float participantCount = static_cast<float>(meeting.getParticipants().size());
-
-    return participantCount * kInternalCateringCostPerPerson;
+    return meeting.calculateCateringCost();
 }
 
 void MeetingPlanner::appendCateringDeliveryToFile(const Meeting& meeting,

@@ -17,6 +17,7 @@
 class Meeting {
 public:
     float calculateBaseCO2() const;
+    float calculateCateringCost() const;
     /**
      * Constructor van een meeting.
      * @param label De naam of titel van de meeting.

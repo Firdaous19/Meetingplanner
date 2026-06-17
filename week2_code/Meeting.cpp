@@ -179,3 +179,10 @@ float Meeting::calculateBaseCO2() const {
 
     return static_cast<float>(participants.size()) * 120.0f;
 }
+float Meeting::calculateCateringCost() const {
+    if (!hasCatering()) {
+        return 0.0f;
+    }
+
+    return static_cast<float>(participants.size()) * 10.59f;
+}
