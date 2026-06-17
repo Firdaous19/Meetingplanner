@@ -107,33 +107,13 @@ const CateringProvider* MeetingPlanner::findCateringProviderByCampus(
     return nullptr;
 }
 
-bool MeetingPlanner::isRoomUnderRenovation(const std::string& roomIdentifier,
-                                           const std::string& date) const {
-    REQUIRE(!roomIdentifier.empty(), "Room identifier mag niet leeg zijn");
-    REQUIRE(!date.empty(), "Date mag niet leeg zijn");
 
-    for (const auto& renovation : renovations) {
-        if (renovation.getRoomIdentifier() == roomIdentifier &&
-            renovation.isActiveOnDate(date)) {
-            return true;
-        }
-    }
-
-    return false;
-}
 
 float MeetingPlanner::calculateMeetingCO2(const Meeting& meeting) const {
     REQUIRE(!meeting.getDate().empty(), "Meeting date mag niet leeg zijn");
 
-    const float participantCount = static_cast<float>(meeting.getParticipants().size());
-
-    if (meeting.isOnline()) {
-        return participantCount * 30.0f;
-    }
-
-    return participantCount * 120.0f;
+    return meeting.calculateBaseCO2();
 }
-
 float MeetingPlanner::calculateCateringCO2(const Meeting& meeting, const Room& room) const {
     REQUIRE(!meeting.isOnline(), "Online meeting mag geen catering hebben");
     REQUIRE(meeting.hasCatering(), "Catering CO2 berekenen vereist catering");

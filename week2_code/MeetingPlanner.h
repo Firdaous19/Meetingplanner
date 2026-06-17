@@ -182,8 +182,7 @@ private:
      * REQUIRE(!roomIdentifier.empty(), "Room identifier mag niet leeg zijn");
      * REQUIRE(!date.empty(), "Date mag niet leeg zijn");
      */
-    bool isRoomUnderRenovation(const std::string& roomIdentifier,
-                               const std::string& date) const;
+
 
     /**
      * Controleer of een room bestaat.

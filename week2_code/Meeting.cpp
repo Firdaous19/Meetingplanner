@@ -172,3 +172,10 @@ bool Meeting::hasExternalParticipants() const {
 bool Meeting::hasInternalParticipants() const {
     return getInternalParticipantCount() > 0;
 }
+float Meeting::calculateBaseCO2() const {
+    if (isOnline()) {
+        return static_cast<float>(participants.size()) * 30.0f;
+    }
+
+    return static_cast<float>(participants.size()) * 120.0f;
+}
