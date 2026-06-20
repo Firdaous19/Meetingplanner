@@ -54,6 +54,7 @@ public:
     bool addParticipation(const std::string& meetingId,
                           const std::string& user,
                           bool external);
+
     /**
      * Controleer de algemene consistentie van het systeem.
      * @return true indien systeem consistent is.
@@ -176,17 +177,6 @@ private:
     bool processSingleMeeting(Meeting& meeting);
 
     /**
-     * Controleer of een room in renovatie is op een bepaalde datum.
-     * @param roomIdentifier Identifier van de room.
-     * @param date Datum.
-     * @return true indien room in renovatie is.
-     *
-     * REQUIRE(!roomIdentifier.empty(), "Room identifier mag niet leeg zijn");
-     * REQUIRE(!date.empty(), "Date mag niet leeg zijn");
-     */
-
-
-    /**
      * Controleer of een room bestaat.
      * @param roomIdentifier Identifier van de room.
      * @return true indien room bestaat.
@@ -224,7 +214,7 @@ private:
             const std::string& campusIdentifier) const;
 
     /**
-     * Bereken de CO2-uitstoot van een meeting zelf.
+     * Bereken de CO2-uitstoot van een meeting.
      * @param meeting De meeting.
      * @return CO2-uitstoot in gram.
      *
@@ -283,3 +273,4 @@ private:
 };
 
 #endif // PROJECTTITLE_MEETINGPLANNER_H
+

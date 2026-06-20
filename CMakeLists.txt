@@ -13,6 +13,7 @@ include(FetchContent)
 FetchContent_Declare(
         googletest
         URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
@@ -28,6 +29,7 @@ set(RELEASE_SOURCE_FILES
         week2_code/OutputWriter.cpp
         week2_code/Renovation.cpp
         week2_code/CateringProvider.cpp
+        week2_code/Logger.cpp
         tinyxml/tinyxml.cpp
         tinyxml/tinyxmlerror.cpp
         tinyxml/tinyxmlparser.cpp
@@ -37,17 +39,18 @@ set(RELEASE_SOURCE_FILES
 set(DEBUG_SOURCE_FILES
         week2_code/Room.cpp
         week2_code/Meeting.cpp
+        week2_code/Building.cpp
         week2_code/MeetingPlanner.cpp
         week2_code/XMLParser.cpp
+        week2_code/Campus.cpp
         week2_code/OutputWriter.cpp
-        week2_code/Building.cpp
+        week2_code/Renovation.cpp
+        week2_code/CateringProvider.cpp
+        week2_code/Logger.cpp
         tinyxml/tinyxml.cpp
         tinyxml/tinyxmlerror.cpp
         tinyxml/tinyxmlparser.cpp
         tinyxml/tinystr.cpp
-        week2_code/OutputWriter.cpp
-        week2_code/Campus.cpp
-        week2_code/Renovation.cpp
         tests/RenovationTests.cpp
         tests/CampusTests.cpp
         tests/RoomTests.cpp
@@ -56,17 +59,13 @@ set(DEBUG_SOURCE_FILES
         tests/XMLParserTests.cpp
         tests/OutputWriterTests.cpp
         tests/BuildingsTest.cpp
-        tests/CampusTests.cpp
-        week2_code/CateringProvider.cpp
         tests/CateringProviderTests.cpp
-        tests/XMLParserTests.cpp
-        tests/XMLParserTests.cpp
-        week2_code/Logger.h
-        week2_code/Logger.cpp
-
 )
 
 add_executable(release_target ${RELEASE_SOURCE_FILES})
 add_executable(debug_target ${DEBUG_SOURCE_FILES})
 
 target_link_libraries(debug_target GTest::gtest_main)
+
+enable_testing()
+add_test(NAME AllTests COMMAND debug_target)

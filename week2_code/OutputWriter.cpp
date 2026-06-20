@@ -12,9 +12,9 @@ std::string OutputWriter::formatDate(const std::string& isoDate) const {
         return isoDate;
     }
 
-    std::string year = isoDate.substr(0, 4);
+    std::string year  = isoDate.substr(0, 4);
     std::string month = isoDate.substr(5, 2);
-    std::string day = isoDate.substr(8, 2);
+    std::string day   = isoDate.substr(8, 2);
 
     return day + "/" + month + "/" + year;
 }
@@ -102,10 +102,4 @@ void OutputWriter::writeOutput(const std::string& filename,
     ENSURE(out.good(), "Outputbestand moet correct geschreven zijn");
 
     out.close();
-}
-bool Meeting::isParticipantExternal(std::size_t index) const {
-    REQUIRE(index < externalParticipants.size(),
-            "Participant index moet geldig zijn");
-
-    return externalParticipants[index];
 }
