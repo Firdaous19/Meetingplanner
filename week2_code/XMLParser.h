@@ -21,18 +21,43 @@ enum SuccessEnum {
 
 class XMLParser {
 public:
+    /**
+ * Constructor van de XMLParser.
+ *
+ * ENSURE(loggingEnabled, "Logging staat standaard aan");
+ */
     XMLParser();
 
+/**
+ * Zet logging aan of uit.
+ * @param enabled true als foutmeldingen naar std::cerr geschreven mogen worden.
+ *
+ * ENSURE(loggingEnabled == enabled, "Logging flag correct opgeslagen");
+ */
     void setLoggingEnabled(bool enabled);
 
+
+
     /**
-     * Geeft false terug bij syntactisch kapotte XML.
-     */
+* Parse een XML-bestand en vul de planner.
+* @param filename Naam van het XML-bestand.
+* @param planner MeetingPlanner die gevuld wordt.
+* @return true als import niet volledig werd afgebroken.
+*
+* REQUIRE(!filename.empty(), "Bestandsnaam mag niet leeg zijn");
+*/
     bool parse(const std::string& filename, MeetingPlanner& planner) const;
 
     /**
-     * Fouten worden geschreven naar de meegegeven stream.
-     */
+ * Parse een XML-bestand en schrijf foutmeldingen naar een stream.
+ * @param inputFilename Naam van het XML-bestand.
+ * @param errStream Stream voor foutmeldingen.
+ * @param planner MeetingPlanner die gevuld wordt.
+ * @return ImportAborted, PartialImport of Success.
+ *
+ * REQUIRE(inputFilename != nullptr, "Bestandsnaam mag niet null zijn");
+ * REQUIRE(inputFilename[0] != '\0', "Bestandsnaam mag niet leeg zijn");
+ */
     SuccessEnum parse(const char* inputFilename,
                       std::ostream& errStream,
                       MeetingPlanner& planner) const;

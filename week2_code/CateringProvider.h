@@ -32,13 +32,13 @@ public:
      * Geef de campus identifier van de provider terug.
      * @return Identifier van de campus.
      */
-    std::string getCampusIdentifier() const { return campusIdentifier; }
+    std::string getCampusIdentifier() const;
 
     /**
      * Geef de CO2-uitstoot van deze provider terug.
      * @return CO2-uitstoot in gram.
      */
-    float getCO2() const { return co2; }
+    float getCO2() const;
 
 private:
     std::string campusIdentifier;

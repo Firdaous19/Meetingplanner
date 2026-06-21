@@ -45,31 +45,31 @@ public:
      * Geef de naam van de room terug.
      * @return De naam van de room.
      */
-    std::string getName() const { return name; }
+    std::string getName() const;
 
     /**
      * Geef de unieke identifier van de room terug.
      * @return De identifier van de room.
      */
-    std::string getIdentifier() const { return identifier; }
+    std::string getIdentifier() const;
 
     /**
      * Geef de capaciteit van de room terug.
      * @return Het maximum aantal personen dat in de room past.
      */
-    int getCapacity() const { return capacity; }
+    int getCapacity() const;
 
     /**
      * Geef de campus identifier van de room terug.
      * @return De campus identifier.
      */
-    std::string getCampusIdentifier() const { return campusIdentifier; }
+    std::string getCampusIdentifier() const;
 
     /**
      * Geef de building identifier van de room terug.
      * @return De building identifier.
      */
-    std::string getBuildingIdentifier() const { return buildingIdentifier; }
+    std::string getBuildingIdentifier() const;
 
     /**
      * Voeg een persoon toe aan de room.
@@ -85,13 +85,13 @@ public:
      * Geef het aantal personen in de room terug.
      * @return Het aantal toegevoegde personen.
      */
-    int getNumberOfPersons() const { return static_cast<int>(persons.size()); }
+    int getNumberOfPersons() const;
 
     /**
      * Controleer of de room bezet is.
      * @return true als de room bezet is, anders false.
      */
-    bool isOccupied() const { return occupied; }
+    bool isOccupied() const;
 
     /**
      * Zet de room op bezet.

@@ -26,6 +26,42 @@ Room::Room(const std::string& name,
            "Room building identifier correct opgeslagen");
     ENSURE(!occupied, "Nieuwe room mag niet bezet zijn");
 }
+std::string Room::getName() const {
+    ENSURE(!name.empty(), "Room name mag niet leeg zijn");
+    return name;
+}
+
+std::string Room::getIdentifier() const {
+    ENSURE(!identifier.empty(), "Room identifier mag niet leeg zijn");
+    return identifier;
+}
+
+int Room::getCapacity() const {
+    ENSURE(capacity > 0, "Room capacity moet groter zijn dan 0");
+    return capacity;
+}
+
+std::string Room::getCampusIdentifier() const {
+    ENSURE(!campusIdentifier.empty(),
+           "Room campus identifier mag niet leeg zijn");
+    return campusIdentifier;
+}
+
+std::string Room::getBuildingIdentifier() const {
+    ENSURE(!buildingIdentifier.empty(),
+           "Room building identifier mag niet leeg zijn");
+    return buildingIdentifier;
+}
+
+int Room::getNumberOfPersons() const {
+    ENSURE(static_cast<int>(persons.size()) >= 0,
+           "Aantal personen mag niet negatief zijn");
+    return static_cast<int>(persons.size());
+}
+
+bool Room::isOccupied() const {
+    return occupied;
+}
 
 void Room::addPerson(const std::string& personName) {
     REQUIRE(!personName.empty(), "Persoonsnaam mag niet leeg zijn");

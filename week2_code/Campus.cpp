@@ -13,3 +13,12 @@ Campus::Campus(const std::string& name,
     ENSURE(this->name == name, "Campus name correct opgeslagen");
     ENSURE(this->identifier == identifier, "Campus identifier correct opgeslagen");
 }
+std::string Campus::getName() const {
+    ENSURE(!name.empty(), "Campus name mag niet leeg zijn");
+    return name;
+}
+
+std::string Campus::getIdentifier() const {
+    ENSURE(!identifier.empty(), "Campus identifier mag niet leeg zijn");
+    return identifier;
+}

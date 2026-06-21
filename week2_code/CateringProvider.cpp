@@ -17,3 +17,14 @@ CateringProvider::CateringProvider(const std::string& campusIdentifier,
     ENSURE(this->co2 == co2,
            "CO2 correct opgeslagen");
 }
+std::string CateringProvider::getCampusIdentifier() const {
+    ENSURE(!campusIdentifier.empty(),
+           "Campus identifier mag niet leeg zijn");
+    return campusIdentifier;
+}
+
+float CateringProvider::getCO2() const {
+    ENSURE(co2 > 0,
+           "CO2 moet groter zijn dan 0");
+    return co2;
+}

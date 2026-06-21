@@ -9,6 +9,8 @@
 void MeetingPlanner::setLoggingEnabled(bool enabled) {
     loggingEnabled = enabled;
     logger.setEnabled(enabled);
+    ENSURE(loggingEnabled == enabled,
+           "Logging flag correct opgeslagen");
 }
 
 void MeetingPlanner::addRoom(const Room& room) {
@@ -274,6 +276,11 @@ bool MeetingPlanner::checkConsistency() {
     return consistent;
 }
 bool MeetingPlanner::validatePhysicalMeeting(Meeting& meeting, Room*& room) {
+    REQUIRE(!meeting.isOnline(),
+            "Alleen fysieke meetings valideren");
+
+    REQUIRE(!meeting.getRoomIdentifier().empty(),
+            "Fysieke meeting moet een room identifier hebben");
     room = findRoomByIdentifier(meeting.getRoomIdentifier());
 
     if (room == nullptr) {
@@ -327,6 +334,11 @@ bool MeetingPlanner::validatePhysicalMeeting(Meeting& meeting, Room*& room) {
     return true;
 }
 void MeetingPlanner::processSuccessfulPhysicalMeeting(Meeting& meeting, Room& room) {
+    REQUIRE(!meeting.isOnline(),
+            "Alleen fysieke meetings hier verwerken");
+
+    REQUIRE(!room.isOccupied(),
+            "Room moet vrij zijn voor verwerking");
     room.occupy();
 
     int occupancy = static_cast<int>(
@@ -391,7 +403,8 @@ bool MeetingPlanner::processSingleMeeting(Meeting& meeting) {
         return false;
     }
     processSuccessfulPhysicalMeeting(meeting, *room);
-    ENSURE(room->isOccupied(), "Room moet bezet zijn na processing");
+    ENSURE(room->isOccupied(),
+           "Room moet bezet zijn na processing");
     ENSURE(meeting.getCateringCost() >= 0.0f,
            "Meeting moet niet-negatieve cateringkost hebben");
     ENSURE(meeting.getCO2Emission() >= 0,

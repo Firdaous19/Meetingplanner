@@ -17,7 +17,23 @@ Renovation::Renovation(const std::string& roomIdentifier,
     ENSURE(this->endDate == endDate, "End date correct opgeslagen");
     ENSURE(this->startDate <= this->endDate, "Start en end date moeten correct opgeslagen en geldig zijn");
 }
+std::string Renovation::getRoomIdentifier() const {
+    ENSURE(!roomIdentifier.empty(),
+           "Renovation room identifier mag niet leeg zijn");
+    return roomIdentifier;
+}
 
+std::string Renovation::getStartDate() const {
+    ENSURE(!startDate.empty(),
+           "Renovation start date mag niet leeg zijn");
+    return startDate;
+}
+
+std::string Renovation::getEndDate() const {
+    ENSURE(!endDate.empty(),
+           "Renovation end date mag niet leeg zijn");
+    return endDate;
+}
 bool Renovation::isActiveOnDate(const std::string& date) const {
     REQUIRE(!date.empty(), "Date mag niet leeg zijn");
 

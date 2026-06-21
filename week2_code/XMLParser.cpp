@@ -214,10 +214,15 @@ namespace {
 
 XMLParser::XMLParser()
         : loggingEnabled(true) {
+
+    ENSURE(loggingEnabled,
+           "Logging staat standaard aan");
 }
 
 void XMLParser::setLoggingEnabled(bool enabled) {
     loggingEnabled = enabled;
+
+    ENSURE(loggingEnabled == enabled, "Logging flag correct opgeslagen");
 }
 
 bool XMLParser::parse(const std::string& filename,

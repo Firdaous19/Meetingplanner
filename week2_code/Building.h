@@ -35,19 +35,19 @@ public:
      * Geef de naam van het gebouw terug.
      * @return Naam van het gebouw.
      */
-    std::string getName() const { return name; }
+    std::string getName() const;
 
     /**
      * Geef de unieke identifier van het gebouw terug.
      * @return Identifier van het gebouw.
      */
-    std::string getIdentifier() const { return identifier; }
+    std::string getIdentifier() const;
 
     /**
      * Geef de gekoppelde campus identifier terug.
      * @return Identifier van de campus.
      */
-    std::string getCampusIdentifier() const { return campusIdentifier; }
+    std::string getCampusIdentifier() const;
 
 private:
     std::string name;

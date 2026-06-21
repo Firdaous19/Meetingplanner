@@ -153,7 +153,30 @@ public:
     float getTotalCateringCost() const;
 
 private:
+    /**
+ * Controleer of een fysieke meeting verwerkt mag worden.
+ * @param meeting De fysieke meeting.
+ * @param room Pointer die ingevuld wordt met de gevonden room.
+ * @return true als de meeting verwerkt mag worden.
+ *
+ * REQUIRE(!meeting.isOnline(), "Alleen fysieke meetings valideren");
+ * REQUIRE(!meeting.getRoomIdentifier().empty(),
+ *         "Fysieke meeting moet een room identifier hebben");
+ */
     bool validatePhysicalMeeting(Meeting& meeting, Room*& room);
+    /**
+ * Verwerk een fysieke meeting die alle controles heeft doorstaan.
+ * @param meeting De meeting.
+ * @param room De room waarin de meeting plaatsvindt.
+ *
+ * REQUIRE(!meeting.isOnline(), "Alleen fysieke meetings hier verwerken");
+ * REQUIRE(!room.isOccupied(), "Room moet vrij zijn voor verwerking");
+ * ENSURE(room.isOccupied(), "Room moet bezet zijn na verwerking");
+ * ENSURE(meeting.getCO2Emission() >= 0,
+ *        "Meeting moet niet-negatieve CO2 hebben");
+ * ENSURE(meeting.getCateringCost() >= 0.0f,
+ *        "Meeting moet niet-negatieve cateringkost hebben");
+ */
     void processSuccessfulPhysicalMeeting(Meeting& meeting, Room& room);
     Logger logger;
     bool loggingEnabled = true;

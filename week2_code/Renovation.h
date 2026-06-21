@@ -32,19 +32,19 @@ public:
      * Geef de room identifier terug.
      * @return Identifier van de gerenoveerde room.
      */
-    std::string getRoomIdentifier() const { return roomIdentifier; }
+    std::string getRoomIdentifier() const;
 
     /**
      * Geef de startdatum van de renovatie terug.
      * @return Startdatum in formaat YYYY-MM-DD.
      */
-    std::string getStartDate() const { return startDate; }
+    std::string getStartDate() const;
 
     /**
      * Geef de einddatum van de renovatie terug.
      * @return Einddatum in formaat YYYY-MM-DD.
      */
-    std::string getEndDate() const { return endDate; }
+    std::string getEndDate() const;
 
     /**
      * Controleer of de renovatie actief is op een specifieke datum.

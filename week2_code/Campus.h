@@ -30,13 +30,13 @@ public:
      * Geef de naam van de campus terug.
      * @return Naam van de campus.
      */
-    std::string getName() const { return name; }
+    std::string getName() const;
 
     /**
      * Geef de unieke identifier van de campus terug.
      * @return Identifier van de campus.
      */
-    std::string getIdentifier() const { return identifier; }
+    std::string getIdentifier() const;
 
 private:
     std::string name;

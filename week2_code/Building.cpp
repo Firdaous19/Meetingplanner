@@ -14,3 +14,17 @@ Building::Building(const std::string& name,
     ENSURE(this->identifier == identifier, "Building identifier correct opgeslagen");
     ENSURE(this->campusIdentifier == campusIdentifier, "Campus identifier correct opgeslagen");
 }
+std::string Building::getName() const {
+    ENSURE(!name.empty(), "Building name mag niet leeg zijn");
+    return name;
+}
+
+std::string Building::getIdentifier() const {
+    ENSURE(!identifier.empty(), "Building identifier mag niet leeg zijn");
+    return identifier;
+}
+
+std::string Building::getCampusIdentifier() const {
+    ENSURE(!campusIdentifier.empty(), "Campus identifier mag niet leeg zijn");
+    return campusIdentifier;
+}

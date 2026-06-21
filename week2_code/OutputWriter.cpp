@@ -15,7 +15,11 @@ std::string OutputWriter::formatDate(const std::string& isoDate) const {
     std::string year  = isoDate.substr(0, 4);
     std::string month = isoDate.substr(5, 2);
     std::string day   = isoDate.substr(8, 2);
+    std::string result = day + "/" + month + "/" + year;
 
+    ENSURE(!result.empty(), "Geformatteerde datum mag niet leeg zijn");
+
+    return result;
     return day + "/" + month + "/" + year;
 }
 
