@@ -1,4 +1,6 @@
 <SYSTEM>
+    <!-- test controleert of de parser een bestand met
+    enkel campus, building en room correct inlaadt.-->
     <CAMPUS>
         <NAME>Campus Drie Eiken</NAME>
         <IDENTIFIER>CDE</IDENTIFIER>

@@ -1,4 +1,5 @@
 <SYSTEM>
+    <!--meeting M1 en M2 gebruiken zelfde room A101 -->
     <CAMPUS>
         <NAME>Campus Drie Eiken</NAME>
         <IDENTIFIER>CDE</IDENTIFIER>
