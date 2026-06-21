@@ -1,36 +1,65 @@
+#include <fstream>
 #include <iostream>
+#include <string>
+
 #include "MeetingPlanner.h"
-#include "XMLParser.h"
 #include "OutputWriter.h"
+#include "XMLParser.h"
 
 int main() {
-    const std::string inputFile = "../week2_code/test_laatste.xml";
+    const std::string inputFile = "../week2_code/test_invalid_room.xml";
     const std::string outputFile = "output.txt";
+    const std::string importErrorFile = "import_errors.txt";
 
-    MeetingPlanner planner;      // planner bewaart en verwerkt alle data van het systeem//
-    XMLParser parser;   //parser leest input//
-    OutputWriter writer;   //object writer schrijft het resultaat naar een tekstbestand//
+    MeetingPlanner planner;
+    XMLParser parser;
+    OutputWriter writer;
 
-    bool success = parser.parse(inputFile, planner);   //parser gaat de XMLbestand van de inputfile openen en lezen. maakt dan objecten aan en voegt die toe aan planner//
+    std::ofstream errorFile(
+            importErrorFile.c_str(),
+            std::ios::out | std::ios::trunc);
 
-    if (!success) {
-        std::cerr << "Inlezen van XML is mislukt." << std::endl;
+    if (!errorFile.is_open()) {
+        std::cerr << "Kon " << importErrorFile
+                  << " niet openen."
+                  << std::endl;
+        return 1;
+    }
+
+    const SuccessEnum importResult =
+            parser.parse(inputFile.c_str(), errorFile, planner);
+
+    errorFile.close();
+
+    if (importResult == ImportAborted) {
+        std::cerr << "XML-import afgebroken. Bekijk "
+                  << importErrorFile
+                  << "."
+                  << std::endl;
+        return 1;
+    }
+
+    if (importResult == PartialImport) {
+        std::cerr << "XML-import bevat inhoudelijke fouten. Bekijk "
+                  << importErrorFile
+                  << "."
+                  << std::endl;
         return 1;
     }
 
     if (!planner.checkConsistency()) {
-        std::cerr << "Systeem is inconsistent." << std::endl;
+        std::cerr << "Het geïmporteerde systeem is niet consistent."
+                  << std::endl;
         return 1;
     }
 
-    planner.processMeetings();     //het object planner gaat de meetings verwerken; vb controleren of een room bezet/in renovatie is , occupancy/CO2/cateringkost berekenen, successfull meetings bijhouden//
-    writer.writeOutput(outputFile, planner);   // object writer gaat wat in de planner staat(meetings,rroms,conflicts,..) overschrijven in de outputfile output.txt//
+    planner.processMeetings();
+    writer.writeOutput(outputFile, planner);
 
-    std::cout << "Aantal rooms geladen: " << planner.getRooms().size() << std::endl;
-    std::cout << "Aantal meetings geladen: " << planner.getMeetings().size() << std::endl;
-    std::cout << "Aantal succesvolle meetings: "
-              << planner.getSuccessfulMeetings().size() << std::endl;
-    std::cout << "Outputbestand gemaakt: " << outputFile << std::endl;
+    std::cout << "Verwerking geslaagd." << std::endl;
+    std::cout << "Resultaat geschreven naar: "
+              << outputFile
+              << std::endl;
 
     return 0;
 }

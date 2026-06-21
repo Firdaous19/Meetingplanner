@@ -1,31 +1,41 @@
 #ifndef XMLPARSER_H
 #define XMLPARSER_H
 
+#include <iosfwd>
 #include <string>
+
 #include "MeetingPlanner.h"
+
+/**
+ * Resultaat van een XML-import.
+ *
+ * ImportAborted= XML is syntactisch kapot en TinyXML kan niet verder.
+ * PartialImport= XML is syntactisch geldig, maar heeft inhoudelijke fouten.
+ * Success= Alles werd correct geïmporteerd.
+ */
+enum SuccessEnum {
+    ImportAborted,
+    PartialImport,
+    Success
+};
 
 class XMLParser {
 public:
-    /**
-     * Constructor van de XMLParser.
-     */
     XMLParser();
 
-    /**
-     * Zet logging aan of uit.
-     * @param enabled true om logging te activeren, false om logging uit te zetten.
-     */
     void setLoggingEnabled(bool enabled);
 
     /**
-     * Parse een XML-bestand en laad de inhoud in een MeetingPlanner.
-     * @param filename De naam van het XML-bestand.
-     * @param planner De planner waarin de gegevens geladen worden.
-     * @return true als het bestand succesvol verwerkt werd, false bij fout openen of foutieve root.
-     *
-     * REQUIRE(!filename.empty(), "Bestandsnaam mag niet leeg zijn");
+     * Geeft false terug bij syntactisch kapotte XML.
      */
     bool parse(const std::string& filename, MeetingPlanner& planner) const;
+
+    /**
+     * Fouten worden geschreven naar de meegegeven stream.
+     */
+    SuccessEnum parse(const char* inputFilename,
+                      std::ostream& errStream,
+                      MeetingPlanner& planner) const;
 
 private:
     bool loggingEnabled;
