@@ -85,7 +85,7 @@ Meeting::Meeting(const std::string& label,
     REQUIRE(!identifier.empty(), "Meeting identifier mag niet leeg zijn");
     REQUIRE(!date.empty(), "Meeting date mag niet leeg zijn");
     REQUIRE(isValidDateFormat(date),
-            "Meeting date moet een geldige datum in formaat YYYY-MM-DD hebben");
+            "Meeting date moet formaat YYYY-MM-DD hebben");
 
     ENSURE(this->label == label, "Meeting label correct opgeslagen");
     ENSURE(this->identifier == identifier, "Meeting identifier correct opgeslagen");
