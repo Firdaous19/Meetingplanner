@@ -1,360 +1,362 @@
-//
-// Created by firdi on 21/04/2026.
-//
-#include "gtest/gtest.h"
-#include "week2_code/XMLParser.h"
-#include "week2_code/MeetingPlanner.h"
+#include <cstdio>
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <cstdio>
+
+#include "gtest/gtest.h"
+#include "week2_code/MeetingPlanner.h"
+#include "week2_code/XMLParser.h"
 
 namespace {
-    std::string readFile(const std::string& filename) {
-        std::ifstream input(filename.c_str());
-        std::stringstream buffer;
-        buffer << input.rdbuf();
-        return buffer.str();
+
+const std::string INPUT_DIRECTORY = "../week2_code/";
+const std::string ACTUAL_ERROR_FILE = "zzzError.txt";
+
+std::string inputPath(const std::string& filename) {
+    return INPUT_DIRECTORY + filename;
+}
+
+bool fileExists(const std::string& filename) {
+    std::ifstream input(filename.c_str());
+    return input.good();
+}
+
+bool fileIsEmpty(const std::string& filename) {
+    std::ifstream input(filename.c_str());
+
+    if (!input.is_open()) {
+        return false;
     }
 
-    bool fileCompare(const std::string& expectedFile,
-                     const std::string& actualFile) {
+    char character;
+    return !input.get(character);
+}
 
-        std::string expected = readFile(expectedFile);
-        std::string actual = readFile(actualFile);
+std::string readFile(const std::string& filename) {
+    std::ifstream input(filename.c_str());
+    std::stringstream buffer;
+    buffer << input.rdbuf();
+    return buffer.str();
+}
 
-        while (!expected.empty() &&
-               (expected.back() == '\n' ||
-                expected.back() == '\r' ||
-                expected.back() == ' '))
-        {
-            expected.pop_back();
-        }
-
-        while (!actual.empty() &&
-               (actual.back() == '\n' ||
-                actual.back() == '\r' ||
-                actual.back() == ' '))
-        {
-            actual.pop_back();
-        }
-
-        return expected == actual;
+void removeTrailingWhitespace(std::string& text) {
+    while (!text.empty() &&
+           (text[text.size() - 1] == '\n' ||
+            text[text.size() - 1] == '\r' ||
+            text[text.size() - 1] == ' ')) {
+        text.erase(text.size() - 1);
     }
 }
-TEST(XMLParserTest, ParseValidFileLoadsRoomsAndMeetings) {
+
+bool fileCompare(const std::string& expectedFile,
+                 const std::string& actualFile) {
+    if (!fileExists(expectedFile) || !fileExists(actualFile)) {
+        return false;
+    }
+
+    std::string expected = readFile(expectedFile);
+    std::string actual = readFile(actualFile);
+
+    removeTrailingWhitespace(expected);
+    removeTrailingWhitespace(actual);
+
+    return expected == actual;
+}
+
+} // namespace
+
+class XMLParserTest : public ::testing::Test {
+protected:
     MeetingPlanner planner;
-    planner.setLoggingEnabled(false);
     XMLParser parser;
-    parser.setLoggingEnabled(false);
 
-    bool success = parser.parse("../week2_code/test.xml", planner);
+    void SetUp() override {
+        planner.setLoggingEnabled(false);
+        parser.setLoggingEnabled(false);
+    }
 
-    EXPECT_TRUE(success);
+    SuccessEnum importFile(const std::string& xmlFilename) {
+        std::ofstream errorOutput(
+                ACTUAL_ERROR_FILE.c_str(),
+                std::ios::out | std::ios::trunc);
+
+        if (!errorOutput.is_open()) {
+            ADD_FAILURE() << "Kon " << ACTUAL_ERROR_FILE
+                          << " niet openen.";
+            return ImportAborted;
+        }
+
+        const std::string xmlPath = inputPath(xmlFilename);
+
+        const SuccessEnum result =
+                parser.parse(xmlPath.c_str(), errorOutput, planner);
+
+        errorOutput.close();
+
+        return result;
+    }
+
+    void expectSuccess(const std::string& xmlFilename) {
+        EXPECT_EQ(Success, importFile(xmlFilename));
+
+        EXPECT_TRUE(fileIsEmpty(ACTUAL_ERROR_FILE))
+                << "Geen foutmeldingen verwacht voor "
+                << xmlFilename;
+    }
+
+    void expectPartialImport(const std::string& xmlFilename,
+                             const std::string& expectedErrorFilename) {
+        EXPECT_EQ(PartialImport, importFile(xmlFilename));
+
+        const std::string expectedPath =
+                inputPath(expectedErrorFilename);
+
+        EXPECT_TRUE(fileCompare(expectedPath, ACTUAL_ERROR_FILE))
+                << "Fouttekst verschilt voor "
+                << xmlFilename;
+    }
+
+    void expectImportAborted(const std::string& xmlFilename,
+                             const std::string& expectedErrorFilename) {
+        EXPECT_EQ(ImportAborted, importFile(xmlFilename));
+
+        const std::string expectedPath =
+                inputPath(expectedErrorFilename);
+
+        EXPECT_TRUE(fileCompare(expectedPath, ACTUAL_ERROR_FILE))
+                << "Fouttekst verschilt voor "
+                << xmlFilename;
+    }
+};
+
+/* =========================================================
+ * GELDIGE XML-IMPORTS
+ * ========================================================= */
+
+TEST_F(XMLParserTest, ParseValidFileLoadsRoomsAndMeetings) {
+    expectSuccess("test.xml");
+
     EXPECT_GT(planner.getRooms().size(), 0);
     EXPECT_GT(planner.getMeetings().size(), 0);
 }
 
-TEST(XMLParserTest, ParseFileWithUnknownMeetingParticipationStillSucceeds) {
-    MeetingPlanner planner;
-    planner.setLoggingEnabled(false);
-    XMLParser parser;
-    parser.setLoggingEnabled(false);
+TEST_F(XMLParserTest, ParseDuplicateFileStillLoadsData) {
+    expectSuccess("test_duplicate.xml");
 
-    bool success = parser.parse("../week2_code/test_fout.xml", planner);
-
-    EXPECT_TRUE(success);
-}
-
-TEST(XMLParserTest, ParseDuplicateFileStillLoadsData) {
-    MeetingPlanner planner;
-    planner.setLoggingEnabled(false);
-    XMLParser parser;
-    parser.setLoggingEnabled(false);
-
-    bool success = parser.parse("../week2_code/test_duplicate.xml", planner);
-
-    EXPECT_TRUE(success);
     EXPECT_GT(planner.getRooms().size(), 0);
 }
 
-TEST(XMLParserTest, ParseRoomWithMissingFieldDoesNotAddRoom) {
-    MeetingPlanner planner;
-    planner.setLoggingEnabled(false);
-    XMLParser parser;
-    parser.setLoggingEnabled(false);
+TEST_F(XMLParserTest, ParseBuildingsFileLoadsCampusesAndBuildings) {
+    expectSuccess("test_buildings.xml");
 
-    bool success = parser.parse("../week2_code/test_room_missing_field.xml", planner);
+    ASSERT_EQ(1, planner.getCampuses().size());
+    ASSERT_EQ(1, planner.getBuildings().size());
 
-    EXPECT_TRUE(success);
-    EXPECT_EQ(planner.getRooms().size(), 0);
+    EXPECT_EQ("CDE", planner.getCampuses()[0].getIdentifier());
+    EXPECT_EQ("CDE_R", planner.getBuildings()[0].getIdentifier());
+    EXPECT_EQ("CDE", planner.getBuildings()[0].getCampusIdentifier());
 }
 
-TEST(XMLParserTest, ParseRoomWithInvalidCapacityDoesNotAddRoom) {
-    MeetingPlanner planner;
-    planner.setLoggingEnabled(false);
-    XMLParser parser;
-    parser.setLoggingEnabled(false);
+TEST_F(XMLParserTest, ParseRenovationFileLoadsRenovations) {
+    expectSuccess("test_renovation.xml");
 
-    bool success = parser.parse("../week2_code/test_room_invalid_capacity.xml", planner);
+    ASSERT_EQ(1, planner.getRenovations().size());
 
-    EXPECT_TRUE(success);
-    EXPECT_EQ(planner.getRooms().size(), 0);
+    EXPECT_EQ("A101",
+              planner.getRenovations()[0].getRoomIdentifier());
+    EXPECT_EQ("2026-04-01",
+              planner.getRenovations()[0].getStartDate());
+    EXPECT_EQ("2026-06-01",
+              planner.getRenovations()[0].getEndDate());
 }
 
-TEST(XMLParserTest, ParseMeetingWithMissingFieldDoesNotAddMeeting) {
-    MeetingPlanner planner;
-    planner.setLoggingEnabled(false);
-    XMLParser parser;
-    parser.setLoggingEnabled(false);
+TEST_F(XMLParserTest, ParseCateringFileLoadsProviderAndMeetingFlag) {
+    expectSuccess("test_catering.xml");
 
-    bool success = parser.parse("../week2_code/test_meeting_missing_field.xml", planner);
+    ASSERT_EQ(1, planner.getCateringProviders().size());
 
-    EXPECT_TRUE(success);
-    EXPECT_EQ(planner.getMeetings().size(), 0);
-}
+    EXPECT_EQ("Campus_CDE",
+              planner.getCateringProviders()[0].getCampusIdentifier());
+    EXPECT_FLOAT_EQ(20.0f,
+                    planner.getCateringProviders()[0].getCO2());
 
-TEST(XMLParserTest, ParseBuildingsFileLoadsCampusesAndBuildings) {
-    MeetingPlanner planner;
-    planner.setLoggingEnabled(false);
-    XMLParser parser;
-    parser.setLoggingEnabled(false);
+    ASSERT_EQ(1, planner.getMeetings().size());
 
-    bool success = parser.parse("../week2_code/test_buildings.xml", planner);
-
-    EXPECT_TRUE(success);
-    ASSERT_EQ(planner.getCampuses().size(), 1);
-    ASSERT_EQ(planner.getBuildings().size(), 1);
-    EXPECT_EQ(planner.getCampuses()[0].getIdentifier(), "CDE");
-    EXPECT_EQ(planner.getBuildings()[0].getIdentifier(), "CDE_R");
-    EXPECT_EQ(planner.getBuildings()[0].getCampusIdentifier(), "CDE");
-}
-
-TEST(XMLParserTest, ParseRenovationFileLoadsRenovations) {
-    MeetingPlanner planner;
-    planner.setLoggingEnabled(false);
-
-    XMLParser parser;
-    parser.setLoggingEnabled(false);
-
-    bool success = parser.parse("../week2_code/test_renovation.xml", planner);
-
-    EXPECT_TRUE(success);
-    ASSERT_EQ(planner.getRenovations().size(), 1);
-    EXPECT_EQ(planner.getRenovations()[0].getRoomIdentifier(), "A101");
-    EXPECT_EQ(planner.getRenovations()[0].getStartDate(), "2026-04-01");
-    EXPECT_EQ(planner.getRenovations()[0].getEndDate(), "2026-06-01");
-}
-
-TEST(XMLParserTest, ParseCateringFileLoadsCateringProviderAndMeetingFlag) {
-    MeetingPlanner planner;
-    planner.setLoggingEnabled(false);
-
-    XMLParser parser;
-    parser.setLoggingEnabled(false);
-
-    bool success = parser.parse("../week2_code/test_catering.xml", planner);
-
-    EXPECT_TRUE(success);
-    ASSERT_EQ(planner.getCateringProviders().size(), 1);
-    EXPECT_EQ(planner.getCateringProviders()[0].getCampusIdentifier(), "Campus_CDE");
-    EXPECT_FLOAT_EQ(planner.getCateringProviders()[0].getCO2(), 20.0f);
-
-    ASSERT_EQ(planner.getMeetings().size(), 1);
     EXPECT_TRUE(planner.getMeetings()[0].hasCatering());
     EXPECT_FALSE(planner.getMeetings()[0].isOnline());
 }
 
-TEST(XMLParserTest, ParseFileWithMultipleInputErrorsContinuesReadingValidElements) {
-    MeetingPlanner planner;
-    planner.setLoggingEnabled(false);
+TEST_F(XMLParserTest, ParseOnlineMeetingWithoutRoomSucceeds) {
+    expectSuccess("test_online_meeting.xml");
 
-    XMLParser parser;
-    parser.setLoggingEnabled(false);
+    ASSERT_EQ(1, planner.getMeetings().size());
 
-    bool success = parser.parse("../week2_code/test_multiple_input_errors.xml", planner);
-
-    EXPECT_TRUE(success);
-
-    ASSERT_EQ(planner.getRooms().size(), 1);
-    EXPECT_EQ(planner.getRooms()[0].getIdentifier(), "GoodRoom");
-
-    ASSERT_EQ(planner.getMeetings().size(), 1);
-    EXPECT_EQ(planner.getMeetings()[0].getIdentifier(), "GoodMeeting");
-
-    ASSERT_EQ(planner.getMeetings()[0].getParticipants().size(), 1);
-    EXPECT_EQ(planner.getMeetings()[0].getParticipants()[0], "Alice");
-}
-
-TEST(XMLParserTest, ParseNonExistingFileReturnsFalse) {
-    MeetingPlanner planner;
-    planner.setLoggingEnabled(false);
-
-    XMLParser parser;
-    parser.setLoggingEnabled(false);
-
-    bool success = parser.parse("../week2_code/does_not_exist.xml", planner);
-
-    EXPECT_FALSE(success);
-}
-
-TEST(XMLParserTest, ParseFileWithoutSystemRootReturnsFalse) {
-    MeetingPlanner planner;
-    planner.setLoggingEnabled(false);
-
-    XMLParser parser;
-    parser.setLoggingEnabled(false);
-
-    bool success = parser.parse("../week2_code/test_no_system_root.xml", planner);
-
-    EXPECT_FALSE(success);
-    EXPECT_EQ(planner.getRooms().size(), 0);
-}
-
-   //Use Case 3.4//
-
-TEST(XMLParserTest, ParseOnlineMeetingWithoutRoomSucceeds) {
-    MeetingPlanner planner;
-    planner.setLoggingEnabled(false);
-
-    XMLParser parser;
-    parser.setLoggingEnabled(false);
-
-    bool success = parser.parse("../week2_code/test_online_meeting.xml", planner);
-
-    EXPECT_TRUE(success);
-    ASSERT_EQ(planner.getMeetings().size(), 1);
     EXPECT_TRUE(planner.getMeetings()[0].isOnline());
     EXPECT_FALSE(planner.getMeetings()[0].hasCatering());
-    EXPECT_EQ(planner.getMeetings()[0].getRoomIdentifier(), "");
+    EXPECT_EQ("", planner.getMeetings()[0].getRoomIdentifier());
 }
 
-TEST(XMLParserTest, ParseOnlineMeetingWithCateringDoesNotAddMeeting) {
-    MeetingPlanner planner;
-    planner.setLoggingEnabled(false);
+TEST_F(XMLParserTest, ParseMeetingWithExternalsCorrectly) {
+    expectSuccess("test_meeting_hour_externals.xml");
 
-    XMLParser parser;
-    parser.setLoggingEnabled(false);
+    ASSERT_EQ(1, planner.getMeetings().size());
 
-    bool success = parser.parse("../week2_code/test_ongeldige_online_meeting_catering.xml", planner);
-
-    EXPECT_TRUE(success);
-    EXPECT_EQ(planner.getMeetings().size(), 0);
-}
-
-// Use Case 3.5 //
-
-TEST(XMLParserTest, ParseCateringFileCanBeProcessedAndTracksCO2) {
-    MeetingPlanner planner;
-    planner.setLoggingEnabled(false);
-
-    XMLParser parser;
-    parser.setLoggingEnabled(false);
-
-    bool success = parser.parse("../week2_code/test_catering.xml", planner);
-
-    ASSERT_TRUE(success);
-    ASSERT_TRUE(planner.checkConsistency());
-
-    planner.processMeetings();
-
-    ASSERT_EQ(planner.getSuccessfulMeetings().size(), 1);
-    EXPECT_FLOAT_EQ(planner.getSuccessfulMeetings()[0].getCO2Emission(), 140.0f);
-    EXPECT_FLOAT_EQ(planner.getTotalCO2Emission(), 140.0f);
-}
-
-TEST(XMLParserTest, ParseOnlineMeetingCanBeProcessedAndTracksOnlineCO2) {
-    MeetingPlanner planner;
-    planner.setLoggingEnabled(false);
-
-    XMLParser parser;
-    parser.setLoggingEnabled(false);
-
-    bool success = parser.parse("../week2_code/test_online_meeting.xml", planner);
-
-    ASSERT_TRUE(success);
-    ASSERT_TRUE(planner.checkConsistency());
-
-    planner.processMeetings();
-
-    ASSERT_EQ(planner.getSuccessfulMeetings().size(), 1);
-    EXPECT_FLOAT_EQ(planner.getSuccessfulMeetings()[0].getCO2Emission(), 60.0f);
-    EXPECT_FLOAT_EQ(planner.getTotalCO2Emission(), 60.0f);
-}
-TEST(XMLParserTest, ParseMeetingHourAndExternalsCorrectly) {
-    MeetingPlanner planner;
-    planner.setLoggingEnabled(false);
-
-    XMLParser parser;
-    parser.setLoggingEnabled(false);
-
-    bool success = parser.parse("../week2_code/test_meeting_hour_externals.xml", planner);
-
-    EXPECT_TRUE(success);
-
-    ASSERT_EQ(planner.getMeetings().size(), 1);
-    EXPECT_EQ(planner.getMeetings()[0].getIdentifier(), "M1");
+    EXPECT_EQ("M1", planner.getMeetings()[0].getIdentifier());
     EXPECT_FALSE(planner.getMeetings()[0].isOnline());
     EXPECT_TRUE(planner.getMeetings()[0].areExternalsAllowed());
 }
-TEST(XMLParserTest, ParseExternalParticipationCorrectly) {
-    MeetingPlanner planner;
-    planner.setLoggingEnabled(false);
 
-    XMLParser parser;
-    parser.setLoggingEnabled(false);
+TEST_F(XMLParserTest, ParseExternalParticipationCorrectly) {
+    expectSuccess("test_external_participation.xml");
 
-    bool success = parser.parse("../week2_code/test_external_participation.xml", planner);
+    ASSERT_EQ(1, planner.getMeetings().size());
 
-    EXPECT_TRUE(success);
+    const Meeting& meeting = planner.getMeetings()[0];
 
-    ASSERT_EQ(planner.getMeetings().size(), 1);
-    ASSERT_EQ(planner.getMeetings()[0].getParticipants().size(), 1);
-
-    EXPECT_EQ(planner.getMeetings()[0].getParticipants()[0], "External User");
-    EXPECT_TRUE(planner.getMeetings()[0].isParticipantExternal(0));
-    EXPECT_EQ(planner.getMeetings()[0].getExternalParticipantCount(), 1);
-    EXPECT_EQ(planner.getMeetings()[0].getInternalParticipantCount(), 0);
+    EXPECT_TRUE(meeting.areExternalsAllowed());
+    EXPECT_EQ(1, meeting.getExternalParticipantCount());
+    EXPECT_GE(meeting.getParticipants().size(), 1);
 }
-TEST(XMLParserTest, FileCompareHelperDetectsEqualFiles) {
-    std::ofstream expected("expected_file_compare_test.txt");
-    expected << "Fout in ROOM: ontbrekende velden.\n";
-    expected.close();
 
-    std::ofstream actual("actual_file_compare_test.txt");
-    actual << "Fout in ROOM: ontbrekende velden.\n";
-    actual.close();
+/* =========================================================
+ * VERWERKING NA EEN GELDIGE IMPORT
+ * ========================================================= */
 
-    EXPECT_TRUE(fileCompare("expected_file_compare_test.txt",
-                            "actual_file_compare_test.txt"));
+TEST_F(XMLParserTest, CateringMeetingCanBeProcessedAndTracksCO2) {
+    expectSuccess("test_catering.xml");
 
-    std::remove("expected_file_compare_test.txt");
-    std::remove("actual_file_compare_test.txt");
+    ASSERT_TRUE(planner.checkConsistency());
+
+    planner.processMeetings();
+
+    ASSERT_EQ(1, planner.getSuccessfulMeetings().size());
+
+    EXPECT_FLOAT_EQ(
+            140.0f,
+            planner.getSuccessfulMeetings()[0].getCO2Emission());
+
+    EXPECT_FLOAT_EQ(140.0f, planner.getTotalCO2Emission());
 }
-TEST(XMLParserTest, InvalidRoomErrorMessageMatchesExpectedFile) {
-    MeetingPlanner planner;
-    planner.setLoggingEnabled(true);
 
-    XMLParser parser;
-    parser.setLoggingEnabled(true);
+TEST_F(XMLParserTest, OnlineMeetingCanBeProcessedAndTracksCO2) {
+    expectSuccess("test_online_meeting.xml");
 
-    const std::string expectedFile = "expected_invalid_room_error.txt";
-    const std::string actualFile = "actual_invalid_room_error.txt";
+    ASSERT_TRUE(planner.checkConsistency());
 
-    std::ofstream expected(expectedFile.c_str());
-    expected << "Fout in ROOM: lege velden." << std::endl;
-    expected.close();
+    planner.processMeetings();
 
-    std::ofstream actual(actualFile.c_str());
-    std::streambuf* oldCerr = std::cerr.rdbuf(actual.rdbuf());
+    ASSERT_EQ(1, planner.getSuccessfulMeetings().size());
 
-    parser.parse("../week2_code/test_invalid_room.xml", planner);
+    EXPECT_FLOAT_EQ(
+            60.0f,
+            planner.getSuccessfulMeetings()[0].getCO2Emission());
 
-    std::cerr.rdbuf(oldCerr);
-    actual.close();
+    EXPECT_FLOAT_EQ(60.0f, planner.getTotalCO2Emission());
+}
 
-    EXPECT_TRUE(fileCompare(expectedFile, actualFile));
+/* =========================================================
+ * PARTIAL IMPORT-TESTS
+ * ========================================================= */
 
-    std::remove(expectedFile.c_str());
-    std::remove(actualFile.c_str());
+TEST_F(XMLParserTest, InvalidRoomProducesExpectedPartialImportError) {
+    expectPartialImport(
+            "test_invalid_room.xml",
+            "Error_invalid_room.txt");
+
+    EXPECT_EQ(0, planner.getRooms().size());
+}
+
+TEST_F(XMLParserTest, RoomMissingFieldProducesExpectedPartialImportError) {
+    expectPartialImport(
+            "test_room_missing_field.xml",
+            "Error_room_missing_field.txt");
+
+    EXPECT_EQ(0, planner.getRooms().size());
+}
+
+TEST_F(XMLParserTest, RoomInvalidCapacityProducesExpectedPartialImportError) {
+    expectPartialImport(
+            "test_room_invalid_capacity.xml",
+            "Error_room_invalid_capacity.txt");
+
+    EXPECT_EQ(0, planner.getRooms().size());
+}
+
+TEST_F(XMLParserTest, MeetingMissingFieldProducesExpectedPartialImportError) {
+    expectPartialImport(
+            "test_meeting_missing_field.xml",
+            "Error_meeting_missing_field.txt");
+
+    EXPECT_EQ(0, planner.getMeetings().size());
+}
+
+TEST_F(XMLParserTest, MultipleInputErrorsContinueWithValidElements) {
+    expectPartialImport(
+            "test_multiple_input_errors.xml",
+            "Error_multiple_input_errors.txt");
+
+    ASSERT_EQ(1, planner.getRooms().size());
+    EXPECT_EQ("GoodRoom", planner.getRooms()[0].getIdentifier());
+
+    ASSERT_EQ(1, planner.getMeetings().size());
+    EXPECT_EQ("GoodMeeting",
+              planner.getMeetings()[0].getIdentifier());
+
+    ASSERT_EQ(1,
+              planner.getMeetings()[0].getParticipants().size());
+
+    EXPECT_EQ("Alice",
+              planner.getMeetings()[0].getParticipants()[0]);
+}
+
+TEST_F(XMLParserTest, WrongSystemRootProducesExpectedPartialImportError) {
+    expectPartialImport(
+            "test_no_system_root.xml",
+            "Error_no_system_root.txt");
+
+    EXPECT_EQ(0, planner.getRooms().size());
+}
+
+TEST_F(XMLParserTest, OnlineMeetingWithCateringProducesExpectedErrors) {
+    expectPartialImport(
+            "test_ongeldige_online_meeting_catering.xml",
+            "Error_ongeldige_online_meeting_catering.txt");
+
+    EXPECT_EQ(0, planner.getMeetings().size());
+}
+
+/* =========================================================
+ * IMPORT ABORTED-TESTS
+ * ========================================================= */
+
+TEST_F(XMLParserTest, SyntaxErrorWrongEndTagAbortsImport) {
+    expectImportAborted(
+            "test_xmlsyntax_foute_end_tag.xml",
+            "Error_xmlsyntax_foute_end_tag.txt");
+
+    EXPECT_EQ(0, planner.getRooms().size());
+}
+
+TEST_F(XMLParserTest, SyntaxErrorEmptyDocumentAbortsImport) {
+    expectImportAborted(
+            "test_xmlsyntax_leeg_bestand.xml",
+            "Error_xmlsyntax_leeg_bestand.txt");
+
+    EXPECT_EQ(0, planner.getRooms().size());
+}
+
+TEST_F(XMLParserTest, SyntaxErrorInvalidEmptyTagAbortsImport) {
+    expectImportAborted(
+            "test_xmlsyntax_lege_tag.xml",
+            "Error_xmlsyntax_lege_tag.txt");
+
+    EXPECT_EQ(0, planner.getRooms().size());
+}
+
+TEST_F(XMLParserTest, SyntaxErrorReadingAttributesAbortsImport) {
+    expectImportAborted(
+            "test_xmlsyntax_reading_attributes.xml",
+            "Error_xmlsyntax_reading_attributes.txt");
+
+    EXPECT_EQ(0, planner.getRooms().size());
 }
