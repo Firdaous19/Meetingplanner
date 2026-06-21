@@ -1,0 +1,2 @@
+XML PARTIAL IMPORT: Online MEETING 'M2' cannot request catering.
+XML PARTIAL IMPORT: Unknown MEETING 'M2' in <PARTICIPATION>.

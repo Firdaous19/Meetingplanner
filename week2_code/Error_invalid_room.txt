@@ -1,0 +1,1 @@
+XML PARTIAL IMPORT: Expected non-empty <NAME> ... </NAME> in <ROOM>.

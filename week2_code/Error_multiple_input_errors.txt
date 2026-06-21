@@ -1,0 +1,3 @@
+XML PARTIAL IMPORT: Expected <CAPACITY> ... </CAPACITY> in <ROOM>.
+XML PARTIAL IMPORT: Illegal CAPACITY value 'abc' in <ROOM>.
+XML PARTIAL IMPORT: Expected <DATE> ... </DATE> in <MEETING>.
