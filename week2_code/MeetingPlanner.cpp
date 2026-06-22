@@ -344,6 +344,8 @@ void MeetingPlanner::processSuccessfulPhysicalMeeting(Meeting& meeting, Room& ro
     int occupancy = static_cast<int>(
             (meeting.getParticipants().size() * 100) / room.getCapacity());
     meeting.setOccupancyPercentage(occupancy);
+    logger.info("Efficiency check: room " + room.getIdentifier() +
+                " wordt voor " + std::to_string(occupancy) + "% gebruikt.");
 
     float meetingCO2 = calculateMeetingCO2(meeting);
     float cateringCO2 = 0.0f;
