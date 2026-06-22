@@ -1,122 +1,172 @@
 <SYSTEM>
-
-    <!-- CAMPUS -->
     <CAMPUS>
         <NAME>Campus Drie Eiken</NAME>
         <IDENTIFIER>CDE</IDENTIFIER>
     </CAMPUS>
 
-    <!-- BUILDING -->
+    <CAMPUS>
+        <NAME>Campus Middelheim</NAME>
+        <IDENTIFIER>CMI</IDENTIFIER>
+    </CAMPUS>
+
+    <BUILDING>
+        <NAME>Gebouw R</NAME>
+        <IDENTIFIER>CDE_R</IDENTIFIER>
+        <CAMPUS>CDE</CAMPUS>
+    </BUILDING>
+
     <BUILDING>
         <NAME>Gebouw A</NAME>
         <IDENTIFIER>CDE_A</IDENTIFIER>
         <CAMPUS>CDE</CAMPUS>
     </BUILDING>
 
-    <!-- ROOMS -->
-    <ROOM>
-        <NAME>Vergaderzaal A</NAME>
-        <IDENTIFIER>A101</IDENTIFIER>
-        <CAPACITY>5</CAPACITY>
+    <BUILDING>
+        <NAME>Gebouw M</NAME>
+        <IDENTIFIER>CMI_M</IDENTIFIER>
+        <CAMPUS>CMI</CAMPUS>
+    </BUILDING>
+
+    <CATERING>
         <CAMPUS>CDE</CAMPUS>
-        <BUILDING>CDE_A</BUILDING>
+        <CO2>50</CO2>
+    </CATERING>
+
+    <CATERING>
+        <CAMPUS>CMI</CAMPUS>
+        <CO2>30</CO2>
+    </CATERING>
+
+    <ROOM>
+        <NAME>R.014</NAME>
+        <IDENTIFIER>Room123</IDENTIFIER>
+        <CAPACITY>20</CAPACITY>
+        <CAMPUS>CDE</CAMPUS>
+        <BUILDING>CDE_R</BUILDING>
     </ROOM>
 
     <ROOM>
         <NAME>Vergaderzaal B</NAME>
-        <IDENTIFIER>B101</IDENTIFIER>
-        <CAPACITY>10</CAPACITY>
+        <IDENTIFIER>B202</IDENTIFIER>
+        <CAPACITY>3</CAPACITY>
         <CAMPUS>CDE</CAMPUS>
         <BUILDING>CDE_A</BUILDING>
     </ROOM>
 
-    <!-- CATERING PROVIDER -->
-    <CATERING>
-        <CAMPUS>CDE</CAMPUS>
-        <CO2>40</CO2>
-    </CATERING>
+    <ROOM>
+        <NAME>Middelheim Meeting Room</NAME>
+        <IDENTIFIER>M101</IDENTIFIER>
+        <CAPACITY>10</CAPACITY>
+        <CAMPUS>CMI</CAMPUS>
+        <BUILDING>CMI_M</BUILDING>
+    </ROOM>
 
-    <!-- RENOVATION -->
     <RENOVATION>
-        <ROOM>B101</ROOM>
-        <START>2026-03-20</START>
-        <END>2026-03-25</END>
+        <ROOM>M101</ROOM>
+        <START>2026-04-20</START>
+        <END>2026-04-30</END>
     </RENOVATION>
 
-    <!-- PHYSICAL MEETING -->
     <MEETING>
-        <LABEL>Team Meeting</LABEL>
+        <LABEL>Online Team Meeting</LABEL>
         <IDENTIFIER>M1</IDENTIFIER>
-        <ROOM>A101</ROOM>
-        <DATE>2026-03-20</DATE>
-        <ONLINE>FALSE</ONLINE>
-        <EXTERNALS>FALSE</EXTERNALS>
-        <CATERING>FALSE</CATERING>
+        <DATE>2026-04-25</DATE>
+        <ONLINE>true</ONLINE>
+        <CATERING>false</CATERING>
+        <EXTERNALS>false</EXTERNALS>
     </MEETING>
 
-    <!-- ONLINE MEETING -->
     <MEETING>
-        <LABEL>Online Sync</LABEL>
+        <LABEL>Project Planning</LABEL>
         <IDENTIFIER>M2</IDENTIFIER>
-        <DATE>2026-03-20</DATE>
-        <ONLINE>TRUE</ONLINE>
-        <EXTERNALS>FALSE</EXTERNALS>
-        <CATERING>FALSE</CATERING>
+        <ROOM>Room123</ROOM>
+        <DATE>2026-04-25</DATE>
+        <ONLINE>false</ONLINE>
+        <CATERING>true</CATERING>
+        <EXTERNALS>true</EXTERNALS>
     </MEETING>
 
-    <!-- CATERING + EXTERNALS -->
     <MEETING>
-        <LABEL>Business Lunch</LABEL>
+        <LABEL>Small Internal Meeting</LABEL>
         <IDENTIFIER>M3</IDENTIFIER>
-        <ROOM>A101</ROOM>
-        <DATE>2026-03-21</DATE>
-        <ONLINE>FALSE</ONLINE>
-        <EXTERNALS>TRUE</EXTERNALS>
-        <CATERING>TRUE</CATERING>
+        <ROOM>B202</ROOM>
+        <DATE>2026-04-25</DATE>
+        <ONLINE>false</ONLINE>
+        <CATERING>false</CATERING>
+        <EXTERNALS>false</EXTERNALS>
     </MEETING>
 
-    <!-- RENOVATION CONFLICT -->
     <MEETING>
-        <LABEL>Renovation Meeting</LABEL>
+        <LABEL>Renovation Conflict Meeting</LABEL>
         <IDENTIFIER>M4</IDENTIFIER>
-        <ROOM>B101</ROOM>
-        <DATE>2026-03-22</DATE>
-        <ONLINE>FALSE</ONLINE>
-        <EXTERNALS>FALSE</EXTERNALS>
-        <CATERING>FALSE</CATERING>
+        <ROOM>M101</ROOM>
+        <DATE>2026-04-25</DATE>
+        <ONLINE>false</ONLINE>
+        <CATERING>false</CATERING>
+        <EXTERNALS>false</EXTERNALS>
     </MEETING>
 
-    <!-- PARTICIPANTS -->
+    <MEETING>
+        <LABEL>Occupied Room Conflict</LABEL>
+        <IDENTIFIER>M5</IDENTIFIER>
+        <ROOM>Room123</ROOM>
+        <DATE>2026-04-25</DATE>
+        <ONLINE>false</ONLINE>
+        <CATERING>false</CATERING>
+        <EXTERNALS>false</EXTERNALS>
+    </MEETING>
 
     <PARTICIPATION>
         <MEETING>M1</MEETING>
         <USER>Alice</USER>
+        <EXTERNAL>false</EXTERNAL>
     </PARTICIPATION>
 
     <PARTICIPATION>
         <MEETING>M1</MEETING>
         <USER>Bob</USER>
+        <EXTERNAL>false</EXTERNAL>
     </PARTICIPATION>
 
     <PARTICIPATION>
         <MEETING>M2</MEETING>
         <USER>Charlie</USER>
+        <EXTERNAL>false</EXTERNAL>
+    </PARTICIPATION>
+
+    <PARTICIPATION>
+        <MEETING>M2</MEETING>
+        <USER>Diana</USER>
+        <EXTERNAL>true</EXTERNAL>
+    </PARTICIPATION>
+
+    <PARTICIPATION>
+        <MEETING>M2</MEETING>
+        <USER>Eva</USER>
+        <EXTERNAL>false</EXTERNAL>
     </PARTICIPATION>
 
     <PARTICIPATION>
         <MEETING>M3</MEETING>
-        <USER>David</USER>
+        <USER>Frank</USER>
+        <EXTERNAL>false</EXTERNAL>
     </PARTICIPATION>
 
     <PARTICIPATION>
         <MEETING>M3</MEETING>
-        <USER>ExternalGuest</USER>
-        <EXTERNAL>TRUE</EXTERNAL>
+        <USER>Grace</USER>
+        <EXTERNAL>false</EXTERNAL>
     </PARTICIPATION>
 
     <PARTICIPATION>
         <MEETING>M4</MEETING>
-        <USER>Eve</USER>
+        <USER>Hannah</USER>
+        <EXTERNAL>false</EXTERNAL>
     </PARTICIPATION>
 
+    <PARTICIPATION>
+        <MEETING>M5</MEETING>
+        <USER>Ivan</USER>
+        <EXTERNAL>false</EXTERNAL>
+    </PARTICIPATION>
 </SYSTEM>
