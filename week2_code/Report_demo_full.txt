@@ -1,0 +1,57 @@
+## ==== [SYSTEM STATUS] ==== ##
+
+--== Meetings ==--
+[M1]
+- Label: Online Team Meeting
+- Time: 25/04/2026
+- Location: online
+- Participants: Alice, Bob
+- Room occupancy: 0%
+- Externals not allowed
+- No catering
+- CO2 emitted: 60g
+
+[M2]
+- Label: Project Planning
+- Time: 25/04/2026
+- Location: Room123
+- Participants: Charlie, Diana, Eva
+- Room occupancy: 15%
+- Externals allowed
+- Catering
+- Catering cost: EUR 41.97
+- CO2 emitted: 1590.00g
+
+[M3]
+- Label: Small Internal Meeting
+- Time: 25/04/2026
+- Location: B202
+- Participants: Frank, Grace
+- Room occupancy: 66%
+- Externals not allowed
+- No catering
+- CO2 emitted: 240.00g
+
+--== Rooms ==--
+[Room123]
+- Name: R.014
+- Capacity: 20
+- Occupied: yes
+
+[B202]
+- Name: Vergaderzaal B
+- Capacity: 3
+- Occupied: yes
+
+[M101]
+- Name: Middelheim Meeting Room
+- Capacity: 10
+- Occupied: no
+
+--== Conflicts ==--
+- Meeting M4 geannuleerd: room M101 is in renovatie op 2026-04-25.
+- Meeting M5 geannuleerd: room Room123 is al bezet.
+
+--== CO2 summary ==--
+- Total CO2 emitted: 1890.00g
+- Total catering cost: EUR 41.97
