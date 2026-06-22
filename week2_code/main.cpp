@@ -7,7 +7,7 @@
 #include "XMLParser.h"
 
 int main() {
-    const std::string inputFile = "../week2_code/test_invalid_room.xml";
+    const std::string inputFile = "../week2_code/test_multiple_input_errors.xml";
     const std::string outputFile = "output.txt";
     const std::string importErrorFile = "import_errors.txt";
 

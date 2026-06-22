@@ -1,4 +1,3 @@
-#include <cstdio>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -10,7 +9,10 @@
 namespace {
 
 const std::string INPUT_DIRECTORY = "../week2_code/";
-const std::string ACTUAL_ERROR_FILE = "zzzError.txt";
+const std::string ACTUAL_ERROR_FILE = "test_import_errors.txt";
+const std::string FAILURE_REPORT_FILE = "Report_test_failure.txt";
+
+bool reportHasFailures = false;
 
 std::string inputPath(const std::string& filename) {
     return INPUT_DIRECTORY + filename;
@@ -63,9 +65,94 @@ bool fileCompare(const std::string& expectedFile,
     return expected == actual;
 }
 
+std::string resultToString(SuccessEnum result) {
+    switch (result) {
+        case ImportAborted:
+            return "ImportAborted";
+
+        case PartialImport:
+            return "PartialImport";
+
+        case Success:
+            return "Success";
+    }
+
+    return "Unknown result";
+}
+
+std::string currentTestName() {
+    const ::testing::TestInfo* testInfo =
+            ::testing::UnitTest::GetInstance()->current_test_info();
+
+    if (testInfo == nullptr) {
+        return "Unknown test";
+    }
+
+    return std::string(testInfo->test_suite_name()) +
+           "." +
+           testInfo->name();
+}
+
+void appendFailureReport(const std::string& xmlFilename,
+                         const std::string& expectedResult,
+                         const std::string& actualResult,
+                         const std::string& expectedOutput,
+                         const std::string& actualOutput) {
+    reportHasFailures = true;
+
+    std::ofstream report(
+            FAILURE_REPORT_FILE.c_str(),
+            std::ios::out | std::ios::app);
+
+    if (!report.is_open()) {
+        return;
+    }
+
+    report << "==================================================\n";
+    report << "TEST: " << currentTestName() << "\n";
+    report << "XML FILE: " << xmlFilename << "\n";
+    report << "EXPECTED RESULT: " << expectedResult << "\n";
+    report << "ACTUAL RESULT: " << actualResult << "\n\n";
+
+    report << "EXPECTED OUTPUT:\n";
+    report << expectedOutput << "\n\n";
+
+    report << "ACTUAL OUTPUT:\n";
+    report << actualOutput << "\n";
+    report << "==================================================\n\n";
+}
+
 } // namespace
 
 class XMLParserTest : public ::testing::Test {
+public:
+    static void SetUpTestSuite() {
+        reportHasFailures = false;
+
+        std::ofstream report(
+                FAILURE_REPORT_FILE.c_str(),
+                std::ios::out | std::ios::trunc);
+
+        if (report.is_open()) {
+            report << "XMLParser test failure report\n";
+            report << "=============================\n\n";
+        }
+    }
+
+    static void TearDownTestSuite() {
+        std::ofstream report(
+                FAILURE_REPORT_FILE.c_str(),
+                std::ios::out | std::ios::app);
+
+        if (!report.is_open()) {
+            return;
+        }
+
+        if (!reportHasFailures) {
+            report << "Geen XMLParser-tests gefaald.\n";
+        }
+    }
+
 protected:
     MeetingPlanner planner;
     XMLParser parser;
@@ -97,40 +184,139 @@ protected:
     }
 
     void expectSuccess(const std::string& xmlFilename) {
-        EXPECT_EQ(Success, importFile(xmlFilename));
+        const SuccessEnum result = importFile(xmlFilename);
+        const std::string actualOutput = readFile(ACTUAL_ERROR_FILE);
 
-        EXPECT_TRUE(fileIsEmpty(ACTUAL_ERROR_FILE))
-                << "Geen foutmeldingen verwacht voor "
-                << xmlFilename;
+        if (result != Success) {
+            ADD_FAILURE()
+                    << "Success verwacht voor "
+                    << xmlFilename
+                    << ", maar kreeg "
+                    << resultToString(result)
+                    << ".\nWerkelijke fouttekst:\n"
+                    << actualOutput;
+
+            appendFailureReport(
+                    xmlFilename,
+                    "Success",
+                    resultToString(result),
+                    "Geen foutmeldingen verwacht.",
+                    actualOutput);
+
+            return;
+        }
+
+        if (!fileIsEmpty(ACTUAL_ERROR_FILE)) {
+            ADD_FAILURE()
+                    << "Geen foutmeldingen verwacht voor "
+                    << xmlFilename
+                    << ".\nWerkelijke fouttekst:\n"
+                    << actualOutput;
+
+            appendFailureReport(
+                    xmlFilename,
+                    "Success",
+                    "Success",
+                    "Geen foutmeldingen verwacht.",
+                    actualOutput);
+        }
     }
 
     void expectPartialImport(const std::string& xmlFilename,
                              const std::string& expectedErrorFilename) {
-        EXPECT_EQ(PartialImport, importFile(xmlFilename));
+        const SuccessEnum result = importFile(xmlFilename);
+        const std::string expectedPath = inputPath(expectedErrorFilename);
+        const std::string expectedOutput = readFile(expectedPath);
+        const std::string actualOutput = readFile(ACTUAL_ERROR_FILE);
 
-        const std::string expectedPath =
-                inputPath(expectedErrorFilename);
+        if (result != PartialImport) {
+            ADD_FAILURE()
+                    << "PartialImport verwacht voor "
+                    << xmlFilename
+                    << ", maar kreeg "
+                    << resultToString(result)
+                    << ".\n\nVerwacht:\n"
+                    << expectedOutput
+                    << "\nWerkelijk:\n"
+                    << actualOutput;
 
-        EXPECT_TRUE(fileCompare(expectedPath, ACTUAL_ERROR_FILE))
-                << "Fouttekst verschilt voor "
-                << xmlFilename;
+            appendFailureReport(
+                    xmlFilename,
+                    "PartialImport",
+                    resultToString(result),
+                    expectedOutput,
+                    actualOutput);
+
+            return;
+        }
+
+        if (!fileCompare(expectedPath, ACTUAL_ERROR_FILE)) {
+            ADD_FAILURE()
+                    << "Fouttekst verschilt voor "
+                    << xmlFilename
+                    << ".\n\nVerwacht:\n"
+                    << expectedOutput
+                    << "\nWerkelijk:\n"
+                    << actualOutput;
+
+            appendFailureReport(
+                    xmlFilename,
+                    "PartialImport",
+                    "PartialImport",
+                    expectedOutput,
+                    actualOutput);
+        }
     }
 
     void expectImportAborted(const std::string& xmlFilename,
                              const std::string& expectedErrorFilename) {
-        EXPECT_EQ(ImportAborted, importFile(xmlFilename));
+        const SuccessEnum result = importFile(xmlFilename);
+        const std::string expectedPath = inputPath(expectedErrorFilename);
+        const std::string expectedOutput = readFile(expectedPath);
+        const std::string actualOutput = readFile(ACTUAL_ERROR_FILE);
 
-        const std::string expectedPath =
-                inputPath(expectedErrorFilename);
+        if (result != ImportAborted) {
+            ADD_FAILURE()
+                    << "ImportAborted verwacht voor "
+                    << xmlFilename
+                    << ", maar kreeg "
+                    << resultToString(result)
+                    << ".\n\nVerwacht:\n"
+                    << expectedOutput
+                    << "\nWerkelijk:\n"
+                    << actualOutput;
 
-        EXPECT_TRUE(fileCompare(expectedPath, ACTUAL_ERROR_FILE))
-                << "Fouttekst verschilt voor "
-                << xmlFilename;
+            appendFailureReport(
+                    xmlFilename,
+                    "ImportAborted",
+                    resultToString(result),
+                    expectedOutput,
+                    actualOutput);
+
+            return;
+        }
+
+        if (!fileCompare(expectedPath, ACTUAL_ERROR_FILE)) {
+            ADD_FAILURE()
+                    << "Fouttekst verschilt voor "
+                    << xmlFilename
+                    << ".\n\nVerwacht:\n"
+                    << expectedOutput
+                    << "\nWerkelijk:\n"
+                    << actualOutput;
+
+            appendFailureReport(
+                    xmlFilename,
+                    "ImportAborted",
+                    "ImportAborted",
+                    expectedOutput,
+                    actualOutput);
+        }
     }
 };
 
 /* =========================================================
- * GELDIGE XML-IMPORTS
+ * GELDIGE BASIS-IMPORTS
  * ========================================================= */
 
 TEST_F(XMLParserTest, ParseValidFileLoadsRoomsAndMeetings) {
@@ -219,7 +405,65 @@ TEST_F(XMLParserTest, ParseExternalParticipationCorrectly) {
 }
 
 /* =========================================================
- * VERWERKING NA EEN GELDIGE IMPORT
+ * EXTRA GELDIGE XML-BESTANDEN
+ * ========================================================= */
+
+TEST_F(XMLParserTest, CO2OnlineMeetingFileCanBeImported) {
+    expectSuccess("test_CO2_online_meeting.xml");
+
+    EXPECT_GT(planner.getMeetings().size(), 0);
+}
+
+TEST_F(XMLParserTest, PhysicalMeetingWithoutCateringFileCanBeImported) {
+    expectSuccess("test_CO2_PhysicalMeeting_NoCatering.xml");
+
+    EXPECT_GT(planner.getMeetings().size(), 0);
+}
+
+TEST_F(XMLParserTest, PhysicalMeetingWithCateringFileCanBeImported) {
+    expectSuccess("test_CO2_physicalMeeting_with_catering.xml");
+
+    EXPECT_GT(planner.getMeetings().size(), 0);
+}
+
+TEST_F(XMLParserTest, DemoFullFileCanBeImported) {
+    expectSuccess("test_demo_full.xml");
+
+    EXPECT_GT(planner.getRooms().size(), 0);
+    EXPECT_GT(planner.getMeetings().size(), 0);
+}
+
+TEST_F(XMLParserTest, ExternalsFileImportsCorrectly) {
+    expectSuccess("test_externals.xml");
+
+    EXPECT_GT(planner.getRooms().size(), 0);
+    EXPECT_GT(planner.getMeetings().size(), 0);
+}
+
+TEST_F(XMLParserTest, FoutFileCanBeImported) {
+    expectSuccess("test_fout.xml");
+}
+
+TEST_F(XMLParserTest, LaatsteFileCanBeImported) {
+    expectSuccess("test_laatste.xml");
+
+    EXPECT_GT(planner.getRooms().size(), 0);
+    EXPECT_GT(planner.getMeetings().size(), 0);
+}
+
+TEST_F(XMLParserTest, RoomFoutFileCanBeImported) {
+    expectSuccess("test_room_fout.xml");
+}
+
+TEST_F(XMLParserTest, DuplicateCateringProvidersCauseConsistencyFailure) {
+    expectSuccess("test_two_catering_providers_same_campus.xml");
+
+    EXPECT_EQ(2, planner.getCateringProviders().size());
+    EXPECT_FALSE(planner.checkConsistency());
+}
+
+/* =========================================================
+ * GELDIGE IMPORT + VERWERKING
  * ========================================================= */
 
 TEST_F(XMLParserTest, CateringMeetingCanBeProcessedAndTracksCO2) {
@@ -255,7 +499,7 @@ TEST_F(XMLParserTest, OnlineMeetingCanBeProcessedAndTracksCO2) {
 }
 
 /* =========================================================
- * PARTIAL IMPORT-TESTS
+ * PARTIAL IMPORTS MET EXACTE FOUTTEKST
  * ========================================================= */
 
 TEST_F(XMLParserTest, InvalidRoomProducesExpectedPartialImportError) {
@@ -326,7 +570,7 @@ TEST_F(XMLParserTest, OnlineMeetingWithCateringProducesExpectedErrors) {
 }
 
 /* =========================================================
- * IMPORT ABORTED-TESTS
+ * IMPORT ABORTED: XML-SYNTAXFOUTEN
  * ========================================================= */
 
 TEST_F(XMLParserTest, SyntaxErrorWrongEndTagAbortsImport) {
