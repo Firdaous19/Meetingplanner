@@ -8,7 +8,7 @@
 
 int main() {
     const std::string inputFile = "../week2_code/test_demo_full.xml";
-    const std::string outputFile = "output.txt";
+    const std::string outputFile = "../week2_code/output.txt";
     const std::string importErrorFile = "import_errors.txt";
 
     MeetingPlanner planner;
